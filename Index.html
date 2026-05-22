@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <?!= include('Estilos'); ?>
+  </head>
+  <body>
+
+    <div id="pantalla-inicio">
+      <div class="caja-inicio">
+        <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse">
+        <div class="titulo-azul">Portal de Arquitectura</div>
+        
+        <select id="login-email" onkeypress="if(event.key==='Enter') document.getElementById('login-pass').focus()">
+          <option value="">Cargando usuarios...</option>
+        </select>
+
+        <input type="password" id="login-pass" placeholder="Contraseña" onkeypress="if(event.key==='Enter') iniciarSesion()">
+        
+        <div id="cartel-error-login" style="display: none; background-color: #fce8e6; border: 1px solid #fad2cf; color: #c5221f; padding: 12px; border-radius: 4px; font-size: 13px; margin-bottom: 15px; text-align: left; align-items: center; gap: 8px; font-weight: 500;">
+          <span class="material-symbols-outlined" style="font-size: 20px;">error</span>
+          <span id="texto-error-login"></span>
+        </div>
+
+        <button class="btn-azul" id="btn-login" onclick="iniciarSesion()">INGRESAR AL PORTAL</button>
+        
+        <div class="links-login">
+          <a onclick="abrirModalRecuperar()">Olvidé mi contraseña</a>
+          <a onclick="ir('registro')">Crear cuenta nueva</a>
+        </div>
+
+        <div class="footer">
+          <button class="btn-info-app" onclick="abrirModalInfoApp()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">info</span> Información de la aplicación
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pantalla-registro">
+      <div class="caja-inicio">
+        <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse" style="max-width: 150px; margin-bottom: 15px;">
+        <div class="titulo-azul" style="font-size: 20px;">Registro de Usuario</div>
+        <p style="color: #666; font-size: 13px; margin-bottom: 25px;">Complete sus datos para crear su perfil en el portal.</p>
+        
+        <div style="text-align: left; width: 100%;">
+          <div style="display:flex; gap:10px;">
+            <div style="flex: 1;">
+              <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Nombre</label>
+              <input type="text" id="reg-nombre" placeholder="Ej: Juan">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Apellido</label>
+              <input type="text" id="reg-apellido" placeholder="Ej: Pérez">
+            </div>
+          </div>
+          
+          <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Correo institucional</label>
+          <input type="email" id="reg-email" placeholder="ejemplo@asse.com.uy">
+          
+          <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Crear contraseña</label>
+          <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres">
+          
+          <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Repetir contraseña</label>
+          <input type="password" id="reg-pass2" placeholder="Vuelva a escribir la contraseña">
+        </div>
+        
+        <button class="btn-azul" id="btn-registro" onclick="registrarUsuario()" style="margin-top: 10px;">CREAR CUENTA</button>
+        
+        <button onclick="ir('inicio')" style="background:none; border:none; color:#666; margin-top:20px; font-size:13px; text-decoration:underline; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> Volver al Inicio
+        </button>
+      </div>
+    </div>
+
+    <div id="pantalla-portal">
+      <div class="container" style="text-align: left;">
+        <button class="btn-recargar" id="btn-recargar-portal" onclick="recargarPortal(true)" style="display: flex; align-items: center; justify-content: center; box-shadow: none;">
+          <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
+        </button>
+        
+        <div class="header-portal" style="display: flex; gap: 25px; align-items: stretch; margin-bottom: 30px; margin-top: 10px; flex-wrap: wrap;">
+          
+          <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; justify-content: center;">
+            <div class="titulo-azul" id="saludo-usuario" style="margin-bottom: 5px; text-align: left; font-size: 28px;">Hola...</div>
+            <p style="color: #666; font-size: 14px; margin: 0;">Bienvenido a tu panel de control.</p>
+          </div>
+
+          <div style="flex: 2; min-width: 300px; background: #ffffff; border: 1px solid #d1d9e0; border-radius: 8px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+            <div style="font-size: 12px; font-weight: 700; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; text-transform: uppercase;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">history</span> Actividad Reciente
+            </div>
+            <div id="caja-resumen-actividad" style="font-size: 13px; color: #888; font-style: italic; line-height: 1.5; min-height: 40px; display: flex; align-items: center;">
+              (Módulo en construcción)
+            </div>
+          </div>
+          
+        </div>
+        <div class="seccion-portal-titulo">Aplicaciones</div>
+        <div class="portal-grid">
+          
+          <div class="portal-card" onclick="ir('proyectos')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #1c4587;">architecture</span></span>
+            <div class="card-title">Gestión de Proyectos</div>
+          </div>
+          
+          <div class="portal-card" onclick="ir('generador')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #1c4587;">article</span></span>
+            <div class="card-title">Generador de Memorias</div>
+          </div>
+          <div class="portal-card" onclick="ir('documentos')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #1c4587;">description</span></span>
+            <div class="card-title">Documentos internos</div>
+          </div>
+          <div class="portal-card" onclick="ir('plantillas')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #1c4587;">folder_open</span></span>
+            <div class="card-title">Plantillas (Templates)</div>
+          </div>
+        </div>
+
+        <div class="seccion-portal-titulo">Mi Portal</div>
+        <div class="portal-grid">
+          <div class="portal-card" onclick="ir('mis-archivos')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #666;">history</span></span>
+            <div class="card-title" style="color: #666;">Mis Archivos (Historial)</div>
+          </div>
+          <div class="portal-card" onclick="ir('perfil')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #666;">account_circle</span></span>
+            <div class="card-title" style="color: #666;">Mi Perfil</div>
+          </div>
+          <div class="portal-card" onclick="ir('ayuda')">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #666;">help</span></span>
+            <div class="card-title" style="color: #666;">Ayuda</div>
+          </div>
+          
+          <div class="portal-card" id="card-administrador" onclick="ir('admin')" style="display: none;">
+            <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 45px; color: #666;">admin_panel_settings</span></span>
+            <div class="card-title" style="color: #666;">Administrador</div>
+          </div>
+          
+        </div>
+
+        <div style="text-align: center;">
+          <button onclick="cerrarSesion()" style="margin-top:40px; background:none; border:none; color:#d32f2f; font-size:14px; text-decoration:underline; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+            <span class="material-symbols-outlined" style="font-size: 18px;">logout</span> CERRAR SESIÓN
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pantalla-perfil">
+      <div class="caja-inicio">
+        <button class="btn-volver" onclick="ir('portal')" style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 4px;">
+          <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER
+        </button>
+        <div class="card-icon" style="margin-top: 20px;">
+          <span class="material-symbols-outlined" style="font-size: 60px; color: #1c4587;">account_circle</span>
+        </div>
+        <div class="titulo-azul">Mi Perfil</div>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Actualice sus datos personales y contraseña.</p>
+        
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="perf-nombre" placeholder="Nombre">
+          <input type="text" id="perf-apellido" placeholder="Apellido">
+        </div>
+        <input type="email" id="perf-email" disabled style="background: #f0f0f0; color: #999;">
+        <input type="password" id="perf-pass" placeholder="Nueva contraseña">
+        <input type="password" id="perf-pass2" placeholder="Confirmar contraseña">
+        
+        <button class="btn-azul" id="btn-perf-guardar" onclick="guardarPerfil()">GUARDAR CAMBIOS</button>
+      </div>
+    </div>
+
+    <div id="pantalla-admin">
+      <div class="caja-inicio" style="max-width: 1000px; width: 100%;">
+        <button class="btn-volver" onclick="ir('portal')" style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 4px;">
+          <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER
+        </button>
+        <div class="card-icon" style="margin-top: 20px;">
+          <span class="material-symbols-outlined" style="font-size: 60px; color: #1c4587;">admin_panel_settings</span>
+        </div>
+        <div class="titulo-azul">Panel de Administración</div>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Gestión de accesos y permisos de usuarios.</p>
+        
+        <div style="overflow-x: auto; text-align: left; border: 1px solid #d1d9e0; border-radius: 8px; background: white;">
+          <table class="tabla-archivos" style="margin-bottom: 0;">
+            <thead style="background: #f0f4f8; border-bottom: 2px solid #d1d9e0;">
+              <tr>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; width: 25%;">USUARIO</th>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; text-align: center;">MEMORIAS</th>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; text-align: center;">DOCUMENTOS</th>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; text-align: center;">PLANTILLAS</th>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; text-align: center;">PROYECTOS</th>
+                <th style="padding: 15px; font-size: 12px; color: #1c4587; text-align: center;">ADMIN</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-body-admin">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <?!= include('Vista_Documentos'); ?>
+    <?!= include('Vista_Plantillas'); ?>
+    <?!= include('Vista_Memorias'); ?>
+    <?!= include('Vista_MisArchivos'); ?>
+    <?!= include('Vista_Ayuda'); ?>
+    <?!= include('Vista_Proyectos'); ?> 
+    <?!= include('Vista_Proyectos_Listados'); ?> 
+
+    <div id="modal-preview" class="modal-overlay">
+      <div class="modal-content" style="width: 800px; max-width: 95%;">
+        <div class="titulo-azul" id="titulo-preview" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined">visibility</span> Vista Previa
+        </div>
+        <div id="contenido-preview" style="max-height: 500px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px;"></div>
+        <div style="display: flex; gap: 15px;">
+          <button onclick="cerrarVistaPrevia()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%;">VOLVER A EDITAR</button>
+          <button class="btn-azul" id="btn-confirmar-preview" style="margin-top: 0; width: 50%;">CONFIRMAR Y GENERAR</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pantalla-exito">
+      <div class="caja-exito">
+        <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
+          <span class="material-symbols-outlined" style="font-size: 35px;">check_circle</span> ¡Documento Generado!
+        </div>
+        <p style="color: #666; margin-top: 0; margin-bottom: 30px; font-size: 15px;">El archivo está listo para su revisión.</p>
+        
+        <a id="link" href="#" target="_blank" class="btn-azul" style="display:inline-flex; justify-content: center; align-items: center; gap: 8px; width:auto; padding: 16px 40px; text-decoration:none; font-size: 16px; margin-bottom: 20px;">
+          <span class="material-symbols-outlined">open_in_new</span> ABRIR DOCUMENTO
+        </a>
+        
+        <div class="aviso-borrado">
+          <strong><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: text-bottom;">warning</span> IMPORTANTE:</strong><br>
+          Este archivo es temporal y <strong>se eliminará automáticamente al día siguiente</strong> de la base de datos de Drive.<br><br>
+          Por favor, ábralo y <strong>descárguelo en su formato preferido (PDF o Word)</strong> para asegurar su conservación definitiva en su expediente.
+        </div>
+        
+        <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px;">
+          <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+        </button>
+      </div>
+    </div>
+
+    <div id="modal-info-app" class="modal-overlay">
+      <div class="modal-content" style="width: 500px; max-width: 95%;">
+        <div class="titulo-azul" style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined">info</span> Información de la Aplicación
+        </div>
+        
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+          <div class="info-seccion">
+            <div class="info-seccion-titulo">Autor y Versión</div>
+            <p class="info-seccion-texto">Desarrollado por: <strong>Arq. Sergio Dogliotti</strong><br>Última actualización: <?!= obtenerFechaActualizacion(); ?></p>
+          </div>
+          <div class="info-seccion">
+            <div class="info-seccion-titulo">Propósito</div>
+            <p class="info-seccion-texto">Plataforma diseñada para la estandarización, gestión centralizada y agilización en la generación de documentos oficiales de arquitectura.</p>
+          </div>
+          <div class="info-seccion">
+            <div class="info-seccion-titulo">Privacidad y Datos</div>
+            <p class="info-seccion-texto">El sistema registra la actividad de generación de documentos vinculada a cada usuario con el fin de proporcionar el historial personal en la sección "Mis Archivos (Historial)".</p>
+          </div>
+        </div>
+
+        <button onclick="cerrarModalInfoApp()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:10px 15px; width:100%; margin-top: 20px; cursor:pointer;">CERRAR</button>
+      </div>
+    </div>
+
+    <div id="modal-recuperar" class="modal-overlay">
+      <div class="modal-content" style="width: 400px; text-align: center;">
+        <div class="titulo-azul" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <span class="material-symbols-outlined">lock_reset</span> Recuperar Acceso
+        </div>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Ingrese su correo institucional registrado.</p>
+        <input type="email" id="rec-email" placeholder="Correo electrónico institucional">
+        <button class="btn-azul" id="btn-enviar-clave" onclick="enviarClave()" style="margin-top: 10px;">ENVIAR CONTRASEÑA</button>
+        <button onclick="cerrarModalRecuperar()" style="background:none; border:none; color:#666; margin-top:15px; font-size:13px; text-decoration:underline;">Cancelar</button>
+      </div>
+    </div>
+
+    <?!= include('Logica_Global'); ?>
+    <?!= include('Vista_Asistente'); ?>
+
+  </body>
+</html>

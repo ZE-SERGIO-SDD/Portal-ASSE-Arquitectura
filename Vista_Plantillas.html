@@ -1,0 +1,185 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<div id="pantalla-plantillas">
+  <div class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+      <button onclick="abrirInfoPlantillas()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
+      </button>
+      <button id="btn-recargar-plantillas" onclick="recargarPlantillas()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
+      </button>
+    </div>
+
+    <button class="btn-volver" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    </button>
+    
+    <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
+      <span class="material-symbols-outlined" style="font-size: 28px;">folder_open</span> Plantillas (Templates)
+    </div>
+    
+    <div id="lista-plantillas">
+      <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #666;">
+        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Sincronizando con Drive...
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="modal-info-plantillas" class="modal-overlay" style="display: none;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <? var ayuda = obtenerTextosAyuda(); ?>
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined">info</span> <?= ayuda.plantillas.titulo ?>
+    </div>
+    
+    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+      <?!= ayuda.plantillas.texto ?>
+    </div>
+
+    <button class="btn-azul" onclick="cerrarInfoPlantillas()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
+  </div>
+</div>
+
+<script>
+  // Funciones del Modal de Info
+  function abrirInfoPlantillas() {
+    document.getElementById('modal-info-plantillas').style.display = 'flex';
+  }
+
+  function cerrarInfoPlantillas() {
+    document.getElementById('modal-info-plantillas').style.display = 'none';
+  }
+
+  function recargarPlantillas() { 
+    intentosPlantillas = 0; 
+    var btn = document.getElementById('btn-recargar-plantillas');
+    if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
+    
+    ejecutarLlamadaPlantillas(true); 
+    
+    setTimeout(() => { 
+      if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>'; 
+    }, 1500);
+  }
+  
+  function ejecutarLlamadaPlantillas(forzar = false) {
+    let iconName = forzar ? 'sync' : 'hourglass_empty';
+    let msgText = intentosPlantillas === 0 
+              ? (forzar ? 'Actualizando desde Drive...' : 'Leyendo plantillas...') 
+              : `Reconectando (${intentosPlantillas + 1}/${MAX_INTENTOS})...`;
+              
+    document.getElementById('lista-plantillas').innerHTML = `
+      <p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">${iconName}</span> ${msgText}
+      </p>`;
+    
+    google.script.run
+      .withSuccessHandler(mP)
+      .withFailureHandler(eP)
+      .obtenerPlantillas(forzar); 
+  }
+  
+  function mP(r) { 
+    if(r.error) { 
+      eP(r.error); 
+      return; 
+    } 
+    intentosPlantillas = 0; 
+    arbolPlantillas = r; 
+    arbolPlantillas.nombre = "Plantillas"; 
+    rutaActual = [arbolPlantillas]; 
+    renderizarNavegador(); 
+  }
+  
+  function eP(e) { 
+    intentosPlantillas++; 
+    if (intentosPlantillas < MAX_INTENTOS) { 
+      setTimeout(() => ejecutarLlamadaPlantillas(false), 1500); 
+    } else { 
+      document.getElementById('lista-plantillas').innerHTML = `
+        <p style="color:#d32f2f; text-align:center; padding:20px; display:flex; justify-content:center; align-items:center; gap:8px;">
+          <span class="material-symbols-outlined">error</span> Error: ${e}
+        </p>`; 
+    } 
+  }
+  
+  function renderizarNavegador() {
+    var c = document.getElementById('lista-plantillas');
+    var carpetaActual = rutaActual[rutaActual.length - 1];
+    
+    // Icono principal para la carpeta raíz
+    var html = '<div class="breadcrumbs" style="display:flex; align-items:center; flex-wrap:wrap; gap:4px; padding: 10px 15px; background: #f8f9fa; border-radius: 4px; border: 1px solid #eee; margin-bottom: 15px;">';
+    html += '<span class="material-symbols-outlined" style="color: #666; font-size: 18px;">home</span> ';
+    
+    for(let i = 0; i < rutaActual.length; i++) {
+      if(i > 0) html += '<span class="bc-sep" style="color: #ccc; margin: 0 4px;">/</span>';
+      if(i === rutaActual.length - 1) {
+        html += `<span class="bc-actual" style="font-weight: bold; color: #333;">${rutaActual[i].nombre}</span>`;
+      } else {
+        html += `<span class="bc-link" onclick="navegarA(${i})" style="color: #1c4587; cursor: pointer;">${rutaActual[i].nombre}</span>`;
+      }
+    }
+    
+    html += '</div><table class="tabla-archivos" style="width: 100%; border-collapse: collapse;">';
+    
+    if (carpetaActual.elementos.length === 0) {
+      html += `<tr><td style="text-align:center; color:#999; padding:40px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+        <span class="material-symbols-outlined" style="font-size: 40px; opacity: 0.5;">folder_open</span> Carpeta vacía
+      </td></tr>`;
+    } else {
+      carpetaActual.elementos.forEach((el, index) => {
+        if (el.tipo === 'carpeta') {
+          html += `
+          <tr class="fila-nav" onclick="entrarCarpeta(${index})" style="border-bottom: 1px solid #eee; cursor: pointer;">
+            <td style="padding: 15px 10px; display: flex; align-items: center; gap: 12px;">
+              <span class="material-symbols-outlined" style="color: #fbbc04; font-size: 24px;">folder</span> 
+              <strong style="color: #333; font-size: 14px;">${el.nombre}</strong>
+            </td>
+            <td style="text-align:right; color:#1c4587; font-weight:600; font-size:12px; padding: 15px 10px; white-space: nowrap;">
+              <span style="display: inline-flex; align-items: center; gap: 4px;">ABRIR <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span></span>
+            </td>
+          </tr>`;
+        } else { 
+          // Detecta extensión del archivo y asigna ícono vectorial en vez del emoji anterior
+          let icon = 'insert_drive_file'; // Documento genérico por defecto
+          let colorIcon = '#737373';
+          
+          if(el.nombre.includes('.dwg')) {
+             icon = 'architecture';
+             colorIcon = '#d93025'; // Rojo CAD
+          } else if(el.nombre.includes('.rvt') || el.nombre.includes('.rte')) {
+             icon = 'domain';
+             colorIcon = '#1c4587'; // Azul Revit
+          }
+
+          html += `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 15px 10px; display: flex; align-items: center; gap: 12px; color: #444; font-size: 14px;">
+              <span class="material-symbols-outlined" style="color: ${colorIcon}; font-size: 24px;">${icon}</span> 
+              ${el.nombre}
+            </td>
+            <td style="text-align:right; padding: 15px 10px; white-space: nowrap;">
+              <a href="${el.url}" target="_blank" class="btn-descargar" style="display: inline-flex; align-items: center; gap: 6px;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">download</span> DESCARGAR
+              </a>
+            </td>
+          </tr>`; 
+        }
+      });
+    }
+    c.innerHTML = html + '</table>';
+  }
+  
+  function navegarA(i) { 
+    rutaActual = rutaActual.slice(0, i + 1); 
+    renderizarNavegador(); 
+  }
+  
+  function entrarCarpeta(i) { 
+    rutaActual.push(rutaActual[rutaActual.length - 1].elementos[i]); 
+    renderizarNavegador(); 
+  }
+</script>

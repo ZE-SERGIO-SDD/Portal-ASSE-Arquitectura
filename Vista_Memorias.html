@@ -1,0 +1,657 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<div id="pantalla-generador">
+  <div class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+      <button onclick="abrirInfoMemorias()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
+      </button>
+      <button id="btn-recargar-memorias" onclick="recargarGenerador()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
+      </button>
+    </div>
+
+    <button class="btn-volver" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    </button>
+    
+    <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
+      <span class="material-symbols-outlined" style="font-size: 28px;">article</span> Generador de Memorias
+    </div>
+    
+    <select id="disc" onchange="cargar(false)">
+      <option value="">Seleccione Disciplina...</option>
+    </select>
+    
+    <div class="panel-controles" id="ctrls" style="display:none;">
+      <button class="btn-mini" onclick="sel(true)">MARCAR TODO</button>
+      <button class="btn-mini" onclick="sel(false)">DESMARCAR TODO</button>
+      <button class="btn-mini" onclick="exp(true)">EXPANDIR NIVELES</button>
+      <button class="btn-mini" onclick="exp(false)">CONTRAER NIVELES</button>
+      <button class="btn-mini" onclick="expInfo()">INFO GLOBAL</button>
+      <button class="btn-mini" onclick="colInfo()">INFO RESUMEN</button>
+      <span style="color:#d1d9e0; margin: 0 4px;">|</span>
+      <button class="btn-mini" id="btn-guardar" onclick="guardarBorrador()" style="font-weight:bold; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR
+      </button>
+      <button class="btn-mini" onclick="abrirModalBorradores()" style="font-weight:bold; display: inline-flex; align-items: center; gap: 4px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">folder_open</span> CARGAR
+      </button>
+    </div>
+    
+    <div id="rubros-container"></div>
+    <button class="btn-azul" id="btn-previsualizar-main" onclick="abrirVistaPreviaMemoria()" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px;">
+      <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span> PREVISUALIZAR MEMORIA
+    </button>
+  </div>
+</div>
+
+<div id="modal-guardar-borrador" class="modal-overlay" style="z-index: 9999; display: none;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;" id="titulo-modal-guardar">
+      <span class="material-symbols-outlined" id="icono-modal-guardar">security</span> <span id="texto-titulo-guardar">Autoguardado de Seguridad</span>
+    </div>
+    <p id="texto-modal-guardar" style="font-size:14px; color:#444; margin-bottom:15px; line-height: 1.4;"></p>
+    
+    <input type="text" id="input-nombre-borrador" placeholder="Coloca un nombre" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px; font-family: inherit;">
+    
+    <div style="display:flex; gap:10px; width:100%;">
+      <button id="btn-confirmar-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">GUARDAR</button>
+      <button id="btn-omitir-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">GENERAR MEMORIA</button>
+      <button id="btn-cancelar-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-confirmacion" class="modal-overlay" style="z-index: 10000; display: none;">
+  <div class="modal-content" style="width: 400px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; color: #d32f2f; display: flex; align-items: center; gap: 8px;" id="titulo-modal-confirmacion">
+      <span class="material-symbols-outlined">warning</span> Atención
+    </div>
+    <p id="texto-modal-confirmacion" style="font-size:14px; color:#444; margin-bottom:20px; line-height: 1.5;"></p>
+    
+    <div style="display:flex; gap:10px;">
+      <button class="btn-azul" id="btn-aceptar-confirmacion" style="flex:1; margin-top:0; background-color: #d32f2f;">ELIMINAR</button>
+      <button onclick="document.getElementById('modal-confirmacion').style.display='none'" style="flex:1; background:none; border:1px solid #d1d9e0; color:#666; border-radius:4px; cursor:pointer; font-weight:bold; padding: 10px;">CANCELAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-borradores" class="modal-overlay" style="display: none;">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+      <div class="titulo-azul" style="font-size: 20px; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">folder_open</span> Versiones Guardadas
+      </div>
+      <button id="btn-borrar-todos-borradores" onclick="eliminarTodosBorradoresNube()" style="display:none; background:none; border:1px solid #d32f2f; color:#d32f2f; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; transition: 0.2s; align-items: center; gap: 4px; justify-content: center;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO
+      </button>
+    </div>
+    <div class="lista-guardados" id="contenedor-lista-guardados" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d9e0; margin: 10px 0 20px 0; border-radius: 4px;"></div>
+    <button onclick="cerrarModalBorradores()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:8px 15px; width:100%;">CERRAR</button>
+  </div>
+</div>
+
+<div id="modal-info-memorias" class="modal-overlay" style="display: none;">
+  <div class="modal-content" style="width: 500px; text-align: left;">
+    <? var ayuda = obtenerTextosAyuda(); ?>
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined">info</span> <?= ayuda.memorias.titulo ?>
+    </div>
+    
+    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+      <?!= ayuda.memorias.texto ?>
+    </div>
+
+    <button class="btn-azul" onclick="cerrarInfoMemorias()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
+  </div>
+</div>
+
+<script>
+  function formatearFecha(fechaStr) {
+    if(!fechaStr || fechaStr === "Fecha desconocida") return "Sin fecha";
+    var date = new Date(fechaStr);
+    if(isNaN(date.getTime())) return "Sin fecha";
+    var dia = date.getDate().toString().padStart(2, '0');
+    var mes = (date.getMonth() + 1).toString().padStart(2, '0');
+    var anio = date.getFullYear();
+    var hora = date.getHours().toString().padStart(2, '0');
+    var min = date.getMinutes().toString().padStart(2, '0');
+    return dia + '/' + mes + '/' + anio + ' - ' + hora + ':' + min;
+  }
+
+  function abrirInfoMemorias() {
+    document.getElementById('modal-info-memorias').style.display = 'flex';
+  }
+
+  function cerrarInfoMemorias() {
+    document.getElementById('modal-info-memorias').style.display = 'none';
+  }
+
+  function l(n) { 
+    var s = document.getElementById('disc'); 
+    s.innerHTML = '<option value="">Seleccione Disciplina...</option>'; 
+    n.forEach(x => {
+      s.innerHTML += '<option value="'+x+'">'+x+'</option>';
+    }); 
+  }
+  
+  function recargarPortal(forzar = false) { 
+    google.script.run.withSuccessHandler(l).obtenerDisciplinas(forzar); 
+  }
+  
+  function recargarGenerador() { 
+    var btn = document.getElementById('btn-recargar-memorias');
+    if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
+
+    var d = document.getElementById('disc').value; 
+    google.script.run.withSuccessHandler(function(n) {
+      l(n);
+      if (d) {
+        document.getElementById('disc').value = d;
+        cargar(true); 
+      }
+      setTimeout(() => { if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>'; }, 1000);
+    }).obtenerDisciplinas(true); 
+  }
+  
+  function cargar(forzar = false) { 
+    var d = document.getElementById('disc').value; 
+    if(!d) return; 
+    
+    let msg = forzar 
+        ? '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Actualizando desde Drive...' 
+        : '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Leyendo rubros...';
+    
+    document.getElementById('rubros-container').innerHTML = `<p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">${msg}</p>`; 
+    
+    google.script.run
+      .withSuccessHandler(mR)
+      .obtenerRubros(d, forzar); 
+  }
+  
+  function mR(r) {
+    datos = r; 
+    var c = document.getElementById('rubros-container'); 
+    c.innerHTML = ''; 
+    document.getElementById('ctrls').style.display = 'flex'; 
+    
+    let bA = "", u1 = null, u2 = null;
+    let titulosBloque = {};
+    
+    r.forEach(x => {
+      if(!titulosBloque[x.bloque] && x.principal) {
+        titulosBloque[x.bloque] = x.principal;
+      }
+    });
+
+    r.forEach((x, i) => {
+      x.hijos = false; 
+      
+      if(x.bloque !== bA) { 
+        bA = x.bloque; 
+        x.t = "B"; 
+        x.idP = "B_" + bA; 
+        x.pId = null; 
+      }
+      
+      if(x.principal) { 
+        x.t = "L1"; 
+        x.idP = "L1_" + i; 
+        x.pId = "B_" + bA; 
+        u1 = i; 
+        u2 = null; 
+      } else if(x.secundario) { 
+        x.t = "L2"; 
+        x.idP = "L2_" + i; 
+        x.pId = "L1_" + u1; 
+        u2 = i; 
+        r[u1].hijos = true; 
+      } else if(x.terciario) { 
+        x.t = "L3"; 
+        x.idP = "L3_" + i; 
+        x.pId = "L2_" + (u2 || u1); 
+        if(u2 !== null) r[u2].hijos = true; 
+      }
+    });
+
+    let bE = "";
+    r.forEach((x, i) => {
+      if(x.bloque !== bE) { 
+        bE = x.bloque; 
+        let tituloStr = titulosBloque[bE] ? `: ${titulosBloque[bE]}` : "";
+        
+        c.innerHTML += `<div class="nivel-0" onclick="tgl('B_${bE}')" style="display:flex; align-items:center; cursor:pointer;">
+          <button class="btn-toggle" id="btn_B_${bE}" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; width: 20px; height: 20px; line-height: 16px; margin-right: 10px; font-weight: bold; padding: 0; pointer-events: none;">+</button>
+          <span>BLOQUE ${bE}${tituloStr}</span>
+        </div>`;
+      }
+      
+      let cl = x.principal ? "nivel-1" : (x.secundario ? "nivel-2" : "nivel-3");
+      let btn = x.hijos ? `<button class="btn-toggle" id="btn_${x.idP}" onclick="tgl('${x.idP}')">+</button>` : `<span style="width:30px; display:inline-block"></span>`;
+      
+      c.innerHTML += `<div id="cont_${x.idP}" data-p="${x.pId}" style="display:none; align-items:center; margin-bottom:5px">
+        ${btn}
+        <input type="checkbox" id="chk_${i}" style="width:16px; height:16px; margin-right:10px" onchange="vinc(${i})" ${x.obligatorio ? 'checked disabled' : ''}>
+        <span class="${cl}">${x.principal || x.secundario || x.terciario}</span>
+        ${x.texto ? `<button class="btn-info" onclick="tInfo(${i})">Información</button>` : ''}
+        <div id="info_${i}" class="texto-memoria">${x.texto ? x.texto.replace(/\n/g, '<br>') : ''}</div>
+      </div>`;
+    });
+  }
+  
+  function tgl(idP) { 
+    let btn = document.getElementById('btn_'+idP); 
+    let hijos = document.querySelectorAll(`[data-p="${idP}"]`); 
+    let exp = btn ? btn.innerText === '+' : true; 
+    
+    if(btn) btn.innerText = exp ? '-' : '+'; 
+    
+    hijos.forEach(h => { 
+      h.style.display = exp ? 'flex' : 'none'; 
+      if(!exp) { 
+        let idH = h.id.replace('cont_',''); 
+        let bH = document.getElementById('btn_'+idH); 
+        if(bH && bH.innerText === '-') tgl(idH); 
+      } 
+    }); 
+  }
+  
+  function vinc(i) { 
+    let chk = document.getElementById('chk_'+i); 
+    
+    if(chk.checked) { 
+      let p = datos[i].pId; 
+      while(p) { 
+        let idx = datos.findIndex(x => x.idP === p); 
+        if(idx !== -1) { 
+          document.getElementById('chk_'+idx).checked = true; 
+          p = datos[idx].pId; 
+        } else {
+          p = null;
+        }
+      } 
+    } else { 
+      function d(pI) { 
+        datos.forEach((x, idx) => { 
+          if(x.pId === pI) { 
+            document.getElementById('chk_'+idx).checked = false; 
+            d(x.idP); 
+          } 
+        }); 
+      } 
+      d(datos[i].idP); 
+    } 
+  }
+  
+  function tInfo(i) { 
+    let d = document.getElementById('info_'+i); 
+    d.style.display = d.style.display === 'block' ? 'none' : 'block'; 
+  }
+  
+  function exp(v) { 
+    document.querySelectorAll('[id^="cont_L"]').forEach(d => {
+      d.style.display = v ? 'flex' : 'none';
+    }); 
+    document.querySelectorAll('.btn-toggle').forEach(b => {
+      b.innerText = v ? '-' : '+';
+    }); 
+  }
+  
+  function sel(v) { 
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => { 
+      if(!c.disabled) {
+        c.checked = v;
+      }
+    }); 
+  }
+  
+  function expInfo() { 
+    document.querySelectorAll('.texto-memoria').forEach(d => {
+      d.style.display = 'block';
+    }); 
+  }
+  
+  function colInfo() { 
+    document.querySelectorAll('.texto-memoria').forEach(d => {
+      d.style.display = 'none';
+    }); 
+  }
+
+  function abrirVistaPreviaMemoria() {
+    var d = document.getElementById('disc').value; 
+    if(!d) { 
+      alert('Seleccione una disciplina primero.'); 
+      return; 
+    }
+    
+    var s = []; 
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
+      s.push(datos[c.id.split('_')[1]]);
+    });
+    
+    if(s.length === 0) { 
+      alert('Seleccione al menos un rubro para previsualizar.'); 
+      return; 
+    }
+
+    document.getElementById('titulo-preview').innerHTML = '<span class="material-symbols-outlined">visibility</span> Vista Previa de la Memoria';
+
+    var html = '<div style="font-family: Calibri, sans-serif; line-height: 1.2;">';
+    var numP = -1, numS = 0, numT = 0, bA = "";
+    
+    s.forEach(item => {
+      var lB = item.bloque.toUpperCase();
+      if (lB !== bA) { 
+        bA = lB; 
+        numP = -1; 
+        numS = 0; 
+        numT = 0; 
+      }
+      
+      if (item.principal) {
+        numP++; 
+        numS = 0; 
+        numT = 0;
+        var tP = bA + "." + numP + " - " + item.principal;
+        html += `<p style="font-size:17px; font-weight:bold; color:#1c4587; margin:0 0 10px 0;">${tP}</p>`;
+      } else if (item.secundario) {
+        numS++; 
+        numT = 0;
+        var tS = bA + "." + (numP === -1 ? 0 : numP) + "." + numS + " - " + item.secundario;
+        html += `<p style="font-size:15px; font-weight:bold; color:#000; margin:0 0 10px 0;">${tS}</p>`;
+      } else if (item.terciario) {
+        numT++;
+        var tT = bA + "." + (numP === -1 ? 0 : numP) + "." + (numS === 0 ? 1 : numS) + "." + numT + " - " + item.terciario;
+        html += `<p style="font-size:15px; font-weight:bold; text-decoration:underline; color:#000; margin:0 0 10px 0;">${tT}</p>`;
+      }
+      
+      if (item.texto) {
+        var textoConSaltos = item.texto.replace(/\n/g, '<br>');
+        html += `<p style="font-size:15px; color:#000; margin:0 0 10px 0;">${textoConSaltos}</p>`;
+      }
+      html += '<br>';
+    });
+    html += '</div>';
+    
+    document.getElementById('contenido-preview').innerHTML = html;
+    
+    var btnConfirmar = document.getElementById('btn-confirmar-preview');
+    btnConfirmar.onclick = function() { 
+      iniciarProcesoDeGeneracion(); 
+    };
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR';
+    btnConfirmar.disabled = false;
+    btnConfirmar.style.backgroundColor = '#1c4587';
+
+    document.getElementById('modal-preview').style.display = 'flex';
+  }
+
+  function iniciarProcesoDeGeneracion() {
+    var btnGenerar = document.getElementById('btn-confirmar-preview');
+    btnGenerar.disabled = true;
+    
+    var modal = document.getElementById('modal-guardar-borrador');
+    document.getElementById('icono-modal-guardar').innerText = 'security';
+    document.getElementById('texto-titulo-guardar').innerText = 'Autoguardado de Seguridad';
+    document.getElementById('texto-modal-guardar').innerText = 'Antes de generar el documento final, ¿Deseas guardar un borrador de esta selección en la nube para no perderla?';
+    document.getElementById('input-nombre-borrador').value = '';
+    
+    document.getElementById('btn-omitir-guardado').style.display = 'block';
+
+    document.getElementById('btn-confirmar-guardado').onclick = function() {
+        var nombre = document.getElementById('input-nombre-borrador').value.trim();
+        if(!nombre) { alert("Debe ingresar un nombre para guardar."); return; }
+        modal.style.display = 'none';
+
+        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">cloud_upload</span> 1/3 Guardando en la nube...';
+        btnGenerar.style.backgroundColor = '#f29900';
+        ejecutarGuardadoSilencioso(nombre, function() {
+            ejecutarGeneracionMemoria();
+        });
+    };
+
+    document.getElementById('btn-omitir-guardado').onclick = function() {
+        modal.style.display = 'none';
+        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">hourglass_empty</span> 1/3 Ensamblando memoria...';
+        btnGenerar.style.backgroundColor = '#f29900';
+        ejecutarGeneracionMemoria();
+    };
+
+    document.getElementById('btn-cancelar-guardado').onclick = function() {
+        modal.style.display = 'none';
+        btnGenerar.disabled = false;
+        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR';
+    };
+
+    modal.style.display = 'flex';
+    document.getElementById('input-nombre-borrador').focus();
+  }
+
+  function ejecutarGuardadoSilencioso(nombre, callbackExitosa) {
+    var d = document.getElementById('disc').value; 
+    var selHashes = []; 
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
+      var r = datos[c.id.split('_')[1]];
+      var hash = r.bloque + "|" + (r.principal || r.secundario || r.terciario) + "|" + r.texto.substring(0, 100);
+      selHashes.push(hash);
+    }); 
+
+    google.script.run
+      .withSuccessHandler(() => { callbackExitosa(); })
+      .withFailureHandler(() => {
+        alert("Atención: Hubo un error guardando el borrador, pero el documento se generará de todas formas.");
+        callbackExitosa();
+      })
+      .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
+  }
+
+  function ejecutarGeneracionMemoria() {
+    var btn = document.getElementById('btn-confirmar-preview');
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> 2/3 Creando documento...';
+    
+    var d = document.getElementById('disc').value; 
+    var s = []; 
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
+      s.push(datos[c.id.split('_')[1]]);
+    });
+    
+    setTimeout(() => { 
+        if(btn.disabled) btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> 3/3 Registrando historial...'; 
+    }, 4000);
+
+    google.script.run
+      .withSuccessHandler(res => { 
+        if(res.error) {
+          alert("Error en el servidor: " + res.error);
+          btn.disabled = false; 
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR'; 
+          btn.style.backgroundColor = '';
+          return;
+        }
+        document.getElementById('link').href = res.url; 
+        cerrarVistaPrevia();
+        ir('exito'); 
+      })
+      .withFailureHandler(err => {
+        alert("Fallo crítico de conexión: " + err.message);
+        btn.disabled = false; 
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR'; 
+        btn.style.backgroundColor = '';
+      })
+      .generarMemoriaWeb({ disciplina:d, seleccionados:s }, usuarioActivoEmail);
+  }
+
+  function guardarBorrador() { 
+    var d = document.getElementById('disc').value; 
+    if(!d) return; 
+
+    var modal = document.getElementById('modal-guardar-borrador');
+    document.getElementById('icono-modal-guardar').innerText = 'save';
+    document.getElementById('texto-titulo-guardar').innerText = 'Guardar Borrador';
+    document.getElementById('texto-modal-guardar').innerText = 'Ingrese un nombre para identificar esta versión en la nube:';
+    document.getElementById('input-nombre-borrador').value = '';
+    
+    document.getElementById('btn-omitir-guardado').style.display = 'none';
+
+    document.getElementById('btn-confirmar-guardado').onclick = function() {
+        var nombre = document.getElementById('input-nombre-borrador').value.trim();
+        if(!nombre) { alert("Debe ingresar un nombre para guardar."); return; }
+        modal.style.display = 'none';
+
+        var btn = document.getElementById('btn-guardar');
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
+
+        var selHashes = []; 
+        document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
+          var r = datos[c.id.split('_')[1]];
+          var hash = r.bloque + "|" + (r.principal || r.secundario || r.terciario) + "|" + r.texto.substring(0, 100);
+          selHashes.push(hash);
+        }); 
+
+        google.script.run
+          .withSuccessHandler(() => {
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">cloud_done</span> EN DRIVE';
+            setTimeout(() => { 
+                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR'; 
+            }, 2000);
+          })
+          .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
+    };
+
+    document.getElementById('btn-cancelar-guardado').onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    modal.style.display = 'flex';
+    document.getElementById('input-nombre-borrador').focus();
+  }
+
+  function abrirModalBorradores(forzar = false) {
+    var d = document.getElementById('disc').value; 
+    if(!d) return; 
+    
+    var lista = document.getElementById('contenedor-lista-guardados');
+    var btnBorrarTodos = document.getElementById('btn-borrar-todos-borradores');
+    
+    let msg = forzar ? '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Actualizando nube...' : '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Leyendo guardados...';
+    lista.innerHTML = `<p style="text-align:center; padding:15px; display:flex; justify-content:center; align-items:center; gap:8px; color:#666;">${msg}</p>`;
+    btnBorrarTodos.style.display = 'none';
+    
+    document.getElementById('modal-borradores').style.display = 'flex';
+
+    google.script.run
+      .withSuccessHandler(db => {
+        var nombres = Object.keys(db);
+        
+        nombres.sort(function(a, b) {
+          var fechaA = new Date(db[a].fecha).getTime();
+          var fechaB = new Date(db[b].fecha).getTime();
+          if (isNaN(fechaA)) fechaA = 0;
+          if (isNaN(fechaB)) fechaB = 0;
+          return fechaB - fechaA; 
+        });
+
+        if(nombres.length === 0) { 
+          lista.innerHTML = '<p style="text-align:center; padding:30px; color:#999; display: flex; flex-direction: column; align-items: center; gap: 10px;"><span class="material-symbols-outlined" style="font-size: 40px; opacity: 0.5;">folder_open</span> No hay versiones guardadas para esta disciplina.</p>'; 
+          btnBorrarTodos.style.display = 'none';
+          return; 
+        }
+        
+        btnBorrarTodos.style.display = 'flex'; 
+        lista.innerHTML = '';
+        nombres.forEach(n => {
+          var safeName = n.replace(/'/g, "\\'");
+          var fechaGuardado = formatearFecha(db[n].fecha);
+
+          lista.innerHTML += `<div class="borrador-item" style="display:flex; align-items:center; padding: 10px; border-bottom: 1px solid #f0f0f0;">
+            <div style="flex-grow:1; display:flex; flex-direction:column;" onclick="cargarBorradorNube('${safeName}')">
+              <span class="borrador-nombre" style="cursor:pointer; color:#1c4587; font-weight:600; font-size:14px; display:flex; align-items:center; gap:5px;"><span class="material-symbols-outlined" style="font-size: 16px;">description</span> ${n}</span>
+              <span style="font-size:11px; color:#888; margin-top:5px; display:flex; align-items:center; gap:4px;"><span class="material-symbols-outlined" style="font-size: 12px;">calendar_today</span> Guardado: ${fechaGuardado} &nbsp;|&nbsp; <span class="material-symbols-outlined" style="font-size: 12px;">label</span> Disciplina: <strong>${d}</strong></span>
+            </div>
+            <button class="btn-eliminar-borrador" onclick="eliminarBorradorNube('${safeName}')" title="Borrar versión" style="background:none; border:none; color:#d32f2f; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-outlined" style="font-size: 22px;">delete</span></button>
+          </div>`;
+        });
+        window.cacheBorradores = db;
+      })
+      .obtenerBorradoresDeDrive(usuarioActivoEmail, d, forzar);
+  }
+
+  function eliminarTodosBorradoresNube() {
+    var modal = document.getElementById('modal-confirmacion');
+    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined">warning</span> Borrar todos los borradores';
+    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro/a que deseas eliminar TODOS los borradores guardados para esta disciplina? Esta acción no se puede deshacer.';
+    
+    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
+      modal.style.display = 'none';
+      var d = document.getElementById('disc').value;
+      var btn = document.getElementById('btn-borrar-todos-borradores');
+      var lista = document.getElementById('contenedor-lista-guardados');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; animation: spin 2s linear infinite;">hourglass_empty</span> BORRANDO...';
+      lista.innerHTML = '<p style="text-align:center; padding:15px; color:#d32f2f; display:flex; justify-content:center; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Eliminando todos los borradores de esta disciplina...</p>';
+      
+      google.script.run
+        .withSuccessHandler(() => {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO';
+          abrirModalBorradores(true); 
+        })
+        .withFailureHandler((err) => {
+          alert('Error al borrar: ' + err.message);
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO';
+          abrirModalBorradores();
+        })
+        .eliminarTodosBorradoresEnDrive(usuarioActivoEmail, d);
+    };
+    
+    modal.style.display = 'flex';
+  }
+
+  function cargarBorradorNube(nombre) {
+    var data = window.cacheBorradores[nombre]; 
+    if(!data || !data.hashes) return;
+    
+    sel(false); 
+    
+    data.hashes.forEach(h => {
+      var found = datos.findIndex(r => (r.bloque + "|" + (r.principal || r.secundario || r.terciario) + "|" + r.texto.substring(0, 100)) === h);
+      if(found !== -1) { 
+        var chk = document.getElementById('chk_' + found); 
+        if(chk && !chk.disabled) {
+          chk.checked = true; 
+        }
+      }
+    }); 
+    
+    cerrarModalBorradores();
+  }
+
+  function eliminarBorradorNube(n) {
+    var modal = document.getElementById('modal-confirmacion');
+    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined">delete</span> Eliminar versión';
+    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro de que deseas borrar la versión "' + n + '" de la nube?';
+    
+    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
+      modal.style.display = 'none';
+      var d = document.getElementById('disc').value;
+      var lista = document.getElementById('contenedor-lista-guardados');
+      lista.innerHTML = '<p style="text-align:center; padding:15px; color:#d32f2f; display:flex; justify-content:center; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Borrando de la nube...</p>';
+      
+      google.script.run
+        .withSuccessHandler(() => {
+          abrirModalBorradores(true); 
+        })
+        .eliminarBorradorEnDrive(usuarioActivoEmail, d, n);
+    };
+    
+    modal.style.display = 'flex';
+  }
+
+  function cerrarModalBorradores() { 
+    document.getElementById('modal-borradores').style.display = 'none'; 
+  }
+</script>

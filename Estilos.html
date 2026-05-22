@@ -1,0 +1,153 @@
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f5f7f9; margin: 0; color: #333; }
+  
+  #pantalla-inicio, #pantalla-registro, #pantalla-portal, #pantalla-generador, #pantalla-plantillas, #pantalla-documentos, #pantalla-mis-archivos, #pantalla-perfil, #pantalla-ayuda, #pantalla-exito, #pantalla-proyectos, #pantalla-admin { 
+    display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; box-sizing: border-box; 
+  }
+  
+  #pantalla-inicio { display: flex; }
+
+  .container, .caja-inicio, .caja-exito { 
+    background: white; padding: 40px; border-radius: 4px; border: 1px solid #d1d9e0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 500px; width: 100%; text-align: center; position: relative; 
+  }
+  
+  .container { max-width: 800px; text-align: left; }
+  
+  .logo-asse { max-width: 220px; height: auto; margin-bottom: 25px; }
+  .titulo-azul { color: #1c4587; font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+
+  .seccion-portal-titulo { text-align: left; color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-top: 35px; margin-bottom: 5px; border-bottom: 2px solid #f0f4f8; padding-bottom: 8px; width: 100%; }
+
+  .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; width: 100%; }
+  .portal-card { background: white; border: 1px solid #d1d9e0; padding: 25px 15px; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .portal-card:hover { border-color: #1c4587; background: #f0f4f8; transform: translateY(-2px); }
+  .card-icon { font-size: 30px; margin-bottom: 12px; display: block; }
+  .card-title { font-weight: 700; font-size: 15px; color: #1c4587; }
+  
+  .breadcrumbs { background: #f0f4f8; padding: 12px 15px; border-radius: 4px; font-size: 13px; margin-bottom: 20px; border: 1px solid #d1d9e0; }
+  .bc-link { color: #1c4587; cursor: pointer; font-weight: 600; text-decoration: underline; }
+  .bc-actual { color: #666; font-weight: 700; }
+  .bc-sep { margin: 0 8px; color: #999; }
+  
+  .tabla-archivos { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d1d9e0; border-radius: 4px; overflow: hidden; }
+  .tabla-archivos td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .fila-nav { cursor: pointer; transition: background 0.2s; }
+  .fila-nav:hover { background: #f0f4f8; }
+  
+  .btn-descargar { color: #1c4587; font-weight: 700; text-decoration: none; border: 1px solid #1c4587; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
+  .btn-descargar:hover { background: #1c4587; color: white; }
+
+  button { cursor: pointer; font-family: inherit; font-weight: 700; border-radius: 4px; transition: 0.2s; }
+  .btn-azul { background: #1c4587; color: white; border: none; padding: 15px 30px; width: 100%; font-size: 16px; margin-top: 20px; text-align: center; }
+  .btn-azul:hover { background: #153261; }
+  .btn-azul:disabled { background: #999; cursor: not-allowed; }
+  
+  .btn-volver { background: none; border: 1px solid #d1d9e0; color: #666; padding: 8px 15px; margin-bottom: 20px; font-size: 13px; }
+  .btn-recargar { position: absolute; top: 20px; right: 20px; background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; font-size: 16px; padding: 8px 12px; border-radius: 4px; }
+
+  /* ========================================================= */
+  /* CLASE GLOBAL CENTRALIZADA PARA BOTONES DE AYUDA Y VECTORES */
+  /* ========================================================= */
+  .btn-info-seccion { background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; font-size: 16px; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
+  .btn-info-seccion:hover { background: #e2e8f0; }
+  
+  .btn-info-seccion::before { content: ""; display: none; }
+
+  /* Previene que los iconos Material se deformen dentro de botones flex */
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; display: inline-block; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; flex-shrink: 0; user-select: none;}
+
+  input, select { width: 100%; padding: 12px; border: 1px solid #d1d9e0; border-radius: 4px; box-sizing: border-box; font-size: 15px; background: white; margin-bottom: 15px; }
+  textarea {font-family: 'Inter', sans-serif;}
+
+  .links-login { display: flex; justify-content: space-between; margin-top: 15px; font-size: 13px; }
+  .links-login a { color: #1c4587; text-decoration: underline; cursor: pointer; font-weight: 600; }
+
+  #rubros-container { border: 1px solid #d1d9e0; height: 450px; overflow-y: auto; background: white; padding: 15px; margin-top: 15px; }
+  .panel-controles { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; align-items: center; }
+  
+  .btn-mini { background: white; border: 1px solid #d1d9e0; font-size: 11px; padding: 5px 10px; color: #1c4587; }
+  .nivel-0 { background: #1c4587; color: white; font-weight: 700; padding: 8px 12px; margin-bottom: 5px; cursor: pointer; border-radius: 2px; font-size: 13px; }
+  .nivel-1 { color: #1c4587; font-weight: 700; font-size: 14px; }
+  .nivel-2 { margin-left: 20px; font-weight: 600; font-size: 13px; }
+  .nivel-3 { margin-left: 40px; font-size: 13px; text-decoration: underline; }
+  
+  .btn-toggle { background: #f0f4f8; border: 1px solid #d1d9e0; width: 20px; height: 20px; line-height: 18px; margin-right: 10px; font-size: 12px; }
+  .btn-info { color: #1c4587; font-size: 11px; margin-left: 10px; background: none; border: 1px solid #1c4587; padding: 2px 6px; }
+  .texto-memoria { display: none; background: #f9f9f9; padding: 10px; border-left: 3px solid #1c4587; margin: 10px 0 10px 45px; font-size: 12px; color: #555; }
+
+  .aviso-borrado { background: #fff4e5; border-left: 4px solid #ffa117; color: #663c00; padding: 20px; text-align: left; margin: 25px 0; font-size: 14px; }
+  .footer { margin-top: 35px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
+  .btn-info-app { background: none; border: none; color: #888; font-size: 12px; text-decoration: underline; cursor: pointer; padding: 5px; }
+
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-content { background: white; padding: 30px; border-radius: 4px; width: 400px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: left; }
+  .borrador-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; }
+  
+  .info-seccion { margin-bottom: 15px; }
+  .info-seccion-titulo { font-weight: 700; color: #1c4587; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; }
+  .info-seccion-texto { font-size: 13px; color: #555; margin: 0; line-height: 1.5; }
+
+  /* ========================================================= */
+  /* ESTILOS PARA LOS INTERRUPTORES (TOGGLES) DEL PANEL ADMIN  */
+  /* ========================================================= */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+  }
+
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+  }
+
+  input:checked + .slider {
+    background-color: #1c4587; /* Tu azul característico */
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 1px #1c4587;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+
+  /* Bordes redondeados */
+  .slider.round {
+    border-radius: 24px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+  input:disabled + .slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
