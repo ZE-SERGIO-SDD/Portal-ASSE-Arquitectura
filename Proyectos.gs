@@ -216,7 +216,7 @@ function guardarNuevoProyecto(datosProyecto) {
       "contacto teléfono": datosProyecto.contactoTelefono || "",
       "contacto telefono": datosProyecto.contactoTelefono || "",
       "ubicación archivos": datosProyecto.ubicacionArchivos || "",
-      "ubicacion archivos": datosProyecto.ubicacionArchivos || "",
+      "ubicación archivos": datosProyecto.ubicacionArchivos || "",
       "fechas hitos": JSON.stringify(datosProyecto.hitos || {})
     };
     
@@ -286,7 +286,6 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
   }
 }
 
-// --- NUEVA FUNCIÓN: Gestor de Edición de Datos ---
 function editarDatosProyecto(datosEdicion) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
@@ -303,7 +302,6 @@ function editarDatosProyecto(datosEdicion) {
     var filaEncontrada = -1;
     var idProyecto = "";
 
-    // Buscar el proyecto por Nombre y Fecha original (por si no tenemos el ID aún en la vista)
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -318,7 +316,6 @@ function editarDatosProyecto(datosEdicion) {
 
     if (filaEncontrada === -1) return { success: false, error: "No se encontró el proyecto original para editar." };
 
-    // Si es viejo y no tiene ID, le generamos uno
     if (!idProyecto) {
       idProyecto = "PRY-MIG-" + Date.now().toString(36).toUpperCase();
       if (idxId !== -1) sheet.getRange(filaEncontrada + 1, idxId + 1).setValue(idProyecto);
@@ -326,7 +323,6 @@ function editarDatosProyecto(datosEdicion) {
 
     var detallesCambios = [];
 
-    // Mapeo de columnas a actualizar
     var columnasAEditar = {
       "descripción": datosEdicion.descripcion,
       "descripcion": datosEdicion.descripcion,
@@ -340,7 +336,6 @@ function editarDatosProyecto(datosEdicion) {
       "ubicacion archivos": datosEdicion.ubicacionArchivos
     };
 
-    // Actualizar celdas de texto simples y guardar en historial
     for (var key in columnasAEditar) {
       var colIndex = headers.indexOf(key);
       if (colIndex !== -1 && columnasAEditar[key] !== undefined) {
@@ -349,7 +344,6 @@ function editarDatosProyecto(datosEdicion) {
         
         if (valorViejo !== valorNuevo) {
           sheet.getRange(filaEncontrada + 1, colIndex + 1).setValue(valorNuevo);
-          // Registramos en el detalle solo las columnas principales, no las duplicadas sin tilde
           if (key !== "descripcion" && key !== "contacto telefono" && key !== "ubicacion archivos") {
              detallesCambios.push("Se editó " + key.toUpperCase());
           }
@@ -357,7 +351,6 @@ function editarDatosProyecto(datosEdicion) {
       }
     }
 
-    // Actualizar equipo (participantes) si viene en los datos
     if (datosEdicion.asignados) {
       var colEquipo = headers.indexOf("equipo");
       if (colEquipo !== -1) {
@@ -370,7 +363,6 @@ function editarDatosProyecto(datosEdicion) {
       }
     }
 
-    // Si hubo algún cambio real, lo grabamos en la Bitácora
     if (detallesCambios.length > 0) {
       var usuarioActivo = "";
       try { usuarioActivo = Session.getActiveUser().getEmail(); } catch(e) {}
@@ -402,5 +394,68 @@ function registrarHitoHistorial(idProyecto, fecha, usuario, categoria, detalle) 
     sheetHistorial.appendRow([idProyecto, fecha, usuario, categoria, detalle]);
   } catch (e) {
     console.error("Error guardando historial: " + e.message);
+  }
+}
+
+// --- NUEVA FUNCIÓN: Obtener Historial ---
+function obtenerHistorialProyecto(nombre, fecha) {
+  try {
+    var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
+    var sheetBD = ss.getSheetByName("BD_Proyectos");
+    var sheetHistorial = ss.getSheetByName("BD_Historial");
+    
+    if (!sheetHistorial || !sheetBD) return { success: true, datos: [] };
+
+    // 1. Buscar el ID del proyecto usando su nombre y fecha
+    var dataBD = sheetBD.getDataRange().getValues();
+    var headersBD = dataBD[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+    var idxNombre = headersBD.indexOf("nombre proyecto") !== -1 ? headersBD.indexOf("nombre proyecto") : headersBD.indexOf("nombre");
+    var idxFecha = headersBD.indexOf("fecha");
+    var idxId = headersBD.indexOf("id proyecto");
+
+    var idProyecto = "";
+    for (var i = 1; i < dataBD.length; i++) {
+      var filaNombre = dataBD[i][idxNombre] ? dataBD[i][idxNombre].toString() : "";
+      var filaFechaRaw = dataBD[i][idxFecha];
+      var filaFecha = filaFechaRaw instanceof Date ? filaFechaRaw.toISOString() : (filaFechaRaw ? filaFechaRaw.toString() : "");
+      
+      if (filaNombre === nombre && filaFecha === fecha) {
+         idProyecto = idxId !== -1 && dataBD[i][idxId] ? dataBD[i][idxId].toString() : "";
+         break;
+      }
+    }
+
+    // Si es un proyecto viejo al que nunca se le editó el estado ni los datos, no tendrá ID ni historial aún.
+    if (!idProyecto) return { success: true, datos: [], msg: "Este proyecto es antiguo y aún no posee registros en el historial." };
+
+    // 2. Buscar en la pestaña BD_Historial todos los eventos con ese ID
+    var dataHist = sheetHistorial.getDataRange().getValues();
+    var historial = [];
+    
+    for (var j = 1; j < dataHist.length; j++) {
+      if (dataHist[j][0] && dataHist[j][0].toString() === idProyecto) {
+        
+        // Formatear fecha bonita
+        var fechaRaw = dataHist[j][1];
+        var fechaTxt = "";
+        if (fechaRaw instanceof Date) {
+          fechaTxt = Utilities.formatDate(fechaRaw, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm");
+        } else {
+          fechaTxt = fechaRaw.toString();
+        }
+
+        historial.push({
+          fecha: fechaTxt,
+          usuario: dataHist[j][2] ? dataHist[j][2].toString() : "Sistema",
+          categoria: dataHist[j][3] ? dataHist[j][3].toString() : "-",
+          detalle: dataHist[j][4] ? dataHist[j][4].toString() : "-"
+        });
+      }
+    }
+    
+    // Devolvemos el array invertido para que el evento más nuevo salga primero
+    return { success: true, datos: historial.reverse() };
+  } catch (e) {
+    return { success: false, error: e.message };
   }
 }

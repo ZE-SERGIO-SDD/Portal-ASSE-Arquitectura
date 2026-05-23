@@ -1,5 +1,6 @@
 <div id="proy-seccion-listados" style="display: none;">
-  <div class="caja-inicio" style="width: 100%; max-width: 100%; padding: 30px; text-align: left;">
+  
+  <div id="listado-proyectos-wrapper" class="caja-inicio" style="width: 100%; max-width: 100%; padding: 30px; text-align: left;">
      <div style="background: #f0f4f8; padding: 15px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 25px;">
        <div style="font-weight: 700; color: #1c4587; margin-bottom: 10px; font-size: 14px; display: flex; align-items: center; gap: 6px;">
          <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> Filtros de búsqueda:
@@ -23,19 +24,147 @@
          </div>
        </div>
      </div>
-     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 4px;">
+     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 8px;">
         <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
           <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando información...
         </p>
      </div>
   </div>
+
+  <div id="detalle-proyecto-wrapper" class="caja-inicio" style="display: none; width: 100%; max-width: 100%; padding: 30px; text-align: left;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <button onclick="volverListadoProyectos()" style="background: none; border: none; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL LISTADO
+      </button>
+      <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER HISTORIAL
+      </button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #d1d9e0; padding-bottom: 15px; margin-bottom: 20px;">
+      <div>
+        <div style="font-size: 14px; color: #555; display: flex; align-items: center; gap: 4px; margin-bottom: 5px;">
+          <span class="material-symbols-outlined" style="font-size: 18px;">location_on</span> 
+          <span id="det-centro" style="font-weight: bold; color: #000;"></span> - <span id="det-depto"></span>
+        </div>
+        <div id="det-nombre" style="font-size: 22px; color: #1c4587; font-weight: 800; line-height: 1.2;"></div>
+        <div style="font-size: 12px; color: #777; margin-top: 5px;">
+          Tipo de Obra: <strong id="det-tipo"></strong> | Creado por: <strong id="det-creador"></strong>
+        </div>
+      </div>
+      <div id="contenedor-timeline-detalle" style="text-align: right;">
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+      
+      <div style="flex: 2; min-width: 300px;">
+        <div style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
+          <label style="font-weight: bold; color: #1c4587; display: block; margin-bottom: 5px; font-size: 13px;">ESTADO DEL PROYECTO</label>
+          <select id="edit-estado" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-size: 14px;"></select>
+          
+          <label style="font-weight: bold; color: #444; display: block; margin-top: 15px; margin-bottom: 5px; font-size: 13px;">Descripción / Alcance</label>
+          <textarea id="edit-descripcion" style="width: 100%; height: 100px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+        </div>
+
+        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 20px;">
+          <h4 style="margin: 0 0 15px 0; color: #1c4587; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Datos Complementarios</h4>
+          
+          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+              <label style="font-size: 12px; font-weight: bold; color: #666;">Nro Expediente</label>
+              <input type="text" id="edit-expediente" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 12px; font-weight: bold; color: #666;">Costo de Obra</label>
+              <input type="text" id="edit-costo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <label style="font-size: 12px; font-weight: bold; color: #666;">Empresa Constructora</label>
+          <select id="edit-empresa" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px;"></select>
+
+          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="flex: 1;">
+              <label style="font-size: 12px; font-weight: bold; color: #666;">Contacto Referente (Nombre)</label>
+              <input type="text" id="edit-contacto-nom" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            <div style="flex: 1;">
+              <label style="font-size: 12px; font-weight: bold; color: #666;">Contacto (Teléfono)</label>
+              <input type="text" id="edit-contacto-tel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            </div>
+          </div>
+
+          <label style="font-size: 12px; font-weight: bold; color: #666;">Ubicación de Archivos</label>
+          <input type="text" id="edit-archivos" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="flex: 1; min-width: 250px;">
+        <div style="border: 1px solid #1c4587; border-radius: 6px; padding: 15px; background: #fff;">
+          <h4 style="margin: 0 0 15px 0; color: #1c4587; font-size: 14px; display: flex; align-items: center; gap: 5px;">
+            <span class="material-symbols-outlined" style="font-size: 18px;">group</span> Equipo Asignado
+          </h4>
+          <div id="edit-lista-equipo" style="display: flex; flex-direction: column; gap: 10px;"></div>
+          <button id="btn-add-participante" onclick="agregarFilaEquipoDetalle()" style="margin-top: 15px; width: 100%; padding: 8px; background: #f0f4f8; border: 1px dashed #1c4587; color: #1c4587; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px;">+ AGREGAR PARTICIPANTE</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="area-guardar-cambios" style="margin-top: 30px; text-align: center; border-top: 1px solid #ccc; padding-top: 20px; display: none;">
+      <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Tienes permisos de administrador o encargado para modificar este proyecto.</p>
+      <button class="btn-azul" onclick="prepararGuardadoProyecto()" style="font-size: 15px; padding: 12px 30px; display: inline-flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">save</span> GUARDAR CAMBIOS
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="modal-confirmar-edicion" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="color: #f29900;">warning</span> Confirmar Cambios
+    </div>
+    <p style="color: #444; font-size: 14px; margin-bottom: 10px;">Estás a punto de modificar el proyecto. Se registrarán los siguientes cambios en el historial:</p>
+    
+    <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 200px; overflow-y: auto;">
+      </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-guardado-final" onclick="ejecutarGuardadoBackend()" class="btn-azul" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">check</span> ACEPTAR Y GUARDAR
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 550px; text-align: left; max-height: 80vh; display: flex; flex-direction: column;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined">history</span> Bitácora del Proyecto
+    </div>
+    
+    <div id="contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;">
+       </div>
+
+    <div style="text-align: right; padding-top: 10px; border-top: 1px solid #eee;">
+      <button onclick="cerrarHistorialProyecto()" class="btn-azul" style="padding: 8px 20px; margin: 0;">CERRAR</button>
+    </div>
+  </div>
 </div>
 
 <script>
+  var proyectoActivoEditando = null;
+  var esModoEdicionPermitido = false;
+
   function obtenerColorPorIndice(tipo) {
     var colores = ['#000000', '#188038', '#1C4587', '#D93025', '#673AB7', '#F29900', '#795548'];
-    var indice = opcionesConfig.tiposObra.indexOf(tipo);
-    return (indice !== -1) ? (colores[indice % colores.length]) : '#000000';
+    var indice = opcionesConfig.tiposObra ? opcionesConfig.tiposObra.indexOf(tipo) : -1;
+    return (indice !== -1) ? (colores[indice % colores.length]) : '#1c4587';
   }
 
   function cargarListaDeProyectos(forzar = false) {
@@ -114,10 +243,8 @@
 
         var deptoTexto = p.departamento ? p.departamento.toString().trim() : '';
         if (fDepto && deptoTexto !== fDepto) return false;
-
         var tipoTexto = p.tipoObra ? p.tipoObra.toString().trim() : '';
         if (fTipo && tipoTexto !== fTipo) return false;
-
         var estadoRealTexto = p.estado ? p.estado.toString().trim() : '';
         if (fEstado && estadoRealTexto !== fEstado) return false;
 
@@ -129,128 +256,311 @@
         return;
     }
 
-    proyectosFiltrados.forEach((p, index) => {
-        var equipoHtml = p.equipo.map(m => {
-            var badge = m.encargado ? ' <span style="background: #1c4587; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; margin-left: 5px; vertical-align: middle;">ENCARGADO</span>' : '';
-            return `<li style="margin-bottom: 2px;"><strong>${m.participante}</strong> - <span style="color:#666; font-size:11px;">${m.rol}</span>${badge}</li>`;
-        }).join('');
-
-        var etapas = [];
-        var pTipo = p.tipoObra ? p.tipoObra.toString().trim() : '';
-        if (pTipo && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[pTipo]) {
-            etapas = opcionesConfig.mapaTiposEstados[pTipo];
-        } else if (opcionesConfig.estados) {
-            etapas = opcionesConfig.estados;
-        }
-
-        var pEstado = p.estado ? p.estado.toString().trim() : '';
-        var etapaIndex = etapas.indexOf(pEstado);
-        
-        var etapaAnterior = etapaIndex > 0 ? etapas[etapaIndex - 1] : null;
-        var etapaSiguiente = etapaIndex !== -1 && etapaIndex < etapas.length - 1 ? etapas[etapaIndex + 1] : null;
-
-        var timelineHtml = '<div style="display: flex; align-items: center; margin-top: 6px; justify-content: flex-end;">';
-        etapas.forEach((etapa, idx) => {
-            let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
-            let borderColor = '#1c4587';
-            timelineHtml += `<div title="${etapa}" style="width: 16px; height: 16px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 2px; box-sizing: border-box;"></div>`;
-            if (idx < etapas.length - 1) {
-                timelineHtml += `<div style="width: 12px; height: 2px; background-color: ${borderColor};"></div>`;
-            }
-        });
-        timelineHtml += '</div>';
-
-        var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
-        var esEncargado = p.equipo && p.equipo.some(m => m.participante === usuarioActivoNombre && m.encargado === true);
-        var puedeAvanzar = esAdmin || esEncargado;
-
-        var safeNombre = p.nombre.replace(/'/g, "\\'"); // Protege contra comillas simples en el nombre
-        var botonesAvanzarHtml = '';
-        
-        // Lógica de botones que acciona directamente el backend
-        if (puedeAvanzar && (etapaSiguiente || etapaAnterior)) {
-          botonesAvanzarHtml = `
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              ${etapaSiguiente ? `<button onclick="actualizarEstadoProyecto('${safeNombre}', '${p.fecha}', '${etapaSiguiente}')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
-              ${etapaAnterior ? `<button onclick="actualizarEstadoProyecto('${safeNombre}', '${p.fecha}', '${etapaAnterior}')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
-            </div>
-          `;
-        }
-
+    proyectosFiltrados.forEach((p) => {
+        var pEstado = p.estado ? p.estado.toString().trim() : 'Sin Estado';
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
+        var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
 
         var tarjeta = `
-          <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 10px 15px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              
-              <div style="flex: 1; padding-right: 15px;">
-                <div style="font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px;">
-                  <span class="material-symbols-outlined" style="font-size: 16px; color: #555;">location_on</span> 
-                  <span style="color: black; font-weight: bold;">${p.centro}</span>
-                  <span style="color: grey;"> - ${p.departamento}</span>
-                </div>
-                <div style="font-size: 16px; color: ${colorNombre}; font-weight: bold; line-height: 1.2;">${p.nombre}</div>
+          <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 12px 15px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center;">
+            <div style="flex: 1; padding-right: 15px;">
+              <div style="font-size: 12px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; color: #666;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span> 
+                <strong>${p.centro}</strong> - ${p.departamento}
               </div>
-
-              <div style="text-align: right; min-width: 250px;">
-                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                  <span style="font-size: 11px; color: #555; font-weight: bold; text-transform: uppercase;">ETAPA ACTUAL: <span style="color: #1c4587;">${pEstado}</span></span>
-                  ${botonesAvanzarHtml}
-                </div>
-                ${timelineHtml}
-              </div>
-
+              <div style="font-size: 15px; color: ${colorNombre}; font-weight: bold; line-height: 1.2; margin-bottom: 4px;">${p.nombre}</div>
+              <div style="font-size: 11px; color: #555;">${p.tipoObra} • <span style="font-weight:bold; color: #1c4587;">${pEstado}</span></div>
             </div>
             
-            <div id="info-ext-${index}" style="display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
-              <p style="font-size: 13px; color: #444; margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap;">${p.descripcion}</p>
-              <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 4px; border: 1px solid #eee; font-size: 12px; margin-bottom: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                  <strong style="color: #1c4587; display: flex; align-items: center; gap: 4px;">
-                    <span class="material-symbols-outlined" style="font-size: 14px;">group</span> Equipo Asignado:
-                  </strong>
-                </div>
-                <ul style="margin: 0; padding-left: 20px; color: #333;">${equipoHtml}</ul>
-              </div>
-              
-              <div style="display: flex; gap: 20px; font-size: 12px; color: #555;">
-                <div><strong>Tipo de Obra:</strong> ${p.tipoObra}</div>
-                <div><strong>Creado por:</strong> ${p.creador}</div>
-              </div>
-            </div>
-
-            <div style="text-align: right; margin-top: 4px;">
-              <button onclick="var el = document.getElementById('info-ext-${index}'); var icon = document.getElementById('icon-ext-${index}'); if(el.style.display === 'none'){ el.style.display = 'block'; icon.innerText = 'expand_less'; } else { el.style.display = 'none'; icon.innerText = 'expand_more'; }" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; color: #1c4587; font-weight: bold; font-size: 11px;">
-                MÁS INFO <span id="icon-ext-${index}" class="material-symbols-outlined" style="font-size: 16px; border: 1px solid #1c4587; border-radius: 50%;">expand_more</span>
+            <div style="text-align: right; min-width: 120px;">
+              <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+                VER DETALLE <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
               </button>
             </div>
-
           </div>
         `;
         contenedor.innerHTML += tarjeta;
     });
   }
 
-  function actualizarEstadoProyecto(nombre, fecha, nuevoEstado) {
-    var contenedor = document.getElementById('contenedor-lista-proyectos');
+  // --- LÓGICA DE LA PANTALLA DE DETALLE / EDICIÓN ---
+
+  function abrirDetalleProyecto(index) {
+    proyectoActivoEditando = todosLosProyectosCargados[index];
+    var p = proyectoActivoEditando;
+
+    var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
+    var esEncargado = p.equipo && p.equipo.some(m => m.participante === usuarioActivoNombre && m.encargado === true);
+    esModoEdicionPermitido = esAdmin || esEncargado;
+
+    document.getElementById('det-centro').innerText = p.centro;
+    document.getElementById('det-depto').innerText = p.departamento;
+    document.getElementById('det-nombre').innerText = p.nombre;
+    document.getElementById('det-tipo').innerText = p.tipoObra;
+    document.getElementById('det-creador').innerText = p.creador;
+
+    var etapas = [];
+    if (p.tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[p.tipoObra]) {
+        etapas = opcionesConfig.mapaTiposEstados[p.tipoObra];
+    } else if (opcionesConfig.estados) {
+        etapas = opcionesConfig.estados;
+    }
+    var etapaIndex = etapas.indexOf(p.estado);
+    var timelineHtml = '<div style="display: flex; align-items: center; justify-content: flex-end;">';
+    etapas.forEach((etapa, idx) => {
+        let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
+        let borderColor = '#1c4587';
+        timelineHtml += `<div title="${etapa}" style="width: 14px; height: 14px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 2px; box-sizing: border-box;"></div>`;
+        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 10px; height: 2px; background-color: ${borderColor};"></div>`;
+    });
+    timelineHtml += '</div>';
+    timelineHtml += `<div style="font-size:10px; color:#666; margin-top:4px;">Progreso Estimado</div>`;
+    document.getElementById('contenedor-timeline-detalle').innerHTML = timelineHtml;
+
+    var selEstado = document.getElementById('edit-estado');
+    selEstado.innerHTML = '';
+    etapas.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
+    selEstado.value = p.estado;
+
+    var selEmpresa = document.getElementById('edit-empresa');
+    selEmpresa.innerHTML = '<option value="">Sin asignar / Otra</option>';
+    if (opcionesConfig.empresas) opcionesConfig.empresas.forEach(e => selEmpresa.innerHTML += `<option value="${e}">${e}</option>`);
+    selEmpresa.value = p.empresa || "";
+
+    document.getElementById('edit-descripcion').value = p.descripcion || "";
+    document.getElementById('edit-expediente').value = p.expediente || "";
+    document.getElementById('edit-costo').value = p.costo || "";
+    document.getElementById('edit-contacto-nom').value = p.contactoNombre || "";
+    document.getElementById('edit-contacto-tel').value = p.contactoTelefono || "";
+    document.getElementById('edit-archivos').value = p.ubicacionArchivos || "";
+
+    var inputsIds = ['edit-estado', 'edit-descripcion', 'edit-expediente', 'edit-costo', 'edit-empresa', 'edit-contacto-nom', 'edit-contacto-tel', 'edit-archivos'];
+    inputsIds.forEach(id => {
+      var el = document.getElementById(id);
+      if(el) {
+        el.disabled = !esModoEdicionPermitido;
+        el.style.backgroundColor = esModoEdicionPermitido ? '#fff' : '#f0f0f0';
+      }
+    });
+
+    document.getElementById('area-guardar-cambios').style.display = esModoEdicionPermitido ? 'block' : 'none';
+    document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'block' : 'none';
+
+    renderizarEquipoDetalle(p.equipo || []);
+
+    document.getElementById('listado-proyectos-wrapper').style.display = 'none';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
+  }
+
+  function volverListadoProyectos() {
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('listado-proyectos-wrapper').style.display = 'block';
+    proyectoActivoEditando = null;
+  }
+
+  // --- LÓGICA DE EQUIPO DINÁMICO ---
+  function renderizarEquipoDetalle(equipo) {
+    var cont = document.getElementById('edit-lista-equipo');
+    cont.innerHTML = '';
+    if (equipo.length === 0 && !esModoEdicionPermitido) {
+      cont.innerHTML = '<span style="font-size:12px; color:#888;">Sin equipo asignado</span>';
+      return;
+    }
+
+    equipo.forEach(m => agregarFilaEquipoDetalle(m.participante, m.rol, m.encargado));
+  }
+
+  function agregarFilaEquipoDetalle(participanteVal = "", rolVal = "", encargadoVal = false) {
+    var cont = document.getElementById('edit-lista-equipo');
     
-    // Mostramos estado de carga visual
-    contenedor.innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Guardando nueva etapa...</p>';
+    if (!esModoEdicionPermitido) {
+      var badge = encargadoVal ? '<span style="background: #1c4587; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; margin-left: 5px;">ENCARGADO</span>' : '';
+      cont.innerHTML += `<div style="font-size:13px; margin-bottom:5px;"><strong>${participanteVal}</strong> - ${rolVal} ${badge}</div>`;
+      return;
+    }
+
+    var div = document.createElement('div');
+    div.style = "display: flex; gap: 8px; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee;";
     
+    var selPart = `<select class="det-part" style="flex: 2; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size:12px;"><option value="">Participante...</option>`;
+    if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}" ${p === participanteVal ? 'selected':''}>${p}</option>`);
+    selPart += `</select>`;
+    
+    var selRol = `<select class="det-rol" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size:12px;"><option value="">Rol...</option>`;
+    if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}" ${r === rolVal ? 'selected':''}>${r}</option>`);
+    selRol += `</select>`;
+    
+    var chk = `<label style="font-size:10px; font-weight:bold; color:#1c4587; display:flex; flex-direction:column; align-items:center;">ENC. <input type="checkbox" class="det-enc" ${encargadoVal ? 'checked' : ''}></label>`;
+    var btnDel = `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d93025; cursor:pointer;" title="Quitar"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>`;
+
+    div.innerHTML = selPart + selRol + chk + btnDel;
+    cont.appendChild(div);
+  }
+
+  // --- LÓGICA DE GUARDADO Y VALIDACIÓN ---
+  var datosAEnviar = null;
+  var requiereGuardarEstado = false;
+  var requiereGuardarDatos = false;
+
+  function prepararGuardadoProyecto() {
+    if (!proyectoActivoEditando) return;
+    var p = proyectoActivoEditando;
+    var cambios = [];
+
+    var nEstado = document.getElementById('edit-estado').value;
+    var nDesc = document.getElementById('edit-descripcion').value.trim();
+    var nExp = document.getElementById('edit-expediente').value.trim();
+    var nCosto = document.getElementById('edit-costo').value.trim();
+    var nEmp = document.getElementById('edit-empresa').value;
+    var nContNom = document.getElementById('edit-contacto-nom').value.trim();
+    var nContTel = document.getElementById('edit-contacto-tel').value.trim();
+    var nArch = document.getElementById('edit-archivos').value.trim();
+
+    var nEquipo = [];
+    document.querySelectorAll('#edit-lista-equipo > div').forEach(f => {
+      var part = f.querySelector('.det-part') ? f.querySelector('.det-part').value : null;
+      var rol = f.querySelector('.det-rol') ? f.querySelector('.det-rol').value : null;
+      var enc = f.querySelector('.det-enc') ? f.querySelector('.det-enc').checked : false;
+      if (part && rol) nEquipo.push({ participante: part, rol: rol, encargado: enc });
+    });
+
+    requiereGuardarEstado = false;
+    if (nEstado !== p.estado) {
+      cambios.push(`<li><strong>Estado:</strong> Pasó a <span style="color:#1c4587;">${nEstado}</span></li>`);
+      requiereGuardarEstado = true;
+    }
+
+    requiereGuardarDatos = false;
+    if (nDesc !== (p.descripcion||"")) { cambios.push(`<li><strong>Descripción:</strong> Se modificó el texto.</li>`); requiereGuardarDatos = true; }
+    if (nExp !== (p.expediente||"")) { cambios.push(`<li><strong>Expediente:</strong> Se actualizó a '${nExp}'.</li>`); requiereGuardarDatos = true; }
+    if (nCosto !== (p.costo||"")) { cambios.push(`<li><strong>Costo:</strong> Se actualizó a '${nCosto}'.</li>`); requiereGuardarDatos = true; }
+    if (nEmp !== (p.empresa||"")) { cambios.push(`<li><strong>Empresa:</strong> Se cambió a '${nEmp}'.</li>`); requiereGuardarDatos = true; }
+    if (nContNom !== (p.contactoNombre||"") || nContTel !== (p.contactoTelefono||"")) { 
+      cambios.push(`<li><strong>Contacto:</strong> Se actualizaron los datos del referente.</li>`); requiereGuardarDatos = true; 
+    }
+    if (nArch !== (p.ubicacionArchivos||"")) { cambios.push(`<li><strong>Archivos:</strong> Ubicación actualizada.</li>`); requiereGuardarDatos = true; }
+    
+    if (JSON.stringify(nEquipo) !== JSON.stringify(p.equipo || [])) {
+      cambios.push(`<li><strong>Equipo:</strong> Se modificó la plantilla de participantes.</li>`); requiereGuardarDatos = true;
+    }
+
+    if (cambios.length === 0) {
+      alert("No has realizado ninguna modificación en los datos.");
+      return;
+    }
+
+    datosAEnviar = {
+      nombreOriginal: p.nombre,
+      fechaOriginal: p.fecha,
+      estadoNuevo: nEstado,
+      descripcion: nDesc,
+      expediente: nExp,
+      costo: nCosto,
+      empresa: nEmp,
+      contactoNombre: nContNom,
+      contactoTelefono: nContTel,
+      ubicacionArchivos: nArch,
+      asignados: nEquipo
+    };
+
+    document.getElementById('lista-cambios-detectados').innerHTML = `<ul style="margin:0; padding-left:20px;">${cambios.join('')}</ul>`;
+    document.getElementById('modal-confirmar-edicion').style.display = 'flex';
+  }
+
+  function ejecutarGuardadoBackend() {
+    var btn = document.getElementById('btn-confirmar-guardado-final');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
+
+    var promesas = [];
+
+    if (requiereGuardarEstado) {
+      promesas.push(new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+          .cambiarEstadoProyecto(datosAEnviar.nombreOriginal, datosAEnviar.fechaOriginal, datosAEnviar.estadoNuevo);
+      }));
+    }
+
+    if (requiereGuardarDatos) {
+      promesas.push(new Promise((resolve, reject) => {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+          .editarDatosProyecto(datosAEnviar);
+      }));
+    }
+
+    Promise.all(promesas).then(res => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
+      document.getElementById('modal-confirmar-edicion').style.display = 'none';
+      
+      if(typeof mostrarAlertaProy === 'function') {
+        mostrarAlertaProy("¡Éxito!", "Los cambios se guardaron y se registraron en el historial.", "task_alt", function(){
+           volverListadoProyectos();
+           cargarListaDeProyectos(true);
+        });
+      } else {
+        alert("Cambios guardados con éxito.");
+        volverListadoProyectos();
+        cargarListaDeProyectos(true);
+      }
+    }).catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
+      alert("Hubo un error al guardar: " + err);
+    });
+  }
+
+  // --- LÓGICA DE VISUALIZACIÓN DE HISTORIAL ---
+  function abrirHistorialProyecto() {
+    if (!proyectoActivoEditando) return;
+    var p = proyectoActivoEditando;
+    
+    var modal = document.getElementById('modal-ver-historial');
+    var contenedor = document.getElementById('contenido-historial');
+    
+    // Estado de carga
+    contenedor.innerHTML = '<p style="text-align:center; color:#666; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando historial en la base de datos...</p>';
+    modal.style.display = 'flex';
+
     google.script.run
       .withSuccessHandler(function(res) {
-        if (res.success) {
-          // Si fue exitoso, recargamos la lista forzando la bajada desde Drive
-          cargarListaDeProyectos(true);
+        if (!res.success) {
+          contenedor.innerHTML = '<p style="color:#d93025; text-align:center; font-weight:bold; padding: 20px;">Error al cargar: ' + res.error + '</p>';
+          return;
+        }
+        
+        if (res.datos && res.datos.length > 0) {
+          // Generar la línea de tiempo vertical
+          var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
+          
+          res.datos.forEach(function(h) {
+            html += `
+              <div style="position: relative; margin-bottom: 25px;">
+                <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; background: #fff; border: 2px solid #1c4587; border-radius: 50%;"></div>
+                <div style="font-size: 11px; color: #666; font-weight: bold; margin-bottom: 2px;">
+                  <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">calendar_today</span> ${h.fecha} 
+                  &nbsp;•&nbsp; 
+                  <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">person</span> ${h.usuario}
+                </div>
+                <div style="font-size: 14px; color: #1c4587; font-weight: bold; margin: 2px 0;">${h.categoria}</div>
+                <div style="font-size: 13px; color: #444; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px;">${h.detalle}</div>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+          contenedor.innerHTML = html;
         } else {
-          alert("Error al actualizar etapa: " + res.error);
-          cargarListaDeProyectos(false);
+          contenedor.innerHTML = '<p style="text-align:center; color:#666; padding: 30px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 10px;">' + (res.msg || 'No hay eventos registrados para este proyecto.') + '</p>';
         }
       })
       .withFailureHandler(function(err) {
-        alert("Error de conexión: " + err.message);
-        cargarListaDeProyectos(false);
+        contenedor.innerHTML = '<p style="color:#d93025; text-align:center; font-weight:bold; padding: 20px;">Error de conexión con Google Sheets.</p>';
       })
-      .cambiarEstadoProyecto(nombre, fecha, nuevoEstado);
+      .obtenerHistorialProyecto(p.nombre, p.fecha);
+  }
+
+  function cerrarHistorialProyecto() {
+    document.getElementById('modal-ver-historial').style.display = 'none';
   }
 </script>
