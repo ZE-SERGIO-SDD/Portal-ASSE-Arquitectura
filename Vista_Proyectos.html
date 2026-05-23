@@ -162,8 +162,7 @@
       </div>
     </div>
 
-    <!-- </div>
-</div> -->
+</div>
 
 <div id="modal-info-proyectos" class="modal-overlay">
   <div class="modal-content" style="width: 450px; text-align: left;">
@@ -190,7 +189,6 @@
   var datosProyectoTemporal = null; 
   var accionAlertaPendiente = null;
   
-  // Estas dos variables se conservan porque se usan globalmente entre vistas
   var todosLosProyectosCargados = [];
   var vistaListadoActual = 'curso';
 
@@ -217,7 +215,6 @@
     var btn = document.getElementById('btn-recargar-proy');
     if(btn) btn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span>';
     
-    // Al separar los archivos, esta función sigue controlando si recarga parámetros o proyectos
     if (document.getElementById('proy-seccion-listados') && document.getElementById('proy-seccion-listados').style.display === 'block') { 
       if(typeof cargarListaDeProyectos === 'function') cargarListaDeProyectos(true); 
     } else { 
@@ -259,7 +256,6 @@
         document.getElementById('paso-3-opcionales').style.display = 'none';
         resetearBotonUnidad();
 
-        // Limpiar campos
         document.getElementById('proy-expediente').value = '';
         document.getElementById('proy-costo').value = '';
         document.getElementById('proy-empresa').value = '';
@@ -276,7 +272,6 @@
         titulo.innerText = seccion === 'curso' ? "Proyectos en curso" : "Historial de proyectos";
         subtitulo.innerText = seccion === 'curso' ? "Listado de obras activas y en desarrollo." : "Archivo de proyectos finalizados o dados de baja.";
         
-        // Llamada a la función que ahora vivirá en Vista_Proyectos_Listados
         if(typeof cargarListaDeProyectos === 'function') cargarListaDeProyectos();
       }
     }
@@ -339,7 +334,8 @@
     filas.forEach(f => {
       var p = f.querySelector('.sel-part').value;
       var r = f.querySelector('.sel-rol').value;
-      if (p && r) asignados.push({ participante: p, rol: r });
+      var e = f.querySelector('.chk-encargado').checked;
+      if (p && r) asignados.push({ participante: p, rol: r, encargado: e });
     });
 
     if (!nombre || !descripcion || !tipo || !estado) { 
@@ -435,15 +431,27 @@
 
   function agregarFilaParticipante() {
     var container = document.getElementById('lista-participantes-roles');
+    var esPrimero = (container.children.length === 0);
     var div = document.createElement('div');
-    div.style = "display: flex; gap: 10px; margin-bottom: 10px;";
+    div.style = "display: flex; gap: 10px; margin-bottom: 10px; align-items: center;";
     var selPart = `<select class="sel-part" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="">Participante...</option>`;
     if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}">${p}</option>`);
     selPart += `</select>`;
     var selRol = `<select class="sel-rol" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="">Rol...</option>`;
     if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}">${r}</option>`);
     selRol += `</select>`;
-    div.innerHTML = selPart + selRol + `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d32f2f; cursor:pointer; display: flex; align-items: center; justify-content: center;" title="Quitar"><span class="material-symbols-outlined">close</span></button>`;
+    
+    var btnEncargado = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 5px;">
+        <span style="font-size: 10px; color: #1c4587; font-weight: bold; margin-bottom: 4px;">ENCARGADO</span>
+        <label class="switch">
+          <input type="checkbox" class="chk-encargado" ${esPrimero ? 'checked' : ''}>
+          <span class="slider round"></span>
+        </label>
+      </div>
+    `;
+
+    div.innerHTML = selPart + selRol + btnEncargado + `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d32f2f; cursor:pointer; display: flex; align-items: center; justify-content: center;" title="Quitar"><span class="material-symbols-outlined">close</span></button>`;
     container.appendChild(div);
   }
 
@@ -468,9 +476,11 @@
     filas.forEach(f => {
       var p = f.querySelector('.sel-part').value;
       var r = f.querySelector('.sel-rol').value;
+      var e = f.querySelector('.chk-encargado').checked;
       if (p && r) {
-        asignados.push({ participante: p, rol: r });
-        equipoHtml += `<li style='margin-bottom: 4px;'><strong>${p}</strong> - ${r}</li>`;
+        asignados.push({ participante: p, rol: r, encargado: e });
+        var badge = e ? ' <span style="background: #1c4587; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 5px; vertical-align: middle;">ENCARGADO</span>' : '';
+        equipoHtml += `<li style='margin-bottom: 4px;'><strong>${p}</strong> - ${r}${badge}</li>`;
       }
     });
     equipoHtml += "</ul>";

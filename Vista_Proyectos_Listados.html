@@ -32,7 +32,6 @@
 </div>
 
 <script>
-  // --- FUNCIÓN PARA OBTENER COLOR SEGÚN ORDEN EN PLANILLA ---
   function obtenerColorPorIndice(tipo) {
     var colores = ['#000000', '#188038', '#1C4587', '#D93025', '#673AB7', '#F29900', '#795548'];
     var indice = opcionesConfig.tiposObra.indexOf(tipo);
@@ -131,7 +130,10 @@
     }
 
     proyectosFiltrados.forEach((p, index) => {
-        var equipoHtml = p.equipo.map(m => `<li style="margin-bottom: 2px;"><strong>${m.participante}</strong> - <span style="color:#666; font-size:11px;">${m.rol}</span></li>`).join('');
+        var equipoHtml = p.equipo.map(m => {
+            var badge = m.encargado ? ' <span style="background: #1c4587; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; margin-left: 5px; vertical-align: middle;">ENCARGADO</span>' : '';
+            return `<li style="margin-bottom: 2px;"><strong>${m.participante}</strong> - <span style="color:#666; font-size:11px;">${m.rol}</span>${badge}</li>`;
+        }).join('');
 
         var etapas = [];
         var pTipo = p.tipoObra ? p.tipoObra.toString().trim() : '';
@@ -158,16 +160,22 @@
         });
         timelineHtml += '</div>';
 
-        var botonesAvanzarHtml = `
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            ${etapaSiguiente ? `<button onclick="alert('Función de avanzar en desarrollo')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
-            ${etapaAnterior ? `<button onclick="alert('Función de retroceder en desarrollo')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
-          </div>
-        `;
+        var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
+        var esEncargado = p.equipo && p.equipo.some(m => m.participante === usuarioActivoNombre && m.encargado === true);
+        var puedeAvanzar = esAdmin || esEncargado;
+
+        var botonesAvanzarHtml = '';
+        if (puedeAvanzar && (etapaSiguiente || etapaAnterior)) {
+          botonesAvanzarHtml = `
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              ${etapaSiguiente ? `<button onclick="alert('Función de avanzar en desarrollo')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
+              ${etapaAnterior ? `<button onclick="alert('Función de retroceder en desarrollo')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
+            </div>
+          `;
+        }
 
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
 
-        // Se redujo padding, tamaños de fuente y margin-bottom general para compactar
         var tarjeta = `
           <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 10px 15px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
             <div style="display: flex; justify-content: space-between; align-items: center;">
