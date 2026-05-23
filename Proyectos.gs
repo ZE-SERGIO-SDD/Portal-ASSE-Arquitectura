@@ -9,8 +9,7 @@ var EMPRESAS_SHEET_ID = '11-kpuGqKCyOUFvUYEaTCMUec_5OQppTC8VFzzFyA-Io';
 
 function obtenerParametrosProyectos(forzar) {
   var cache = CacheService.getScriptCache();
-  var cacheKey = "cache_params_proy_v5"; 
-  
+  var cacheKey = "cache_params_proy_v5";
   if (!forzar) {
     var cached = cache.get(cacheKey);
     if (cached) return JSON.parse(cached);
@@ -18,7 +17,6 @@ function obtenerParametrosProyectos(forzar) {
 
   try {
     var ssConfig = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
-    
     var leerColumna = function(nombrePestaña) {
       var sheet = ssConfig.getSheetByName(nombrePestaña);
       if (!sheet) return [];
@@ -37,7 +35,7 @@ function obtenerParametrosProyectos(forzar) {
       if (sheetPart) {
         var dataPart = sheetPart.getDataRange().getValues();
         for (var i = 1; i < dataPart.length; i++) {
-          var nombre = dataPart[i][2];    
+          var nombre = dataPart[i][2];
           var apellido = dataPart[i][3];  
           if (nombre && nombre.toString().trim() !== "") {
             var nombreCompleto = nombre.toString().trim() + " " + (apellido ? apellido.toString().trim() : "");
@@ -45,7 +43,8 @@ function obtenerParametrosProyectos(forzar) {
           }
         }
       }
-    } catch (e) { console.error("Error partic: " + e.message); }
+    } catch (e) { console.error("Error partic: " + e.message);
+    }
     listaParticipantes = [...new Set(listaParticipantes)].sort();
 
     var listaEmpresas = [];
@@ -53,7 +52,6 @@ function obtenerParametrosProyectos(forzar) {
       var ssEmp = SpreadsheetApp.openById(EMPRESAS_SHEET_ID);
       var sheetEmp = ssEmp.getSheets()[0];
       var dataEmp = sheetEmp.getDataRange().getValues();
-      
       if (dataEmp.length === 0 || (dataEmp.length === 1 && dataEmp[0][0].toString().trim() === "")) {
         sheetEmp.appendRow(["Empresas Registradas (Base Central)"]);
         sheetEmp.appendRow(["Teyma Uruguay S.A."]);
@@ -62,7 +60,8 @@ function obtenerParametrosProyectos(forzar) {
         listaEmpresas = ["Teyma Uruguay S.A.", "Saceem S.A.", "Stiler S.A."];
       } else {
         for (var i = 0; i < dataEmp.length; i++) {
-          var empVal = dataEmp[i][0] ? dataEmp[i][0].toString().trim() : "";
+          var empVal = dataEmp[i][0] ?
+          dataEmp[i][0].toString().trim() : "";
           if (empVal && !empVal.toLowerCase().includes("empresas registradas")) {
             listaEmpresas.push(empVal);
           }
@@ -73,7 +72,6 @@ function obtenerParametrosProyectos(forzar) {
       listaEmpresas = ["Teyma Uruguay S.A.", "Saceem S.A.", "Stiler S.A."]; 
     }
     listaEmpresas = [...new Set(listaEmpresas)].sort();
-
     var sheetTipos = ssConfig.getSheetByName('Tipo de Obra');
     var sheetEstados = ssConfig.getSheetByName('Estados');
     
@@ -87,18 +85,21 @@ function obtenerParametrosProyectos(forzar) {
       var maxRows = Math.max(dataTipos.length, dataEstados.length);
 
       for (var i = 0; i < maxRows; i++) {
-        var tipo = (dataTipos[i] && dataTipos[i][0]) ? dataTipos[i][0].toString().trim() : "";
+        var tipo = (dataTipos[i] && dataTipos[i][0]) ?
+        dataTipos[i][0].toString().trim() : "";
         if (tipo) {
           listaTiposObra.push(tipo);
           var estadosRow = [];
           if (dataEstados[i]) {
             for (var c = 0; c < dataEstados[i].length; c++) {
-              var val = dataEstados[i][c] ? dataEstados[i][c].toString().trim() : "";
+              var val = dataEstados[i][c] ?
+              dataEstados[i][c].toString().trim() : "";
               if (val) {
                 if (val.includes(",")) {
                   val.split(",").forEach(function(p) {
                     var clean = p.trim();
                     if (clean) estadosRow.push(clean);
+             
                   });
                 } else {
                   estadosRow.push(val);
@@ -116,10 +117,10 @@ function obtenerParametrosProyectos(forzar) {
 
     var listaDeptos = [];
     var mapaCentros = {}; 
-    var infoCentros = {}; 
-    
+    var infoCentros = {};
     var procesarFilaCentro = function(row) {
-      var depto = (row.length > 6 && row[6]) ? row[6].toString().trim() : "";
+      var depto = (row.length > 6 && row[6]) ?
+      row[6].toString().trim() : "";
       var centro = (row.length > 3 && row[3]) ? row[3].toString().trim() : "";
       if (depto !== "") {
         if (!mapaCentros[depto]) {
@@ -129,32 +130,41 @@ function obtenerParametrosProyectos(forzar) {
         if (centro !== "" && mapaCentros[depto].indexOf(centro) === -1) {
           mapaCentros[depto].push(centro);
           infoCentros[centro] = {
-            calle: (row.length > 19 && row[19]) ? row[19].toString().trim() : "",
-            puerta: (row.length > 20 && row[20]) ? row[20].toString().trim() : "",
-            dependencia: (row.length > 25 && row[25]) ? row[25].toString().trim() : "",
-            ueNum: (row.length > 26 && row[26]) ? row[26].toString().trim() : "",
-            ueNom: (row.length > 27 && row[27]) ? row[27].toString().trim() : "",
-            nivel: (row.length > 28 && row[28]) ? row[28].toString().trim() : "",
-            categoria: (row.length > 29 && row[29]) ? row[29].toString().trim() : ""
+            calle: (row.length > 19 && row[19]) ?
+            row[19].toString().trim() : "",
+            puerta: (row.length > 20 && row[20]) ?
+            row[20].toString().trim() : "",
+            dependencia: (row.length > 25 && row[25]) ?
+            row[25].toString().trim() : "",
+            ueNum: (row.length > 26 && row[26]) ?
+            row[26].toString().trim() : "",
+            ueNom: (row.length > 27 && row[27]) ?
+            row[27].toString().trim() : "",
+            nivel: (row.length > 28 && row[28]) ?
+            row[28].toString().trim() : "",
+            categoria: (row.length > 29 && row[29]) ?
+            row[29].toString().trim() : ""
           };
         }
       }
     };
-
     try {
       var resSheets = Sheets.Spreadsheets.Values.get(DEPARTAMENTOS_CENTROS_ID, 'A:AD');
       var rows = resSheets.values;
       if (rows && rows.length > 3) {
-        for (var i = 3; i < rows.length; i++) { procesarFilaCentro(rows[i]); }
+        for (var i = 3; i < rows.length; i++) { procesarFilaCentro(rows[i]);
+        }
       }
     } catch (err) {
       var sheetDepto = SpreadsheetApp.openById(DEPARTAMENTOS_CENTROS_ID).getSheets()[0];
       var dataDepto = sheetDepto.getRange("A:AD").getValues();
-      for (var i = 3; i < dataDepto.length; i++) { procesarFilaCentro(dataDepto[i]); }
+      for (var i = 3; i < dataDepto.length; i++) { procesarFilaCentro(dataDepto[i]);
+      }
     }
 
     listaDeptos = [...new Set(listaDeptos)].sort();
-    for (var d in mapaCentros) { mapaCentros[d].sort(); }
+    for (var d in mapaCentros) { mapaCentros[d].sort();
+    }
     
     var result = {
       participantes: listaParticipantes,
@@ -167,7 +177,6 @@ function obtenerParametrosProyectos(forzar) {
       infoCentros: infoCentros,
       empresas: listaEmpresas 
     };
-
     try { cache.put(cacheKey, JSON.stringify(result), 21600); } catch(e) {}
     return result;
   } catch (e) {
@@ -179,18 +188,15 @@ function guardarNuevoProyecto(datosProyecto) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos") || ss.insertSheet("BD_Proyectos");
-    
     var columnasRequeridas = [
       "Fecha", "Departamento", "Centro", "Nombre Proyecto", "Descripción", 
       "Tipo de Obra", "Estado", "Equipo", "Creado por",
       "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos"
     ];
-    
     if (sheet.getLastRow() === 0) sheet.appendRow(columnasRequeridas);
     
     var data = sheet.getDataRange().getValues();
     var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
-    
     var mapaDatos = {
       "fecha": new Date(),
       "departamento": datosProyecto.departamento,
@@ -222,6 +228,41 @@ function guardarNuevoProyecto(datosProyecto) {
     sheet.appendRow(nuevaFila);
     CacheService.getScriptCache().remove("cache_lista_proy");
     return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
+  try {
+    var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
+    var sheet = ss.getSheetByName("BD_Proyectos");
+    if (!sheet) return { success: false, error: "No se encontró la hoja de BD_Proyectos" };
+    
+    var data = sheet.getDataRange().getValues();
+    var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+    
+    // Identificar en qué columnas están los datos clave
+    var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
+    var idxFecha = headers.indexOf("fecha");
+    var idxEstado = headers.indexOf("estado");
+    
+    // Recorrer la base de datos para encontrar la fila exacta
+    for (var i = 1; i < data.length; i++) {
+      var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
+      var filaFechaRaw = data[i][idxFecha];
+      var filaFecha = filaFechaRaw instanceof Date ? filaFechaRaw.toISOString() : (filaFechaRaw ? filaFechaRaw.toString() : "");
+      
+      // Si el nombre y la fecha coinciden, actualizamos el estado
+      if (filaNombre === nombre && filaFecha === fecha) {
+        sheet.getRange(i + 1, idxEstado + 1).setValue(nuevoEstado);
+        
+        // Limpiamos la caché para que el listado se actualice inmediatamente
+        CacheService.getScriptCache().remove("cache_lista_proy"); 
+        return { success: true };
+      }
+    }
+    return { success: false, error: "No se encontró el proyecto para actualizar." };
   } catch (e) {
     return { success: false, error: e.message };
   }

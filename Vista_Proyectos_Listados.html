@@ -164,12 +164,15 @@
         var esEncargado = p.equipo && p.equipo.some(m => m.participante === usuarioActivoNombre && m.encargado === true);
         var puedeAvanzar = esAdmin || esEncargado;
 
+        var safeNombre = p.nombre.replace(/'/g, "\\'"); // Protege contra comillas simples en el nombre
         var botonesAvanzarHtml = '';
+        
+        // Lógica de botones que acciona directamente el backend
         if (puedeAvanzar && (etapaSiguiente || etapaAnterior)) {
           botonesAvanzarHtml = `
             <div style="display: flex; flex-direction: column; gap: 4px;">
-              ${etapaSiguiente ? `<button onclick="alert('Función de avanzar en desarrollo')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
-              ${etapaAnterior ? `<button onclick="alert('Función de retroceder en desarrollo')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
+              ${etapaSiguiente ? `<button onclick="actualizarEstadoProyecto('${safeNombre}', '${p.fecha}', '${etapaSiguiente}')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
+              ${etapaAnterior ? `<button onclick="actualizarEstadoProyecto('${safeNombre}', '${p.fecha}', '${etapaAnterior}')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
             </div>
           `;
         }
@@ -226,5 +229,28 @@
         `;
         contenedor.innerHTML += tarjeta;
     });
+  }
+
+  function actualizarEstadoProyecto(nombre, fecha, nuevoEstado) {
+    var contenedor = document.getElementById('contenedor-lista-proyectos');
+    
+    // Mostramos estado de carga visual
+    contenedor.innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Guardando nueva etapa...</p>';
+    
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.success) {
+          // Si fue exitoso, recargamos la lista forzando la bajada desde Drive
+          cargarListaDeProyectos(true);
+        } else {
+          alert("Error al actualizar etapa: " + res.error);
+          cargarListaDeProyectos(false);
+        }
+      })
+      .withFailureHandler(function(err) {
+        alert("Error de conexión: " + err.message);
+        cargarListaDeProyectos(false);
+      })
+      .cambiarEstadoProyecto(nombre, fecha, nuevoEstado);
   }
 </script>
