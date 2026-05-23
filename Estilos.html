@@ -30,7 +30,8 @@
   .bc-sep { margin: 0 8px; color: #999; }
   
   .tabla-archivos { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d1d9e0; border-radius: 4px; overflow: hidden; }
-  .tabla-archivos td { padding: 15px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  /* Espaciado reducido aquí para ver más elementos */
+  .tabla-archivos td { padding: 4px 10px; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
   .fila-nav { cursor: pointer; transition: background 0.2s; }
   .fila-nav:hover { background: #f0f4f8; }
   
@@ -45,15 +46,10 @@
   .btn-volver { background: none; border: 1px solid #d1d9e0; color: #666; padding: 8px 15px; margin-bottom: 20px; font-size: 13px; }
   .btn-recargar { position: absolute; top: 20px; right: 20px; background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; font-size: 16px; padding: 8px 12px; border-radius: 4px; }
 
-  /* ========================================================= */
-  /* CLASE GLOBAL CENTRALIZADA PARA BOTONES DE AYUDA Y VECTORES */
-  /* ========================================================= */
   .btn-info-seccion { background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; font-size: 16px; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
   .btn-info-seccion:hover { background: #e2e8f0; }
-  
   .btn-info-seccion::before { content: ""; display: none; }
 
-  /* Previene que los iconos Material se deformen dentro de botones flex */
   .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: normal; font-style: normal; display: inline-block; line-height: 1; text-transform: none; letter-spacing: normal; word-wrap: normal; white-space: nowrap; direction: ltr; flex-shrink: 0; user-select: none;}
 
   input, select { width: 100%; padding: 12px; border: 1px solid #d1d9e0; border-radius: 4px; box-sizing: border-box; font-size: 15px; background: white; margin-bottom: 15px; }
@@ -87,67 +83,14 @@
   .info-seccion-titulo { font-weight: 700; color: #1c4587; font-size: 13px; text-transform: uppercase; margin-bottom: 5px; }
   .info-seccion-texto { font-size: 13px; color: #555; margin: 0; line-height: 1.5; }
 
-  /* ========================================================= */
-  /* ESTILOS PARA LOS INTERRUPTORES (TOGGLES) DEL PANEL ADMIN  */
-  /* ========================================================= */
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-  }
-
-  .switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .3s;
-  }
-
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
-  }
-
-  input:checked + .slider {
-    background-color: #1c4587; /* Tu azul característico */
-  }
-
-  input:focus + .slider {
-    box-shadow: 0 0 1px #1c4587;
-  }
-
-  input:checked + .slider:before {
-    transform: translateX(20px);
-  }
-
-  /* Bordes redondeados */
-  .slider.round {
-    border-radius: 24px;
-  }
-
-  .slider.round:before {
-    border-radius: 50%;
-  }
-  
-  input:disabled + .slider {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; }
+  input:checked + .slider { background-color: #1c4587; }
+  input:focus + .slider { box-shadow: 0 0 1px #1c4587; }
+  input:checked + .slider:before { transform: translateX(20px); }
+  .slider.round { border-radius: 24px; }
+  .slider.round:before { border-radius: 50%; }
+  input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
 </style>
