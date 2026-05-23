@@ -23,7 +23,7 @@
          </div>
        </div>
      </div>
-     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 15px;">
+     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 4px;">
         <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
           <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando información...
         </p>
@@ -131,7 +131,7 @@
     }
 
     proyectosFiltrados.forEach((p, index) => {
-        var equipoHtml = p.equipo.map(m => `<li style="margin-bottom: 4px;"><strong>${m.participante}</strong> - <span style="color:#666; font-size:12px;">${m.rol}</span></li>`).join('');
+        var equipoHtml = p.equipo.map(m => `<li style="margin-bottom: 2px;"><strong>${m.participante}</strong> - <span style="color:#666; font-size:11px;">${m.rol}</span></li>`).join('');
 
         var etapas = [];
         var pTipo = p.tipoObra ? p.tipoObra.toString().trim() : '';
@@ -147,7 +147,7 @@
         var etapaAnterior = etapaIndex > 0 ? etapas[etapaIndex - 1] : null;
         var etapaSiguiente = etapaIndex !== -1 && etapaIndex < etapas.length - 1 ? etapas[etapaIndex + 1] : null;
 
-        var timelineHtml = '<div style="display: flex; align-items: center; margin-top: 15px; justify-content: flex-end;">';
+        var timelineHtml = '<div style="display: flex; align-items: center; margin-top: 6px; justify-content: flex-end;">';
         etapas.forEach((etapa, idx) => {
             let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
             let borderColor = '#1c4587';
@@ -160,30 +160,30 @@
 
         var botonesAvanzarHtml = `
           <div style="display: flex; flex-direction: column; gap: 4px;">
-            ${etapaSiguiente ? `<button onclick="alert('Función de avanzar en desarrollo')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 10px; padding: 4px 8px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
-            ${etapaAnterior ? `<button onclick="alert('Función de retroceder en desarrollo')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 10px; padding: 4px 8px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
+            ${etapaSiguiente ? `<button onclick="alert('Función de avanzar en desarrollo')" style="background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">AVANZAR A ${etapaSiguiente.toUpperCase()}</button>` : ''}
+            ${etapaAnterior ? `<button onclick="alert('Función de retroceder en desarrollo')" style="background: white; border: 1px solid #ccc; color: #666; border-radius: 4px; font-size: 9px; padding: 3px 6px; cursor: pointer; font-weight: bold;">RETROCEDER A ${etapaAnterior.toUpperCase()}</button>` : ''}
           </div>
         `;
 
-        // Asignación de color según orden en planilla
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
 
+        // Se redujo padding, tamaños de fuente y margin-bottom general para compactar
         var tarjeta = `
-          <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 20px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03); margin-bottom: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 10px 15px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
               
               <div style="flex: 1; padding-right: 15px;">
-                <div style="font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px;">
-                  <span class="material-symbols-outlined" style="font-size: 20px; color: #555;">location_on</span> 
+                <div style="font-size: 13px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px;">
+                  <span class="material-symbols-outlined" style="font-size: 16px; color: #555;">location_on</span> 
                   <span style="color: black; font-weight: bold;">${p.centro}</span>
                   <span style="color: grey;"> - ${p.departamento}</span>
                 </div>
-                <div style="font-size: 22px; color: ${colorNombre}; font-weight: bold; line-height: 1.2; margin-top: 8px;">${p.nombre}</div>
+                <div style="font-size: 16px; color: ${colorNombre}; font-weight: bold; line-height: 1.2;">${p.nombre}</div>
               </div>
 
               <div style="text-align: right; min-width: 250px;">
-                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
-                  <span style="font-size: 12px; color: #555; font-weight: bold; text-transform: uppercase;">ETAPA ACTUAL: <span style="color: #1c4587;">${pEstado}</span></span>
+                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                  <span style="font-size: 11px; color: #555; font-weight: bold; text-transform: uppercase;">ETAPA ACTUAL: <span style="color: #1c4587;">${pEstado}</span></span>
                   ${botonesAvanzarHtml}
                 </div>
                 ${timelineHtml}
@@ -191,26 +191,26 @@
 
             </div>
             
-            <div id="info-ext-${index}" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-              <p style="font-size: 14px; color: #444; margin-bottom: 15px; line-height: 1.6; white-space: pre-wrap;">${p.descripcion}</p>
-              <div style="background: #f8f9fa; padding: 12px 15px; border-radius: 4px; border: 1px solid #eee; font-size: 13px; margin-bottom: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div id="info-ext-${index}" style="display: none; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+              <p style="font-size: 13px; color: #444; margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap;">${p.descripcion}</p>
+              <div style="background: #f8f9fa; padding: 8px 12px; border-radius: 4px; border: 1px solid #eee; font-size: 12px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                   <strong style="color: #1c4587; display: flex; align-items: center; gap: 4px;">
-                    <span class="material-symbols-outlined" style="font-size: 16px;">group</span> Equipo Asignado:
+                    <span class="material-symbols-outlined" style="font-size: 14px;">group</span> Equipo Asignado:
                   </strong>
                 </div>
                 <ul style="margin: 0; padding-left: 20px; color: #333;">${equipoHtml}</ul>
               </div>
               
-              <div style="display: flex; gap: 20px; font-size: 13px; color: #555;">
+              <div style="display: flex; gap: 20px; font-size: 12px; color: #555;">
                 <div><strong>Tipo de Obra:</strong> ${p.tipoObra}</div>
                 <div><strong>Creado por:</strong> ${p.creador}</div>
               </div>
             </div>
 
-            <div style="text-align: right; margin-top: 15px;">
-              <button onclick="var el = document.getElementById('info-ext-${index}'); var icon = document.getElementById('icon-ext-${index}'); if(el.style.display === 'none'){ el.style.display = 'block'; icon.innerText = 'expand_less'; } else { el.style.display = 'none'; icon.innerText = 'expand_more'; }" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: #1c4587; font-weight: bold; font-size: 13px;">
-                MÁS INFO <span id="icon-ext-${index}" class="material-symbols-outlined" style="font-size: 18px; border: 1px solid #1c4587; border-radius: 50%;">expand_more</span>
+            <div style="text-align: right; margin-top: 4px;">
+              <button onclick="var el = document.getElementById('info-ext-${index}'); var icon = document.getElementById('icon-ext-${index}'); if(el.style.display === 'none'){ el.style.display = 'block'; icon.innerText = 'expand_less'; } else { el.style.display = 'none'; icon.innerText = 'expand_more'; }" style="background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; color: #1c4587; font-weight: bold; font-size: 11px;">
+                MÁS INFO <span id="icon-ext-${index}" class="material-symbols-outlined" style="font-size: 16px; border: 1px solid #1c4587; border-radius: 50%;">expand_more</span>
               </button>
             </div>
 
