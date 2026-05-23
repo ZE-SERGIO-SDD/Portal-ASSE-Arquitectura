@@ -24,99 +24,104 @@
          </div>
        </div>
      </div>
-     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 8px;">
-        <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
-          <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando información...
+     
+     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 0px;">
+        <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;">
+          <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando proyectos...
         </p>
      </div>
   </div>
 
-  <div id="detalle-proyecto-wrapper" class="caja-inicio" style="display: none; width: 100%; max-width: 100%; padding: 30px; text-align: left;">
+  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; max-width: 100%; padding: 15px 30px; text-align: left; background: #fff;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <button onclick="volverListadoProyectos()" style="background: none; border: none; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL LISTADO
-      </button>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button onclick="volverListadoProyectos()" style="background: #1c4587; border: none; color: white; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> VOLVER AL LISTADO
+        </button>
+        <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha de Proyecto</span>
+      </div>
       <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
         <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER HISTORIAL
       </button>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #d1d9e0; padding-bottom: 15px; margin-bottom: 20px;">
-      <div>
-        <div style="font-size: 14px; color: #555; display: flex; align-items: center; gap: 4px; margin-bottom: 5px;">
-          <span class="material-symbols-outlined" style="font-size: 18px;">location_on</span> 
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+      <div style="flex: 1;">
+        <div style="font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span> 
           <span id="det-centro" style="font-weight: bold; color: #000;"></span> - <span id="det-depto"></span>
         </div>
-        <div id="det-nombre" style="font-size: 22px; color: #1c4587; font-weight: 800; line-height: 1.2;"></div>
-        <div style="font-size: 12px; color: #777; margin-top: 5px;">
-          Tipo de Obra: <strong id="det-tipo"></strong> | Creado por: <strong id="det-creador"></strong>
+        <div id="det-nombre" style="font-size: 20px; color: #1c4587; font-weight: 800; line-height: 1.1; margin-bottom: 4px;"></div>
+        <div style="font-size: 11px; color: #777;">
+          Tipo de Obra: <strong id="det-tipo" style="color: black;"></strong> | Creado por: <strong id="det-creador" style="color: black;"></strong>
         </div>
       </div>
-      <div id="contenedor-timeline-detalle" style="text-align: right;">
-        </div>
+      <div id="contenedor-timeline-detalle" style="text-align: right; flex-shrink: 0; padding-top: 5px;"></div>
     </div>
 
-    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
       
-      <div style="flex: 2; min-width: 300px;">
-        <div style="background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
-          <label style="font-weight: bold; color: #1c4587; display: block; margin-bottom: 5px; font-size: 13px;">ESTADO DEL PROYECTO</label>
-          <select id="edit-estado" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-size: 14px;"></select>
-          
-          <label style="font-weight: bold; color: #444; display: block; margin-top: 15px; margin-bottom: 5px; font-size: 13px;">Descripción / Alcance</label>
-          <textarea id="edit-descripcion" style="width: 100%; height: 100px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Estado:</label>
+          <select id="edit-estado" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; color: #1c4587;"></select>
         </div>
-
-        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 20px;">
-          <h4 style="margin: 0 0 15px 0; color: #1c4587; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Datos Complementarios</h4>
-          
-          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-            <div style="flex: 1;">
-              <label style="font-size: 12px; font-weight: bold; color: #666;">Nro Expediente</label>
-              <input type="text" id="edit-expediente" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-            <div style="flex: 1;">
-              <label style="font-size: 12px; font-weight: bold; color: #666;">Costo de Obra</label>
-              <input type="text" id="edit-costo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-          </div>
-
-          <label style="font-size: 12px; font-weight: bold; color: #666;">Empresa Constructora</label>
-          <select id="edit-empresa" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 15px;"></select>
-
-          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-            <div style="flex: 1;">
-              <label style="font-size: 12px; font-weight: bold; color: #666;">Contacto Referente (Nombre)</label>
-              <input type="text" id="edit-contacto-nom" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-            <div style="flex: 1;">
-              <label style="font-size: 12px; font-weight: bold; color: #666;">Contacto (Teléfono)</label>
-              <input type="text" id="edit-contacto-tel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
-            </div>
-          </div>
-
-          <label style="font-size: 12px; font-weight: bold; color: #666;">Ubicación de Archivos</label>
-          <input type="text" id="edit-archivos" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Expediente:</label>
+          <input type="text" id="edit-expediente" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Costo:</label>
+          <input type="text" id="edit-costo" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
         </div>
       </div>
 
-      <div style="flex: 1; min-width: 250px;">
-        <div style="border: 1px solid #1c4587; border-radius: 6px; padding: 15px; background: #fff;">
-          <h4 style="margin: 0 0 15px 0; color: #1c4587; font-size: 14px; display: flex; align-items: center; gap: 5px;">
-            <span class="material-symbols-outlined" style="font-size: 18px;">group</span> Equipo Asignado
-          </h4>
-          <div id="edit-lista-equipo" style="display: flex; flex-direction: column; gap: 10px;"></div>
-          <button id="btn-add-participante" onclick="agregarFilaEquipoDetalle()" style="margin-top: 15px; width: 100%; padding: 8px; background: #f0f4f8; border: 1px dashed #1c4587; color: #1c4587; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px;">+ AGREGAR PARTICIPANTE</button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #fff; padding: 5px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Empresa:</label>
+          <select id="edit-empresa" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"></select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Cont. Nom:</label>
+          <input type="text" id="edit-contacto-nom" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Cont. Tel:</label>
+          <input type="text" id="edit-contacto-tel" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+      </div>
+
+      <div style="background: #fff; padding: 5px 15px 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none; display: flex; align-items: center; gap: 8px;">
+        <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Archivos:</label>
+        <input type="text" id="edit-archivos" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+      </div>
+
+      <div style="display: flex; gap: 15px; margin-top: 5px;">
+        <div style="flex: 2; display: flex; flex-direction: column;">
+          <label style="font-size: 11px; font-weight: bold; color: #1c4587; margin-bottom: 4px;">Descripción / Alcance:</label>
+          <textarea id="edit-descripcion" style="flex: 1; width: 100%; min-height: 80px; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; box-sizing: border-box; font-family: inherit; line-height: 1.4;"></textarea>
+        </div>
+        
+        <div style="flex: 1; display: flex; flex-direction: column; background: #fdfdfd; border: 1px solid #d1d9e0; border-radius: 4px; padding: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px;">
+             <span style="font-size: 11px; font-weight: bold; color: #1c4587; display: flex; align-items: center; gap: 4px;">
+               <span class="material-symbols-outlined" style="font-size: 14px;">group</span> Equipo Asignado
+             </span>
+             <button id="btn-add-participante" onclick="agregarFilaEquipoDetalle()" style="background: none; border: none; color: #1c4587; cursor: pointer; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 2px; padding: 0;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add_circle</span> Añadir
+             </button>
+          </div>
+          <div id="edit-lista-equipo" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
         </div>
       </div>
 
     </div>
 
-    <div id="area-guardar-cambios" style="margin-top: 30px; text-align: center; border-top: 1px solid #ccc; padding-top: 20px; display: none;">
-      <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Tienes permisos de administrador o encargado para modificar este proyecto.</p>
-      <button class="btn-azul" onclick="prepararGuardadoProyecto()" style="font-size: 15px; padding: 12px 30px; display: inline-flex; align-items: center; gap: 8px;">
-        <span class="material-symbols-outlined">save</span> GUARDAR CAMBIOS
+    <div id="area-guardar-cambios" style="margin-top: 15px; text-align: right; padding-top: 10px; display: none;">
+      <span style="font-size: 11px; color: #666; margin-right: 15px;">Modo edición activado (Admin/Encargado)</span>
+      <button class="btn-azul" onclick="prepararGuardadoProyecto()" style="font-size: 12px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR CAMBIOS
       </button>
     </div>
 
@@ -130,8 +135,7 @@
     </div>
     <p style="color: #444; font-size: 14px; margin-bottom: 10px;">Estás a punto de modificar el proyecto. Se registrarán los siguientes cambios en el historial:</p>
     
-    <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 200px; overflow-y: auto;">
-      </div>
+    <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 200px; overflow-y: auto;"></div>
 
     <div style="display: flex; gap: 10px;">
       <button onclick="document.getElementById('modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
@@ -148,8 +152,7 @@
       <span class="material-symbols-outlined">history</span> Bitácora del Proyecto
     </div>
     
-    <div id="contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;">
-       </div>
+    <div id="contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;"></div>
 
     <div style="text-align: right; padding-top: 10px; border-top: 1px solid #eee;">
       <button onclick="cerrarHistorialProyecto()" class="btn-azul" style="padding: 8px 20px; margin: 0;">CERRAR</button>
@@ -168,7 +171,7 @@
   }
 
   function cargarListaDeProyectos(forzar = false) {
-    document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando proyectos...</p>';
+    document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando proyectos...</p>';
     
     google.script.run.withSuccessHandler(function(resParams) {
       if (!resParams.error) {
@@ -252,7 +255,7 @@
     });
 
     if (proyectosFiltrados.length === 0) {
-        contenedor.innerHTML = '<p style="text-align:center; padding:30px; border: 1px dashed #ccc; border-radius: 6px; color:#666;">No hay proyectos que coincidan con los filtros seleccionados.</p>';
+        contenedor.innerHTML = '<p style="text-align:center; padding:30px; border: 1px dashed #ccc; border-radius: 6px; color: black;">No hay proyectos que coincidan con los filtros seleccionados.</p>';
         return;
     }
 
@@ -262,19 +265,40 @@
         var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
 
         var tarjeta = `
-          <div style="border: 1px solid #d1d9e0; border-radius: 6px; padding: 12px 15px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center;">
-            <div style="flex: 1; padding-right: 15px;">
-              <div style="font-size: 12px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; color: #666;">
-                <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span> 
-                <strong>${p.centro}</strong> - ${p.departamento}
+          <div style="border-bottom: 1px solid #d1d9e0; padding: 8px 4px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+            <div style="display: flex; flex: 1; min-width: 0; align-items: center;">
+              
+              <div style="flex: 1.5; min-width: 0; padding-right: 10px;">
+                <div style="font-size: 11px; color: #555; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
+                  <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span>
+                  <span>${p.departamento} - ${p.centro}</span>
+                </div>
+                <div style="font-size: 14px; font-weight: bold; color: black; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${p.nombre}
+                </div>
               </div>
-              <div style="font-size: 15px; color: ${colorNombre}; font-weight: bold; line-height: 1.2; margin-bottom: 4px;">${p.nombre}</div>
-              <div style="font-size: 11px; color: #555;">${p.tipoObra} • <span style="font-weight:bold; color: #1c4587;">${pEstado}</span></div>
+
+              <div style="width: 1px; height: 32px; background-color: #d1d9e0; flex-shrink: 0; margin: 0 10px;"></div>
+
+              <div style="flex: 1; min-width: 0; font-size: 11px; line-height: 1.4;">
+                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="color: #666; font-weight: bold;">TIPO DE OBRA:</span> 
+                  <span style="color: ${colorNombre}; font-weight: bold;">${p.tipoObra}</span>
+                </div>
+                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  <span style="color: #666; font-weight: bold;">ESTADO:</span> 
+                  <span style="color: black; font-weight: bold;">${pEstado}</span>
+                </div>
+              </div>
+
             </div>
             
-            <div style="text-align: right; min-width: 120px;">
-              <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
-                VER DETALLE <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+            <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
+              <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;" title="Ver Historial">
+                <span class="material-symbols-outlined" style="font-size: 14px;">history</span> HISTORIAL
+              </button>
+              <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                VER DETALLE <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
               </button>
             </div>
           </div>
@@ -283,9 +307,38 @@
     });
   }
 
+  // --- MAGIA: Ocultar y Mostrar encabezados molestos del archivo Index/Padre ---
+  function gestionarEncabezadoMolesto(ocultar) {
+    try {
+      var elementos = document.querySelectorAll('div, h2, h3, button, p');
+      elementos.forEach(function(el) {
+        if (el.innerText) {
+          var txt = el.innerText.toLowerCase().trim();
+          // Detectamos el cuadro repetido o el botón de volver
+          if (txt.includes("proyectos en curso - listado de obras") || txt === "volver a gestión" || txt === "volver a gestion") {
+            if (ocultar) {
+              if (el.style.display !== 'none' && !el.classList.contains('oculto-por-detalle')) {
+                el.setAttribute('data-display-original', el.style.display || 'block');
+                el.style.display = 'none';
+                el.classList.add('oculto-por-detalle');
+              }
+            } else {
+              if (el.classList.contains('oculto-por-detalle')) {
+                el.style.display = el.getAttribute('data-display-original') || '';
+                el.classList.remove('oculto-por-detalle');
+              }
+            }
+          }
+        }
+      });
+    } catch(e) { console.log(e); }
+  }
+
   // --- LÓGICA DE LA PANTALLA DE DETALLE / EDICIÓN ---
 
   function abrirDetalleProyecto(index) {
+    gestionarEncabezadoMolesto(true); // Oculta el encabezado repetido
+
     proyectoActivoEditando = todosLosProyectosCargados[index];
     var p = proyectoActivoEditando;
 
@@ -310,11 +363,11 @@
     etapas.forEach((etapa, idx) => {
         let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
         let borderColor = '#1c4587';
-        timelineHtml += `<div title="${etapa}" style="width: 14px; height: 14px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 2px; box-sizing: border-box;"></div>`;
-        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 10px; height: 2px; background-color: ${borderColor};"></div>`;
+        timelineHtml += `<div title="${etapa}" style="width: 10px; height: 10px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 50%; box-sizing: border-box;"></div>`;
+        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 15px; height: 2px; background-color: ${borderColor};"></div>`;
     });
     timelineHtml += '</div>';
-    timelineHtml += `<div style="font-size:10px; color:#666; margin-top:4px;">Progreso Estimado</div>`;
+    timelineHtml += `<div style="font-size:9px; color:#666; margin-top:2px;">Progreso de Etapas</div>`;
     document.getElementById('contenedor-timeline-detalle').innerHTML = timelineHtml;
 
     var selEstado = document.getElementById('edit-estado');
@@ -339,12 +392,12 @@
       var el = document.getElementById(id);
       if(el) {
         el.disabled = !esModoEdicionPermitido;
-        el.style.backgroundColor = esModoEdicionPermitido ? '#fff' : '#f0f0f0';
+        el.style.backgroundColor = esModoEdicionPermitido ? '#fff' : '#f5f5f5';
       }
     });
 
     document.getElementById('area-guardar-cambios').style.display = esModoEdicionPermitido ? 'block' : 'none';
-    document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'block' : 'none';
+    document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'flex' : 'none';
 
     renderizarEquipoDetalle(p.equipo || []);
 
@@ -353,17 +406,17 @@
   }
 
   function volverListadoProyectos() {
+    gestionarEncabezadoMolesto(false); // Restaura el encabezado original al salir
     document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
     document.getElementById('listado-proyectos-wrapper').style.display = 'block';
     proyectoActivoEditando = null;
   }
 
-  // --- LÓGICA DE EQUIPO DINÁMICO ---
   function renderizarEquipoDetalle(equipo) {
     var cont = document.getElementById('edit-lista-equipo');
     cont.innerHTML = '';
     if (equipo.length === 0 && !esModoEdicionPermitido) {
-      cont.innerHTML = '<span style="font-size:12px; color:#888;">Sin equipo asignado</span>';
+      cont.innerHTML = '<span style="font-size:11px; color:#888;">Sin equipo asignado</span>';
       return;
     }
 
@@ -374,30 +427,29 @@
     var cont = document.getElementById('edit-lista-equipo');
     
     if (!esModoEdicionPermitido) {
-      var badge = encargadoVal ? '<span style="background: #1c4587; color: white; padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: bold; margin-left: 5px;">ENCARGADO</span>' : '';
-      cont.innerHTML += `<div style="font-size:13px; margin-bottom:5px;"><strong>${participanteVal}</strong> - ${rolVal} ${badge}</div>`;
+      var badge = encargadoVal ? '<span style="background: #1c4587; color: white; padding: 2px 4px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 5px;">ENCARGADO</span>' : '';
+      cont.innerHTML += `<div style="font-size:11px; margin-bottom:2px; color: black; border-bottom: 1px solid #eee; padding-bottom: 2px;"><strong>${participanteVal}</strong> - ${rolVal} ${badge}</div>`;
       return;
     }
 
     var div = document.createElement('div');
-    div.style = "display: flex; gap: 8px; align-items: center; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee;";
+    div.style = "display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px;";
     
-    var selPart = `<select class="det-part" style="flex: 2; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size:12px;"><option value="">Participante...</option>`;
+    var selPart = `<select class="det-part" style="flex: 2; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Participante...</option>`;
     if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}" ${p === participanteVal ? 'selected':''}>${p}</option>`);
     selPart += `</select>`;
     
-    var selRol = `<select class="det-rol" style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size:12px;"><option value="">Rol...</option>`;
+    var selRol = `<select class="det-rol" style="flex: 1; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Rol...</option>`;
     if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}" ${r === rolVal ? 'selected':''}>${r}</option>`);
     selRol += `</select>`;
     
-    var chk = `<label style="font-size:10px; font-weight:bold; color:#1c4587; display:flex; flex-direction:column; align-items:center;">ENC. <input type="checkbox" class="det-enc" ${encargadoVal ? 'checked' : ''}></label>`;
-    var btnDel = `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d93025; cursor:pointer;" title="Quitar"><span class="material-symbols-outlined" style="font-size:18px;">delete</span></button>`;
+    var chk = `<label style="font-size:9px; font-weight:bold; color: black; display:flex; flex-direction:row; align-items:center; gap: 2px;">Enc. <input type="checkbox" class="det-enc" ${encargadoVal ? 'checked' : ''} style="margin:0;"></label>`;
+    var btnDel = `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d93025; cursor:pointer; padding:0;" title="Quitar"><span class="material-symbols-outlined" style="font-size:14px;">cancel</span></button>`;
 
     div.innerHTML = selPart + selRol + chk + btnDel;
     cont.appendChild(div);
   }
 
-  // --- LÓGICA DE GUARDADO Y VALIDACIÓN ---
   var datosAEnviar = null;
   var requiereGuardarEstado = false;
   var requiereGuardarDatos = false;
@@ -463,7 +515,7 @@
       asignados: nEquipo
     };
 
-    document.getElementById('lista-cambios-detectados').innerHTML = `<ul style="margin:0; padding-left:20px;">${cambios.join('')}</ul>`;
+    document.getElementById('lista-cambios-detectados').innerHTML = `<ul style="margin:0; padding-left:20px; color: black;">${cambios.join('')}</ul>`;
     document.getElementById('modal-confirmar-edicion').style.display = 'flex';
   }
 
@@ -511,6 +563,11 @@
   }
 
   // --- LÓGICA DE VISUALIZACIÓN DE HISTORIAL ---
+  function abrirHistorialDesdeListado(index) {
+    proyectoActivoEditando = todosLosProyectosCargados[index];
+    abrirHistorialProyecto();
+  }
+
   function abrirHistorialProyecto() {
     if (!proyectoActivoEditando) return;
     var p = proyectoActivoEditando;
@@ -518,8 +575,7 @@
     var modal = document.getElementById('modal-ver-historial');
     var contenedor = document.getElementById('contenido-historial');
     
-    // Estado de carga
-    contenedor.innerHTML = '<p style="text-align:center; color:#666; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando historial en la base de datos...</p>';
+    contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando historial en la base de datos...</p>';
     modal.style.display = 'flex';
 
     google.script.run
@@ -530,20 +586,19 @@
         }
         
         if (res.datos && res.datos.length > 0) {
-          // Generar la línea de tiempo vertical
           var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
           
           res.datos.forEach(function(h) {
             html += `
               <div style="position: relative; margin-bottom: 25px;">
                 <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; background: #fff; border: 2px solid #1c4587; border-radius: 50%;"></div>
-                <div style="font-size: 11px; color: #666; font-weight: bold; margin-bottom: 2px;">
+                <div style="font-size: 11px; color: black; font-weight: bold; margin-bottom: 2px;">
                   <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">calendar_today</span> ${h.fecha} 
                   &nbsp;•&nbsp; 
                   <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">person</span> ${h.usuario}
                 </div>
                 <div style="font-size: 14px; color: #1c4587; font-weight: bold; margin: 2px 0;">${h.categoria}</div>
-                <div style="font-size: 13px; color: #444; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px;">${h.detalle}</div>
+                <div style="font-size: 13px; color: black; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px;">${h.detalle}</div>
               </div>
             `;
           });
@@ -551,7 +606,7 @@
           html += '</div>';
           contenedor.innerHTML = html;
         } else {
-          contenedor.innerHTML = '<p style="text-align:center; color:#666; padding: 30px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 10px;">' + (res.msg || 'No hay eventos registrados para este proyecto.') + '</p>';
+          contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 30px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 10px;">' + (res.msg || 'No hay eventos registrados para este proyecto.') + '</p>';
         }
       })
       .withFailureHandler(function(err) {
