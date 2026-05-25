@@ -244,7 +244,7 @@ function guardarNuevoProyecto(datosProyecto) {
       "tipo de obra": datosProyecto.tipoObra,
       "estado": datosProyecto.estado,
       "equipo": JSON.stringify(datosProyecto.asignados),
-      "creado por": datosProyecto.usuario, // Corresponde al usuarioNombre ya enviado desde el front en la creación
+      "creado por": datosProyecto.usuario, 
       "nro expediente": datosProyecto.expediente || "",
       "costo obra": datosProyecto.costo || "",
       "empresa": datosProyecto.empresa || "",
@@ -404,13 +404,14 @@ function editarDatosProyecto(datosEdicion) {
              var categoria = "";
              var detalle = "";
              
+             var txtV = valorViejo !== "" ? valorViejo : "vacío";
+             var txtN = valorNuevo !== "" ? valorNuevo : "vacío";
+
              if (key === "descripción") {
                 categoria = "DESCRIPCIÓN";
-                detalle = "Se modificó el texto detallado.";
+                detalle = "Cambió de:\n«" + txtV + "»\n\na:\n«" + txtN + "»";
              } else {
                 categoria = key.toUpperCase();
-                var txtV = valorViejo !== "" ? valorViejo : "vacío";
-                var txtN = valorNuevo !== "" ? valorNuevo : "vacío";
                 detalle = "Cambió de '" + txtV + "' a '" + txtN + "'";
              }
              
@@ -497,7 +498,6 @@ function registrarHitoHistorial(idProyecto, fecha, usuario, categoria, detalle, 
       sheetHistorial.appendRow(["ID Proyecto", "Fecha y Hora", "Usuario Responsable", "Categoría del Hito", "Detalle del Cambio", "Comentario"]);
       sheetHistorial.getRange("A1:F1").setFontWeight("bold").setBackground("#D9E2F3");
     } else {
-      // Si la columna de comentario no existe (bases viejas), la crea dinámicamente
       if (sheetHistorial.getLastColumn() < 6) {
          sheetHistorial.getRange(1, 6).setValue("Comentario").setFontWeight("bold").setBackground("#D9E2F3");
       }

@@ -80,8 +80,7 @@
       
       <div id="contenedor-timeline-detalle" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;"></div>
       
-      <div id="botones-estado" style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; min-width: 180px; align-items: flex-end;">
-          </div>
+      <div id="botones-estado" style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; min-width: 180px; align-items: flex-end;"></div>
 
     </div>
 
@@ -204,7 +203,6 @@
   var indicePaginacion = 0;
   const PROYECTOS_POR_PAGINA = 10;
   
-  // Variable global para la bitácora y sus filtros
   var historialActivoData = [];
 
   function obtenerColorPorIndice(tipo) {
@@ -578,17 +576,31 @@
     }
 
     requiereGuardarDatos = false;
-    // Es crítico usar como "key" los nombres que el backend usa para relacionar (ver mapping en backend)
-    if (nDesc !== (p.descripcion||"")) { cambiosDetectados.push({ key: 'descripcion', titulo: 'Descripción / Alcance', texto: 'Se modificó el texto descriptivo.' }); requiereGuardarDatos = true; }
+    
+    // --- Lógica especial para mostrar Preview visual en Descripción ---
+    if (nDesc !== (p.descripcion||"")) { 
+        var txtViejo = p.descripcion || "vacío";
+        // Cortamos el texto para que no sea inmenso en el modal si escribieron mucho
+        var previewViejo = txtViejo.length > 80 ? txtViejo.substring(0, 80) + "..." : txtViejo;
+        var previewNuevo = nDesc.length > 80 ? nDesc.substring(0, 80) + "..." : nDesc;
+        
+        cambiosDetectados.push({ 
+            key: 'descripcion', 
+            titulo: 'Descripción / Alcance', 
+            texto: `<div style="margin-top:4px; font-size:11px; background:#fff; padding:6px; border-radius:4px; border:1px solid #ddd;">
+                      <strong>De:</strong> <em>${previewViejo}</em><br>
+                      <strong>A:</strong> <em>${previewNuevo}</em>
+                    </div>` 
+        }); 
+        requiereGuardarDatos = true; 
+    }
+    
     if (nExp !== (p.expediente||"")) { cambiosDetectados.push({ key: 'expediente', titulo: 'Nro de Expediente', texto: `Se actualizó a '${nExp}'.` }); requiereGuardarDatos = true; }
     if (nCosto !== (p.costo||"")) { cambiosDetectados.push({ key: 'costo', titulo: 'Costo de Obra', texto: `Se actualizó a '${nCosto}'.` }); requiereGuardarDatos = true; }
     if (nM2 !== (p.m2||"")) { cambiosDetectados.push({ key: 'm2', titulo: 'Metros Cuadrados (m2)', texto: `Se actualizó a '${nM2}'.` }); requiereGuardarDatos = true; }
     if (nEmp !== (p.empresa||"")) { cambiosDetectados.push({ key: 'empresa', titulo: 'Empresa Adjudicada', texto: `Se cambió a '${nEmp}'.` }); requiereGuardarDatos = true; }
-    
-    // Tratamos los contactos individualmente para asociar comentarios a cada cambio específico
     if (nContNom !== (p.contactoNombre||"")) { cambiosDetectados.push({ key: 'contacto nombre', titulo: 'Nombre del Contacto', texto: `Se actualizó a '${nContNom}'.` }); requiereGuardarDatos = true; }
     if (nContTel !== (p.contactoTelefono||"")) { cambiosDetectados.push({ key: 'contactoTelefono', titulo: 'Teléfono del Contacto', texto: `Se actualizó a '${nContTel}'.` }); requiereGuardarDatos = true; }
-    
     if (nArch !== (p.ubicacionArchivos||"")) { cambiosDetectados.push({ key: 'ubicacionArchivos', titulo: 'Ubicación de Archivos', texto: 'Se actualizó la ruta o enlace.' }); requiereGuardarDatos = true; }
     
     var equipoOriginal = p.equipo || [];
@@ -617,7 +629,6 @@
       return;
     }
 
-    // Nombre de la persona que edita, obtenido globalmente de Logica_Global.html
     var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
 
     datosAEnviar = {
@@ -636,7 +647,6 @@
       usuarioNombre: usuarioNombreAEnviar
     };
 
-    // Generar el HTML del formulario para solicitar comentarios obligatorios
     var htmlFormularioCambios = '';
     cambiosDetectados.forEach(c => {
        htmlFormularioCambios += `
@@ -654,7 +664,6 @@
   }
 
   function ejecutarGuardadoBackend() {
-    // 1. Recolectar y validar los comentarios del modal
     var inputs = document.querySelectorAll('.input-comentario-cambio');
     var comentarios = {};
     for (var i = 0; i < inputs.length; i++) {
@@ -662,22 +671,19 @@
         if (!val) {
             alert("Atención: Es obligatorio ingresar un motivo o justificación para TODOS los cambios detectados.");
             inputs[i].focus();
-            return; // Corta la ejecución si falta algún comentario
+            return; 
         }
         comentarios[inputs[i].getAttribute('data-key')] = val;
     }
     
-    // Asignar los comentarios al objeto de datos
     datosAEnviar.comentarios = comentarios;
 
-    // 2. Bloquear botón y procesar
     var btn = document.getElementById('btn-confirmar-guardado-final');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
 
     var promesas = [];
 
-    // Llamadas al servidor pasando el objeto con comentarios y el nombre del usuario
     if (requiereGuardarEstado) {
       promesas.push(new Promise((resolve, reject) => {
         google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
@@ -742,7 +748,6 @@
         historialActivoData = res.datos || [];
         
         if (historialActivoData.length > 0) {
-          // Extraer categorías únicas para poblar el filtro
           var categorias = [...new Set(historialActivoData.map(h => h.categoria))].filter(c => c && c !== "-" && c !== "Creación");
           selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
           categorias.forEach(c => selectFiltro.innerHTML += `<option value="${c}">${c}</option>`);
@@ -759,7 +764,6 @@
       .obtenerHistorialProyecto(p.nombre, p.fecha);
   }
 
-  // Nueva función dedicada a renderizar y filtrar la bitácora
   function renderizarHistorialActivo() {
     var contenedor = document.getElementById('contenido-historial');
     var filtro = document.getElementById('filtro-historial').value;
@@ -774,12 +778,14 @@
     var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
           
     registrosAMostrar.forEach(function(h) {
-      // Si existe un comentario en la base, lo pintamos de manera destacada
       var bloqueComentario = h.comentario ? 
         `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 12px; color: #1c4587;">
            <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle; margin-right:2px;">chat</span>
            <strong>Motivo:</strong> <em>${h.comentario}</em>
          </div>` : '';
+
+      // --- CRÍTICO: Reemplazar los saltos de línea (\n) por <br> para que se vea el texto formateado ---
+      var detalleFormateado = h.detalle ? h.detalle.replace(/\n/g, '<br>') : "-";
 
       html += `
         <div style="position: relative; margin-bottom: 25px;">
@@ -791,7 +797,7 @@
           </div>
           <div style="font-size: 14px; color: #1c4587; font-weight: 800; margin: 2px 0;">${h.categoria}</div>
           <div style="font-size: 13px; color: black; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px solid #e0e0e0; margin-top: 5px;">
-            <span style="color: #333;">${h.detalle}</span>
+            <span style="color: #333;">${detalleFormateado}</span>
             ${bloqueComentario}
           </div>
         </div>
