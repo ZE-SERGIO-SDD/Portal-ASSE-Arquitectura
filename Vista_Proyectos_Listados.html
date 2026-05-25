@@ -28,7 +28,24 @@
            <select id="filtro-estado-listado" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
          </div>
        </div>
-     </div>
+
+       <div style="display: flex; gap: 15px; margin-top: 15px; padding-top: 12px; border-top: 1px dashed #d1d9e0; flex-wrap: wrap; align-items: center;">
+         <div style="font-weight: 700; color: #1c4587; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+           <span class="material-symbols-outlined" style="font-size: 18px;">sort</span> ORDENAR POR:
+         </div>
+         <select id="orden-campo" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; flex: 1; min-width: 160px;">
+           <option value="fecha">Fecha (Por defecto)</option>
+           <option value="departamento">Departamento</option>
+           <option value="tipoObra">Tipo de Obra</option>
+           <option value="estado">Estado de Obra</option>
+           <option value="participante">Participante Principal</option>
+         </select>
+         <select id="orden-direccion" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; min-width: 160px;">
+           <option value="desc">Descendente (Z-A / Recientes)</option>
+           <option value="asc">Ascendente (A-Z / Antiguos)</option>
+         </select>
+       </div>
+       </div>
      
      <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 0px;">
         <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
@@ -157,8 +174,13 @@
     <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
       <span class="material-symbols-outlined" style="color: #1c4587;">draw</span> Justificación de Modificaciones
     </div>
-    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">Para guardar los cambios en la bitácora, es necesario añadir un breve motivo o justificación de las modificaciones detectadas.</p>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">Para guardar los cambios en la bitácora, es necesario añadir un breve motivo y confirmar la fecha del evento.</p>
     
+    <div style="margin-bottom: 15px; background: #e8f0fe; padding: 10px; border-radius: 6px; border: 1px solid #c2d7f5; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <label style="font-size: 13px; font-weight: bold; color: #1c4587; margin: 0;">Fecha de cambio de etapa:</label>
+      <input type="date" id="fecha-cambio-modal" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; font-family: inherit; font-weight: bold;">
+    </div>
+
     <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 350px; overflow-y: auto;">
       </div>
 
@@ -204,6 +226,9 @@
   const PROYECTOS_POR_PAGINA = 10;
   
   var historialActivoData = [];
+  var datosAEnviar = null;
+  var requiereGuardarEstado = false;
+  var requiereGuardarDatos = false;
 
   function obtenerColorPorIndice(tipo) {
     var colores = ['#000000', '#188038', '#1C4587', '#D93025', '#673AB7', '#F29900', '#795548'];
@@ -307,6 +332,39 @@
 
         return true; 
     });
+
+    // --- NUEVO: LÓGICA DE ORDENAMIENTO ---
+    var campoOrden = document.getElementById('orden-campo').value;
+    var direccionOrden = document.getElementById('orden-direccion').value;
+
+    proyectosFiltradosActuales.sort(function(a, b) {
+        var valA = "";
+        var valB = "";
+
+        if (campoOrden === "fecha") {
+            valA = a.fecha || "";
+            valB = b.fecha || "";
+        } else if (campoOrden === "departamento") {
+            valA = a.departamento ? a.departamento.toLowerCase() : "";
+            valB = b.departamento ? b.departamento.toLowerCase() : "";
+        } else if (campoOrden === "tipoObra") {
+            valA = a.tipoObra ? a.tipoObra.toLowerCase() : "";
+            valB = b.tipoObra ? b.tipoObra.toLowerCase() : "";
+        } else if (campoOrden === "estado") {
+            valA = a.estado ? a.estado.toLowerCase() : "";
+            valB = b.estado ? b.estado.toLowerCase() : "";
+        } else if (campoOrden === "participante") {
+            var eqA = a.equipo && a.equipo.length > 0 ? (a.equipo.find(m => m.encargado) || a.equipo[0]) : null;
+            var eqB = b.equipo && b.equipo.length > 0 ? (b.equipo.find(m => m.encargado) || b.equipo[0]) : null;
+            valA = eqA && eqA.participante ? eqA.participante.toLowerCase() : "zzzz"; // 'zzzz' manda a los sin equipo al final en modo asc
+            valB = eqB && eqB.participante ? eqB.participante.toLowerCase() : "zzzz";
+        }
+
+        if (valA < valB) return direccionOrden === "asc" ? -1 : 1;
+        if (valA > valB) return direccionOrden === "asc" ? 1 : -1;
+        return 0;
+    });
+    // --- FIN ORDENAMIENTO ---
     
     indicePaginacion = 0; 
 
@@ -329,8 +387,34 @@
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
         var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
 
+        // --- LÓGICA DE ESTADOS PARA LOS BOTONES EN LA LISTA ---
+        var etapas = [];
+        if (p.tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[p.tipoObra]) {
+            etapas = opcionesConfig.mapaTiposEstados[p.tipoObra];
+        } else if (opcionesConfig.estados) {
+            etapas = opcionesConfig.estados;
+        }
+        var etapaIndex = etapas.indexOf(p.estado);
+        var prevEst = (etapaIndex > 0) ? etapas[etapaIndex - 1] : null;
+        var nextEst = (etapaIndex !== -1 && etapaIndex < etapas.length - 1) ? etapas[etapaIndex + 1] : null;
+
+        var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
+        var esEncargado = p.equipo && p.equipo.some(m => m.participante === (typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "") && m.encargado === true);
+        var permitirEdicion = esAdmin || esEncargado;
+
+        var botonesEstadoHtml = '';
+        if(permitirEdicion) {
+            if(prevEst) {
+               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${prevEst}')" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 2px;" title="Retroceder a ${prevEst}"><span class="material-symbols-outlined" style="font-size:14px;">arrow_back</span> Retroceder a ${prevEst}</button>`;
+            }
+            if(nextEst) {
+               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${nextEst}')" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 2px;" title="Avanzar a ${nextEst}">Avanzar a ${nextEst} <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></button>`;
+            }
+        }
+
         var tarjeta = `
           <div style="border-bottom: 1px solid #d1d9e0; padding: 8px 4px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+            
             <div style="display: flex; flex: 1; min-width: 0; align-items: center;">
               <div style="flex: 1.5; min-width: 0; padding-right: 10px;">
                 <div style="font-size: 11px; color: #555; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
@@ -353,14 +437,21 @@
                 </div>
               </div>
             </div>
-            <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
-              <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;" title="Ver Historial">
-                <span class="material-symbols-outlined" style="font-size: 14px;">history</span> BITÁCORA
-              </button>
-              <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
-                VER DETALLE <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
-              </button>
+
+            <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-items: flex-end;">
+              <div style="display: flex; gap: 6px;">
+                 ${botonesEstadoHtml}
+              </div>
+              <div style="display: flex; gap: 6px;">
+                 <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Ver Bitácora">
+                   <span class="material-symbols-outlined" style="font-size: 18px;">history</span>
+                 </button>
+                 <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Ver Detalle">
+                   <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                 </button>
+              </div>
             </div>
+
           </div>
         `;
         contenedor.innerHTML += tarjeta;
@@ -424,28 +515,9 @@
     timelineHtml += `<div style="font-size:10px; color:#666; margin-top:6px; font-weight:bold;">Línea de Progreso General</div>`;
     document.getElementById('contenedor-timeline-detalle').innerHTML = timelineHtml;
 
-    var botonesHtml = '';
-    if (esModoEdicionPermitido) {
-        if (etapaIndex > 0) {
-            var prevEst = etapas[etapaIndex - 1];
-            botonesHtml += `<button onclick="cambiarEstadoUI('${prevEst}')" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; transition: 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> Retroceder a:<br>${prevEst}</button>`;
-        }
-        if (etapaIndex < etapas.length - 1 && etapaIndex !== -1) {
-            var nextEst = etapas[etapaIndex + 1];
-            botonesHtml += `<button onclick="cambiarEstadoUI('${nextEst}')" class="btn-azul" style="margin:0; padding: 8px 12px; font-size: 11px; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px;">Avanzar a:<br>${nextEst} <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span></button>`;
-        }
-        if(etapas.length > 0 && etapaIndex === -1) {
-             botonesHtml += `<button onclick="cambiarEstadoUI('${etapas[0]}')" class="btn-azul" style="margin:0; padding: 8px 12px; font-size: 11px; display: flex; align-items: center; width: 100%; gap: 4px;">Forzar a 1ra etapa <span class="material-symbols-outlined" style="font-size:16px;">sync</span></button>`;
-        }
-    } else {
-        botonesHtml = `<span style="font-size: 11px; color: #666; font-style: italic; text-align: right;">Modo lectura.<br>No tienes permiso para avanzar etapas.</span>`;
-    }
+    var botonesHtml = `<span style="font-size: 11px; color: #666; font-style: italic; text-align: right;">Los cambios de etapa se realizan directamente<br>desde el listado de proyectos.</span>`;
+    
     document.getElementById('botones-estado').innerHTML = botonesHtml;
-  }
-
-  function cambiarEstadoUI(nuevoEstado) {
-      if(!proyectoActivoEditando) return;
-      renderizarEstadoYTimeline(nuevoEstado, proyectoActivoEditando.tipoObra);
   }
 
   function abrirDetalleProyecto(index) {
@@ -542,9 +614,51 @@
     cont.appendChild(div);
   }
 
-  var datosAEnviar = null;
-  var requiereGuardarEstado = false;
-  var requiereGuardarDatos = false;
+  function setFechaModalHoy() {
+      var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+      var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
+      document.getElementById('fecha-cambio-modal').value = localISOTime;
+  }
+
+  function prepararGuardadoRapidoEstado(indexGlobal, nEstado) {
+      proyectoActivoEditando = todosLosProyectosCargados[indexGlobal];
+      var p = proyectoActivoEditando;
+      
+      requiereGuardarEstado = true;
+      requiereGuardarDatos = false;
+
+      var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
+
+      datosAEnviar = {
+        nombreOriginal: p.nombre,
+        fechaOriginal: p.fecha,
+        estadoNuevo: nEstado,
+        descripcion: p.descripcion,
+        expediente: p.expediente,
+        costo: p.costo,
+        m2: p.m2,
+        empresa: p.empresa,
+        contactoNombre: p.contactoNombre,
+        contactoTelefono: p.contactoTelefono,
+        ubicacionArchivos: p.ubicacionArchivos,
+        asignados: p.equipo,
+        usuarioNombre: usuarioNombreAEnviar
+      };
+
+      var htmlFormularioCambios = `
+         <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
+            <div style="font-size: 13px; margin-bottom: 6px; color: #1c4587;">
+               <strong>[Estado de Obra]</strong> <span style="color:#555; font-size: 12px;">Se actualizará a <strong style="color: black; font-size: 14px; text-transform: uppercase;">${nEstado}</strong></span>
+            </div>
+            <input type="text" class="input-comentario-cambio" data-key="estado" placeholder="Explique brevemente el motivo (Obligatorio)..." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #1c4587; border-radius: 4px; box-sizing: border-box; background: #fff;" required>
+         </div>
+      `;
+
+      document.getElementById('lista-cambios-detectados').innerHTML = htmlFormularioCambios;
+      
+      setFechaModalHoy();
+      document.getElementById('modal-confirmar-edicion').style.display = 'flex';
+  }
 
   function prepararGuardadoProyecto() {
     if (!proyectoActivoEditando) return;
@@ -571,16 +685,14 @@
 
     requiereGuardarEstado = false;
     if (nEstado !== p.estado) {
-      cambiosDetectados.push({ key: 'estado', titulo: 'Estado de Obra', texto: `Avanzó/Retrocedió a <strong>${nEstado}</strong>` });
+      cambiosDetectados.push({ key: 'estado', titulo: 'Estado de Obra', texto: `Avanzó/Retrocedió a <strong style="color: black; text-transform: uppercase;">${nEstado}</strong>` });
       requiereGuardarEstado = true;
     }
 
     requiereGuardarDatos = false;
     
-    // --- Lógica especial para mostrar Preview visual en Descripción ---
     if (nDesc !== (p.descripcion||"")) { 
         var txtViejo = p.descripcion || "vacío";
-        // Cortamos el texto para que no sea inmenso en el modal si escribieron mucho
         var previewViejo = txtViejo.length > 80 ? txtViejo.substring(0, 80) + "..." : txtViejo;
         var previewNuevo = nDesc.length > 80 ? nDesc.substring(0, 80) + "..." : nDesc;
         
@@ -660,6 +772,8 @@
     });
 
     document.getElementById('lista-cambios-detectados').innerHTML = htmlFormularioCambios;
+    
+    setFechaModalHoy();
     document.getElementById('modal-confirmar-edicion').style.display = 'flex';
   }
 
@@ -676,7 +790,15 @@
         comentarios[inputs[i].getAttribute('data-key')] = val;
     }
     
+    var fechaSeleccionada = document.getElementById('fecha-cambio-modal').value;
+    if(!fechaSeleccionada) {
+        alert("Debe seleccionar la fecha en la que ocurrió este cambio.");
+        document.getElementById('fecha-cambio-modal').focus();
+        return;
+    }
+
     datosAEnviar.comentarios = comentarios;
+    datosAEnviar.fechaCambio = fechaSeleccionada;
 
     var btn = document.getElementById('btn-confirmar-guardado-final');
     btn.disabled = true;
@@ -687,7 +809,7 @@
     if (requiereGuardarEstado) {
       promesas.push(new Promise((resolve, reject) => {
         google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
-          .cambiarEstadoProyecto(datosAEnviar.nombreOriginal, datosAEnviar.fechaOriginal, datosAEnviar.estadoNuevo, datosAEnviar.usuarioNombre, datosAEnviar.comentarios.estado);
+          .cambiarEstadoProyecto(datosAEnviar.nombreOriginal, datosAEnviar.fechaOriginal, datosAEnviar.estadoNuevo, datosAEnviar.usuarioNombre, datosAEnviar.comentarios.estado, fechaSeleccionada);
       }));
     }
 
@@ -784,7 +906,6 @@
            <strong>Motivo:</strong> <em>${h.comentario}</em>
          </div>` : '';
 
-      // --- CRÍTICO: Reemplazar los saltos de línea (\n) por <br> para que se vea el texto formateado ---
       var detalleFormateado = h.detalle ? h.detalle.replace(/\n/g, '<br>') : "-";
 
       html += `
