@@ -2,17 +2,22 @@
   
   <div id="listado-proyectos-wrapper" style="width: 100%; max-width: 100%; padding: 0; text-align: left;">
      <div style="background: #f0f4f8; padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 15px;">
-       <div style="font-weight: 700; color: #1c4587; margin-bottom: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-         <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> Filtros de búsqueda:
+       <div style="font-weight: 700; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+         <div style="display: flex; align-items: center; gap: 6px;">
+           <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> Filtros de búsqueda:
+         </div>
+         <button id="btn-aplicar-filtros" onclick="ejecutarBusquedaProyectos()" style="background: #1c4587; border: none; color: white; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+           <span class="material-symbols-outlined" style="font-size: 16px;">search</span> APLICAR
+         </button>
        </div>
        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
          <div style="flex: 1; min-width: 160px;">
            <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 1: PARTICIPANTE</label>
-           <select id="filtro-participante" onchange="aplicarFiltrosListado()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+           <select id="filtro-participante" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
          </div>
          <div style="flex: 1; min-width: 160px;">
            <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 2: DEPARTAMENTO</label>
-           <select id="filtro-depto-listado" onchange="aplicarFiltrosListado()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+           <select id="filtro-depto-listado" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
          </div>
          <div style="flex: 1; min-width: 160px;">
            <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 3: TIPO DE OBRA</label>
@@ -20,15 +25,21 @@
          </div>
          <div style="flex: 1; min-width: 160px;">
            <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 4: ESTADO</label>
-           <select id="filtro-estado-listado" onchange="aplicarFiltrosListado()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+           <select id="filtro-estado-listado" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
          </div>
        </div>
      </div>
      
      <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 0px;">
-        <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;">
-          <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando proyectos...
+        <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
+          <span class="material-symbols-outlined">info</span> Seleccione los filtros y presione "APLICAR" para cargar proyectos.
         </p>
+     </div>
+     
+     <div id="contenedor-btn-cargar-mas" style="text-align: center; margin-top: 15px; margin-bottom: 15px; display: none;">
+        <button onclick="renderizarSiguientesProyectos()" style="background: #e0e0e0; color: #333; border: 1px solid #ccc; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; transition: 0.2s;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span> CARGAR MÁS
+        </button>
      </div>
   </div>
 
@@ -42,7 +53,7 @@
         <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha de Proyecto</span>
       </div>
       <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER HISTORIAL
+        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
       </button>
     </div>
 
@@ -57,16 +68,26 @@
           Tipo de Obra: <strong id="det-tipo" style="color: black;"></strong> | Creado por: <strong id="det-creador" style="color: black;"></strong>
         </div>
       </div>
-      <div id="contenedor-timeline-detalle" style="text-align: right; flex-shrink: 0; padding-top: 5px;"></div>
+    </div>
+
+    <div style="background: #e8f0fe; padding: 15px 20px; border: 1px solid #c2d7f5; border-radius: 6px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;">
+      
+      <div style="flex-shrink: 0; min-width: 150px;">
+          <div style="font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px;">ESTADO ACTUAL</div>
+          <div id="display-estado-actual" style="font-size: 18px; font-weight: 900; color: #1c4587; line-height: 1.2;"></div>
+          <input type="hidden" id="edit-estado" value="">
+      </div>
+      
+      <div id="contenedor-timeline-detalle" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;"></div>
+      
+      <div id="botones-estado" style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; min-width: 180px; align-items: flex-end;">
+          </div>
+
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 8px;">
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Estado:</label>
-          <select id="edit-estado" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; color: #1c4587;"></select>
-        </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Expediente:</label>
           <input type="text" id="edit-expediente" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
@@ -123,9 +144,9 @@
     </div>
 
     <div id="area-guardar-cambios" style="margin-top: 15px; text-align: right; padding-top: 10px; display: none;">
-      <span style="font-size: 11px; color: #666; margin-right: 15px;">Modo edición activado (Admin/Encargado)</span>
-      <button class="btn-azul" onclick="prepararGuardadoProyecto()" style="font-size: 12px; padding: 8px 20px; display: inline-flex; align-items: center; gap: 5px; margin: 0;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR CAMBIOS
+      <span style="font-size: 11px; color: #666; margin-right: 15px;">Hay cambios pendientes sin guardar</span>
+      <button class="btn-azul" onclick="prepararGuardadoProyecto()" style="font-size: 14px; padding: 10px 24px; display: inline-flex; align-items: center; gap: 6px; margin: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+        <span class="material-symbols-outlined" style="font-size: 18px;">save</span> GUARDAR TODOS LOS CAMBIOS
       </button>
     </div>
 
@@ -133,13 +154,14 @@
 </div>
 
 <div id="modal-confirmar-edicion" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined" style="color: #f29900;">warning</span> Confirmar Cambios
+  <div class="modal-content" style="width: 500px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="color: #1c4587;">draw</span> Justificación de Modificaciones
     </div>
-    <p style="color: #444; font-size: 14px; margin-bottom: 10px;">Estás a punto de modificar el proyecto. Se registrarán los siguientes cambios en el historial:</p>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">Para guardar los cambios en la bitácora, es necesario añadir un breve motivo o justificación de las modificaciones detectadas.</p>
     
-    <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 200px; overflow-y: auto;"></div>
+    <div id="lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 350px; overflow-y: auto;">
+      </div>
 
     <div style="display: flex; gap: 10px;">
       <button onclick="document.getElementById('modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
@@ -151,9 +173,18 @@
 </div>
 
 <div id="modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 550px; text-align: left; max-height: 80vh; display: flex; flex-direction: column;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">history</span> Bitácora del Proyecto
+  <div class="modal-content" style="width: 600px; text-align: left; max-height: 85vh; display: flex; flex-direction: column;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
+      <div class="titulo-azul" style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">history</span> Bitácora del Proyecto
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+         <label style="font-size: 11px; font-weight: bold; color: #666;">Filtrar por:</label>
+         <select id="filtro-historial" onchange="renderizarHistorialActivo()" style="padding: 6px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; color: #333; font-weight: bold;">
+            <option value="ALL">Todos los cambios</option>
+         </select>
+      </div>
     </div>
     
     <div id="contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;"></div>
@@ -167,6 +198,14 @@
 <script>
   var proyectoActivoEditando = null;
   var esModoEdicionPermitido = false;
+  
+  var todosLosProyectosCargados = [];
+  var proyectosFiltradosActuales = [];
+  var indicePaginacion = 0;
+  const PROYECTOS_POR_PAGINA = 10;
+  
+  // Variable global para la bitácora y sus filtros
+  var historialActivoData = [];
 
   function obtenerColorPorIndice(tipo) {
     var colores = ['#000000', '#188038', '#1C4587', '#D93025', '#673AB7', '#F29900', '#795548'];
@@ -175,8 +214,9 @@
   }
 
   function cargarListaDeProyectos(forzar = false) {
-    document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando proyectos...</p>';
-    
+    document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Preparando filtros...</p>';
+    document.getElementById('contenedor-btn-cargar-mas').style.display = 'none';
+
     google.script.run.withSuccessHandler(function(resParams) {
       if (!resParams.error) {
         opcionesConfig = resParams;
@@ -198,17 +238,9 @@
         if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
 
         selPart.value = valPart || ''; selDepto.value = valDepto || ''; selTipo.value = valTipo || ''; selEstado.value = valEstado || '';
+        
+        document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666; font-weight: bold;"><span class="material-symbols-outlined">info</span> Seleccione los filtros y presione "APLICAR" para buscar los proyectos.</p>';
       }
-
-      google.script.run.withSuccessHandler(function(resProyectos) {
-        if (resProyectos.error) {
-          document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="color:red; text-align:center;">Error al cargar datos.</p>';
-          return;
-        }
-        todosLosProyectosCargados = resProyectos;
-        aplicarFiltrosListado(); 
-      }).obtenerListaDeProyectos(forzar);
-
     }).obtenerParametrosProyectos(forzar);
   }
 
@@ -222,8 +254,28 @@
     estadosAMostrar.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
     selEstado.value = valEstado; 
     if(!selEstado.value) selEstado.value = ""; 
-    
-    aplicarFiltrosListado();
+  }
+  
+  function ejecutarBusquedaProyectos() {
+    var btn = document.getElementById('btn-aplicar-filtros');
+    var textoOriginal = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> BUSCANDO...';
+    btn.disabled = true;
+
+    document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Obteniendo proyectos de la base de datos...</p>';
+    document.getElementById('contenedor-btn-cargar-mas').style.display = 'none';
+
+    google.script.run.withSuccessHandler(function(resProyectos) {
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+
+      if (resProyectos.error) {
+        document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="color:red; text-align:center;">Error al cargar datos.</p>';
+        return;
+      }
+      todosLosProyectosCargados = resProyectos;
+      aplicarFiltrosListado(); 
+    }).obtenerListaDeProyectos(false); 
   }
 
   function aplicarFiltrosListado() {
@@ -235,7 +287,7 @@
     var contenedor = document.getElementById('contenedor-lista-proyectos');
     contenedor.innerHTML = '';
 
-    var proyectosFiltrados = todosLosProyectosCargados.filter(p => {
+    proyectosFiltradosActuales = todosLosProyectosCargados.filter(p => {
         var estadoTexto = p.estado ? p.estado.toString().toLowerCase().trim() : '';
         var esTerminado = estadoTexto.includes('terminad') || estadoTexto.includes('finaliz') || estadoTexto.includes('entregad');
         
@@ -257,13 +309,24 @@
 
         return true; 
     });
+    
+    indicePaginacion = 0; 
 
-    if (proyectosFiltrados.length === 0) {
+    if (proyectosFiltradosActuales.length === 0) {
         contenedor.innerHTML = '<p style="text-align:center; padding:30px; border: 1px dashed #ccc; border-radius: 6px; color: black;">No hay proyectos que coincidan con los filtros seleccionados.</p>';
+        document.getElementById('contenedor-btn-cargar-mas').style.display = 'none';
         return;
     }
 
-    proyectosFiltrados.forEach((p) => {
+    renderizarSiguientesProyectos();
+  }
+
+  function renderizarSiguientesProyectos() {
+    var contenedor = document.getElementById('contenedor-lista-proyectos');
+    var limite = indicePaginacion + PROYECTOS_POR_PAGINA;
+    var proyectosARenderizar = proyectosFiltradosActuales.slice(indicePaginacion, limite);
+
+    proyectosARenderizar.forEach((p) => {
         var pEstado = p.estado ? p.estado.toString().trim() : 'Sin Estado';
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
         var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
@@ -271,7 +334,6 @@
         var tarjeta = `
           <div style="border-bottom: 1px solid #d1d9e0; padding: 8px 4px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
             <div style="display: flex; flex: 1; min-width: 0; align-items: center;">
-              
               <div style="flex: 1.5; min-width: 0; padding-right: 10px;">
                 <div style="font-size: 11px; color: #555; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
                   <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span>
@@ -281,9 +343,7 @@
                   ${p.nombre}
                 </div>
               </div>
-
               <div style="width: 1px; height: 32px; background-color: #d1d9e0; flex-shrink: 0; margin: 0 10px;"></div>
-
               <div style="flex: 1; min-width: 0; font-size: 11px; line-height: 1.4;">
                 <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   <span style="color: #666; font-weight: bold;">TIPO DE OBRA:</span> 
@@ -294,12 +354,10 @@
                   <span style="color: black; font-weight: bold;">${pEstado}</span>
                 </div>
               </div>
-
             </div>
-            
             <div style="display: flex; gap: 6px; flex-shrink: 0; align-items: center;">
               <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;" title="Ver Historial">
-                <span class="material-symbols-outlined" style="font-size: 14px;">history</span> HISTORIAL
+                <span class="material-symbols-outlined" style="font-size: 14px;">history</span> BITÁCORA
               </button>
               <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
                 VER DETALLE <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
@@ -309,6 +367,14 @@
         `;
         contenedor.innerHTML += tarjeta;
     });
+
+    indicePaginacion = limite;
+
+    if (indicePaginacion < proyectosFiltradosActuales.length) {
+        document.getElementById('contenedor-btn-cargar-mas').style.display = 'block';
+    } else {
+        document.getElementById('contenedor-btn-cargar-mas').style.display = 'none';
+    }
   }
 
   function gestionarEncabezadoMolesto(ocultar) {
@@ -336,6 +402,54 @@
     } catch(e) { console.log(e); }
   }
 
+  function renderizarEstadoYTimeline(estadoActual, tipoObra) {
+    var etapas = [];
+    if (tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[tipoObra]) {
+        etapas = opcionesConfig.mapaTiposEstados[tipoObra];
+    } else if (opcionesConfig.estados) {
+        etapas = opcionesConfig.estados;
+    }
+
+    var etapaIndex = etapas.indexOf(estadoActual);
+
+    document.getElementById('display-estado-actual').innerText = estadoActual || "Sin Estado";
+    document.getElementById('edit-estado').value = estadoActual || "";
+
+    var timelineHtml = '<div style="display: flex; align-items: center; justify-content: center; width: 100%;">';
+    etapas.forEach((etapa, idx) => {
+        let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
+        let borderColor = '#1c4587';
+        timelineHtml += `<div title="${etapa}" style="width: 12px; height: 12px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 50%; box-sizing: border-box;"></div>`;
+        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 15px; height: 3px; background-color: ${borderColor};"></div>`;
+    });
+    timelineHtml += '</div>';
+    timelineHtml += `<div style="font-size:10px; color:#666; margin-top:6px; font-weight:bold;">Línea de Progreso General</div>`;
+    document.getElementById('contenedor-timeline-detalle').innerHTML = timelineHtml;
+
+    var botonesHtml = '';
+    if (esModoEdicionPermitido) {
+        if (etapaIndex > 0) {
+            var prevEst = etapas[etapaIndex - 1];
+            botonesHtml += `<button onclick="cambiarEstadoUI('${prevEst}')" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px; transition: 0.2s;"><span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span> Retroceder a:<br>${prevEst}</button>`;
+        }
+        if (etapaIndex < etapas.length - 1 && etapaIndex !== -1) {
+            var nextEst = etapas[etapaIndex + 1];
+            botonesHtml += `<button onclick="cambiarEstadoUI('${nextEst}')" class="btn-azul" style="margin:0; padding: 8px 12px; font-size: 11px; display: flex; align-items: center; justify-content: center; width: 100%; gap: 4px;">Avanzar a:<br>${nextEst} <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span></button>`;
+        }
+        if(etapas.length > 0 && etapaIndex === -1) {
+             botonesHtml += `<button onclick="cambiarEstadoUI('${etapas[0]}')" class="btn-azul" style="margin:0; padding: 8px 12px; font-size: 11px; display: flex; align-items: center; width: 100%; gap: 4px;">Forzar a 1ra etapa <span class="material-symbols-outlined" style="font-size:16px;">sync</span></button>`;
+        }
+    } else {
+        botonesHtml = `<span style="font-size: 11px; color: #666; font-style: italic; text-align: right;">Modo lectura.<br>No tienes permiso para avanzar etapas.</span>`;
+    }
+    document.getElementById('botones-estado').innerHTML = botonesHtml;
+  }
+
+  function cambiarEstadoUI(nuevoEstado) {
+      if(!proyectoActivoEditando) return;
+      renderizarEstadoYTimeline(nuevoEstado, proyectoActivoEditando.tipoObra);
+  }
+
   function abrirDetalleProyecto(index) {
     gestionarEncabezadoMolesto(true);
 
@@ -343,7 +457,7 @@
     var p = proyectoActivoEditando;
 
     var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
-    var esEncargado = p.equipo && p.equipo.some(m => m.participante === usuarioActivoNombre && m.encargado === true);
+    var esEncargado = p.equipo && p.equipo.some(m => m.participante === (typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "") && m.encargado === true);
     esModoEdicionPermitido = esAdmin || esEncargado;
 
     document.getElementById('det-centro').innerText = p.centro;
@@ -352,28 +466,7 @@
     document.getElementById('det-tipo').innerText = p.tipoObra;
     document.getElementById('det-creador').innerText = p.creador;
 
-    var etapas = [];
-    if (p.tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[p.tipoObra]) {
-        etapas = opcionesConfig.mapaTiposEstados[p.tipoObra];
-    } else if (opcionesConfig.estados) {
-        etapas = opcionesConfig.estados;
-    }
-    var etapaIndex = etapas.indexOf(p.estado);
-    var timelineHtml = '<div style="display: flex; align-items: center; justify-content: flex-end;">';
-    etapas.forEach((etapa, idx) => {
-        let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
-        let borderColor = '#1c4587';
-        timelineHtml += `<div title="${etapa}" style="width: 10px; height: 10px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 50%; box-sizing: border-box;"></div>`;
-        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 15px; height: 2px; background-color: ${borderColor};"></div>`;
-    });
-    timelineHtml += '</div>';
-    timelineHtml += `<div style="font-size:9px; color:#666; margin-top:2px;">Progreso de Etapas</div>`;
-    document.getElementById('contenedor-timeline-detalle').innerHTML = timelineHtml;
-
-    var selEstado = document.getElementById('edit-estado');
-    selEstado.innerHTML = '';
-    etapas.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
-    selEstado.value = p.estado;
+    renderizarEstadoYTimeline(p.estado, p.tipoObra);
 
     var selEmpresa = document.getElementById('edit-empresa');
     selEmpresa.innerHTML = '<option value="">Sin asignar / Otra</option>';
@@ -388,7 +481,7 @@
     document.getElementById('edit-contacto-tel').value = p.contactoTelefono || "";
     document.getElementById('edit-archivos').value = p.ubicacionArchivos || "";
 
-    var inputsIds = ['edit-estado', 'edit-descripcion', 'edit-expediente', 'edit-costo', 'edit-empresa', 'edit-contacto-nom', 'edit-contacto-tel', 'edit-archivos', 'edit-m2'];
+    var inputsIds = ['edit-descripcion', 'edit-expediente', 'edit-costo', 'edit-empresa', 'edit-contacto-nom', 'edit-contacto-tel', 'edit-archivos', 'edit-m2'];
     inputsIds.forEach(id => {
       var el = document.getElementById(id);
       if(el) {
@@ -458,7 +551,7 @@
   function prepararGuardadoProyecto() {
     if (!proyectoActivoEditando) return;
     var p = proyectoActivoEditando;
-    var cambios = [];
+    var cambiosDetectados = [];
 
     var nEstado = document.getElementById('edit-estado').value;
     var nDesc = document.getElementById('edit-descripcion').value.trim();
@@ -480,34 +573,33 @@
 
     requiereGuardarEstado = false;
     if (nEstado !== p.estado) {
-      cambios.push(`<li><strong>Estado:</strong> Pasó a <span style="color:#1c4587;">${nEstado}</span></li>`);
+      cambiosDetectados.push({ key: 'estado', titulo: 'Estado de Obra', texto: `Avanzó/Retrocedió a <strong>${nEstado}</strong>` });
       requiereGuardarEstado = true;
     }
 
     requiereGuardarDatos = false;
-    if (nDesc !== (p.descripcion||"")) { cambios.push(`<li><strong>Descripción:</strong> Se modificó el texto.</li>`); requiereGuardarDatos = true; }
-    if (nExp !== (p.expediente||"")) { cambios.push(`<li><strong>Expediente:</strong> Se actualizó a '${nExp}'.</li>`); requiereGuardarDatos = true; }
-    if (nCosto !== (p.costo||"")) { cambios.push(`<li><strong>Costo:</strong> Se actualizó a '${nCosto}'.</li>`); requiereGuardarDatos = true; }
-    if (nM2 !== (p.m2||"")) { cambios.push(`<li><strong>M2 a intervenir:</strong> Se actualizó a '${nM2}'.</li>`); requiereGuardarDatos = true; }
-    if (nEmp !== (p.empresa||"")) { cambios.push(`<li><strong>Empresa:</strong> Se cambió a '${nEmp}'.</li>`); requiereGuardarDatos = true; }
-    if (nContNom !== (p.contactoNombre||"") || nContTel !== (p.contactoTelefono||"")) { 
-      cambios.push(`<li><strong>Contacto:</strong> Se actualizaron los datos del referente.</li>`); requiereGuardarDatos = true; 
-    }
-    if (nArch !== (p.ubicacionArchivos||"")) { cambios.push(`<li><strong>Archivos:</strong> Ubicación actualizada.</li>`); requiereGuardarDatos = true; }
+    // Es crítico usar como "key" los nombres que el backend usa para relacionar (ver mapping en backend)
+    if (nDesc !== (p.descripcion||"")) { cambiosDetectados.push({ key: 'descripcion', titulo: 'Descripción / Alcance', texto: 'Se modificó el texto descriptivo.' }); requiereGuardarDatos = true; }
+    if (nExp !== (p.expediente||"")) { cambiosDetectados.push({ key: 'expediente', titulo: 'Nro de Expediente', texto: `Se actualizó a '${nExp}'.` }); requiereGuardarDatos = true; }
+    if (nCosto !== (p.costo||"")) { cambiosDetectados.push({ key: 'costo', titulo: 'Costo de Obra', texto: `Se actualizó a '${nCosto}'.` }); requiereGuardarDatos = true; }
+    if (nM2 !== (p.m2||"")) { cambiosDetectados.push({ key: 'm2', titulo: 'Metros Cuadrados (m2)', texto: `Se actualizó a '${nM2}'.` }); requiereGuardarDatos = true; }
+    if (nEmp !== (p.empresa||"")) { cambiosDetectados.push({ key: 'empresa', titulo: 'Empresa Adjudicada', texto: `Se cambió a '${nEmp}'.` }); requiereGuardarDatos = true; }
     
-    // NUEVA LÓGICA DE COMPARACIÓN DE EQUIPO (Detecta cambios reales)
+    // Tratamos los contactos individualmente para asociar comentarios a cada cambio específico
+    if (nContNom !== (p.contactoNombre||"")) { cambiosDetectados.push({ key: 'contacto nombre', titulo: 'Nombre del Contacto', texto: `Se actualizó a '${nContNom}'.` }); requiereGuardarDatos = true; }
+    if (nContTel !== (p.contactoTelefono||"")) { cambiosDetectados.push({ key: 'contactoTelefono', titulo: 'Teléfono del Contacto', texto: `Se actualizó a '${nContTel}'.` }); requiereGuardarDatos = true; }
+    
+    if (nArch !== (p.ubicacionArchivos||"")) { cambiosDetectados.push({ key: 'ubicacionArchivos', titulo: 'Ubicación de Archivos', texto: 'Se actualizó la ruta o enlace.' }); requiereGuardarDatos = true; }
+    
     var equipoOriginal = p.equipo || [];
     var elEquipoCambio = false;
 
     if (nEquipo.length !== equipoOriginal.length) {
       elEquipoCambio = true;
     } else {
-      // Verificar cada miembro del nuevo equipo para ver si coincide con el original
       for (var e = 0; e < nEquipo.length; e++) {
         var nuevoInt = nEquipo[e];
         var origInt = equipoOriginal.find(function(m) { return m.participante === nuevoInt.participante; });
-        
-        // Si no se encuentra, o si cambió el rol, o si cambió el estado de "encargado" (manejando string vs bool)
         if (!origInt || origInt.rol !== nuevoInt.rol || String(origInt.encargado) !== String(nuevoInt.encargado)) {
           elEquipoCambio = true;
           break;
@@ -516,14 +608,17 @@
     }
 
     if (elEquipoCambio) {
-      cambios.push(`<li><strong>Equipo:</strong> Se modificó la plantilla de participantes.</li>`); 
+      cambiosDetectados.push({ key: 'equipo', titulo: 'Equipo Asignado', texto: 'Se añadieron, quitaron o modificaron participantes/roles.' }); 
       requiereGuardarDatos = true;
     }
 
-    if (cambios.length === 0) {
-      alert("No has realizado ninguna modificación en los datos.");
+    if (cambiosDetectados.length === 0) {
+      alert("No has realizado ninguna modificación en los datos de este proyecto.");
       return;
     }
+
+    // Nombre de la persona que edita, obtenido globalmente de Logica_Global.html
+    var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
 
     datosAEnviar = {
       nombreOriginal: p.nombre,
@@ -537,24 +632,56 @@
       contactoNombre: nContNom,
       contactoTelefono: nContTel,
       ubicacionArchivos: nArch,
-      asignados: nEquipo
+      asignados: nEquipo,
+      usuarioNombre: usuarioNombreAEnviar
     };
 
-    document.getElementById('lista-cambios-detectados').innerHTML = `<ul style="margin:0; padding-left:20px; color: black;">${cambios.join('')}</ul>`;
+    // Generar el HTML del formulario para solicitar comentarios obligatorios
+    var htmlFormularioCambios = '';
+    cambiosDetectados.forEach(c => {
+       htmlFormularioCambios += `
+         <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
+            <div style="font-size: 13px; margin-bottom: 6px; color: #1c4587;">
+               <strong>[${c.titulo}]</strong> <span style="color:#555; font-size: 12px;">${c.texto}</span>
+            </div>
+            <input type="text" class="input-comentario-cambio" data-key="${c.key}" placeholder="Explique brevemente el motivo (Obligatorio)..." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #1c4587; border-radius: 4px; box-sizing: border-box; background: #fff;" required>
+         </div>
+       `;
+    });
+
+    document.getElementById('lista-cambios-detectados').innerHTML = htmlFormularioCambios;
     document.getElementById('modal-confirmar-edicion').style.display = 'flex';
   }
 
   function ejecutarGuardadoBackend() {
+    // 1. Recolectar y validar los comentarios del modal
+    var inputs = document.querySelectorAll('.input-comentario-cambio');
+    var comentarios = {};
+    for (var i = 0; i < inputs.length; i++) {
+        var val = inputs[i].value.trim();
+        if (!val) {
+            alert("Atención: Es obligatorio ingresar un motivo o justificación para TODOS los cambios detectados.");
+            inputs[i].focus();
+            return; // Corta la ejecución si falta algún comentario
+        }
+        comentarios[inputs[i].getAttribute('data-key')] = val;
+    }
+    
+    // Asignar los comentarios al objeto de datos
+    datosAEnviar.comentarios = comentarios;
+
+    // 2. Bloquear botón y procesar
     var btn = document.getElementById('btn-confirmar-guardado-final');
     btn.disabled = true;
     btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
 
     var promesas = [];
 
+    // Llamadas al servidor pasando el objeto con comentarios y el nombre del usuario
     if (requiereGuardarEstado) {
       promesas.push(new Promise((resolve, reject) => {
         google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
-          .cambiarEstadoProyecto(datosAEnviar.nombreOriginal, datosAEnviar.fechaOriginal, datosAEnviar.estadoNuevo);
+          .cambiarEstadoProyecto(datosAEnviar.nombreOriginal, datosAEnviar.fechaOriginal, datosAEnviar.estadoNuevo, datosAEnviar.usuarioNombre, datosAEnviar.comentarios.estado);
       }));
     }
 
@@ -571,14 +698,14 @@
       document.getElementById('modal-confirmar-edicion').style.display = 'none';
       
       if(typeof mostrarAlertaProy === 'function') {
-        mostrarAlertaProy("¡Éxito!", "Los cambios se guardaron y se registraron en el historial.", "task_alt", function(){
+        mostrarAlertaProy("¡Éxito!", "Los cambios se guardaron y se registraron en la bitácora junto con sus justificaciones.", "task_alt", function(){
            volverListadoProyectos();
-           cargarListaDeProyectos(true);
+           ejecutarBusquedaProyectos();
         });
       } else {
         alert("Cambios guardados con éxito.");
         volverListadoProyectos();
-        cargarListaDeProyectos(true);
+        ejecutarBusquedaProyectos();
       }
     }).catch(err => {
       btn.disabled = false;
@@ -598,8 +725,11 @@
     
     var modal = document.getElementById('modal-ver-historial');
     var contenedor = document.getElementById('contenido-historial');
+    var selectFiltro = document.getElementById('filtro-historial');
     
-    contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando historial en la base de datos...</p>';
+    contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando bitácora en la base de datos...</p>';
+    selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
+    selectFiltro.disabled = true;
     modal.style.display = 'flex';
 
     google.script.run
@@ -609,26 +739,16 @@
           return;
         }
         
-        if (res.datos && res.datos.length > 0) {
-          var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
+        historialActivoData = res.datos || [];
+        
+        if (historialActivoData.length > 0) {
+          // Extraer categorías únicas para poblar el filtro
+          var categorias = [...new Set(historialActivoData.map(h => h.categoria))].filter(c => c && c !== "-" && c !== "Creación");
+          selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
+          categorias.forEach(c => selectFiltro.innerHTML += `<option value="${c}">${c}</option>`);
+          selectFiltro.disabled = false;
           
-          res.datos.forEach(function(h) {
-            html += `
-              <div style="position: relative; margin-bottom: 25px;">
-                <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; background: #fff; border: 2px solid #1c4587; border-radius: 50%;"></div>
-                <div style="font-size: 11px; color: black; font-weight: bold; margin-bottom: 2px;">
-                  <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">calendar_today</span> ${h.fecha} 
-                  &nbsp;•&nbsp; 
-                  <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">person</span> ${h.usuario}
-                </div>
-                <div style="font-size: 14px; color: #1c4587; font-weight: bold; margin: 2px 0;">${h.categoria}</div>
-                <div style="font-size: 13px; color: black; background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #eee; margin-top: 5px;">${h.detalle}</div>
-              </div>
-            `;
-          });
-          
-          html += '</div>';
-          contenedor.innerHTML = html;
+          renderizarHistorialActivo();
         } else {
           contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 30px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 10px;">' + (res.msg || 'No hay eventos registrados para este proyecto.') + '</p>';
         }
@@ -637,6 +757,49 @@
         contenedor.innerHTML = '<p style="color:#d93025; text-align:center; font-weight:bold; padding: 20px;">Error de conexión con Google Sheets.</p>';
       })
       .obtenerHistorialProyecto(p.nombre, p.fecha);
+  }
+
+  // Nueva función dedicada a renderizar y filtrar la bitácora
+  function renderizarHistorialActivo() {
+    var contenedor = document.getElementById('contenido-historial');
+    var filtro = document.getElementById('filtro-historial').value;
+    
+    var registrosAMostrar = filtro === "ALL" ? historialActivoData : historialActivoData.filter(h => h.categoria === filtro);
+    
+    if(registrosAMostrar.length === 0) {
+       contenedor.innerHTML = '<p style="text-align:center; color: #666; padding: 20px; font-style: italic;">No hay registros para la categoría seleccionada.</p>';
+       return;
+    }
+
+    var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
+          
+    registrosAMostrar.forEach(function(h) {
+      // Si existe un comentario en la base, lo pintamos de manera destacada
+      var bloqueComentario = h.comentario ? 
+        `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 12px; color: #1c4587;">
+           <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle; margin-right:2px;">chat</span>
+           <strong>Motivo:</strong> <em>${h.comentario}</em>
+         </div>` : '';
+
+      html += `
+        <div style="position: relative; margin-bottom: 25px;">
+          <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; background: #fff; border: 2px solid #1c4587; border-radius: 50%;"></div>
+          <div style="font-size: 11px; color: black; font-weight: bold; margin-bottom: 2px;">
+            <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">calendar_today</span> ${h.fecha} 
+            &nbsp;•&nbsp; 
+            <span class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">person</span> ${h.usuario}
+          </div>
+          <div style="font-size: 14px; color: #1c4587; font-weight: 800; margin: 2px 0;">${h.categoria}</div>
+          <div style="font-size: 13px; color: black; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px solid #e0e0e0; margin-top: 5px;">
+            <span style="color: #333;">${h.detalle}</span>
+            ${bloqueComentario}
+          </div>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    contenedor.innerHTML = html;
   }
 
   function cerrarHistorialProyecto() {

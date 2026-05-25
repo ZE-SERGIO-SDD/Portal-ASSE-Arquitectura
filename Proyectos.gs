@@ -9,14 +9,30 @@ var EMPRESAS_SHEET_ID = '11-kpuGqKCyOUFvUYEaTCMUec_5OQppTC8VFzzFyA-Io';
 
 function obtenerParametrosProyectos(forzar) {
   var cache = CacheService.getScriptCache();
-  var cacheKey = "cache_params_proy_v5";
+  var cacheKeyPrefix = "cache_params_proy_chunk_";
+  
   if (!forzar) {
-    var cached = cache.get(cacheKey);
-    if (cached) return JSON.parse(cached);
+    try {
+      var chunksStr = cache.get("cache_params_chunks_count");
+      if (chunksStr) {
+        var chunks = parseInt(chunksStr, 10);
+        var cachedStr = "";
+        var cacheValido = true;
+        for (var c = 0; c < chunks; c++) {
+          var chunk = cache.get(cacheKeyPrefix + c);
+          if (!chunk) { cacheValido = false; break; }
+          cachedStr += chunk;
+        }
+        if (cacheValido && cachedStr) {
+          return JSON.parse(cachedStr);
+        }
+      }
+    } catch(e) {}
   }
 
   try {
     var ssConfig = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
+    
     var leerColumna = function(nombrePestaña) {
       var sheet = ssConfig.getSheetByName(nombrePestaña);
       if (!sheet) return [];
@@ -43,9 +59,7 @@ function obtenerParametrosProyectos(forzar) {
           }
         }
       }
-    } catch (e) { 
-      console.error("Error partic: " + e.message);
-    }
+    } catch (e) { console.error("Error partic: " + e.message); }
     listaParticipantes = [...new Set(listaParticipantes)].sort();
 
     var listaEmpresas = [];
@@ -68,13 +82,13 @@ function obtenerParametrosProyectos(forzar) {
         }
       }
     } catch (e) {
-      console.error("Error al mapear/crear empresas externas: " + e.message);
+      console.error("Error empresas: " + e.message);
       listaEmpresas = ["Teyma Uruguay S.A.", "Saceem S.A.", "Stiler S.A."]; 
     }
     listaEmpresas = [...new Set(listaEmpresas)].sort();
+
     var sheetTipos = ssConfig.getSheetByName('Tipo de Obra');
     var sheetEstados = ssConfig.getSheetByName('Estados');
-    
     var listaTiposObra = [];
     var mapaTiposEstados = {};
     var todosLosEstados = [];
@@ -115,9 +129,11 @@ function obtenerParametrosProyectos(forzar) {
     var listaDeptos = [];
     var mapaCentros = {}; 
     var infoCentros = {};
+    
     var procesarFilaCentro = function(row) {
       var depto = (row.length > 6 && row[6]) ? row[6].toString().trim() : "";
       var centro = (row.length > 3 && row[3]) ? row[3].toString().trim() : "";
+      
       if (depto !== "") {
         if (!mapaCentros[depto]) {
           mapaCentros[depto] = [];
@@ -137,6 +153,7 @@ function obtenerParametrosProyectos(forzar) {
         }
       }
     };
+    
     try {
       var resSheets = Sheets.Spreadsheets.Values.get(DEPARTAMENTOS_CENTROS_ID, 'A:AD');
       var rows = resSheets.values;
@@ -163,8 +180,19 @@ function obtenerParametrosProyectos(forzar) {
       infoCentros: infoCentros,
       empresas: listaEmpresas 
     };
-    try { cache.put(cacheKey, JSON.stringify(result), 21600); } catch(e) {}
+    
+    try {
+      var resultStr = JSON.stringify(result);
+      var chunkSize = 90000;
+      var chunks = Math.ceil(resultStr.length / chunkSize);
+      for (var i = 0; i < chunks; i++) {
+        cache.put(cacheKeyPrefix + i, resultStr.slice(i * chunkSize, (i + 1) * chunkSize), 21600);
+      }
+      cache.put("cache_params_chunks_count", chunks.toString(), 21600);
+    } catch(e) {}
+    
     return result;
+    
   } catch (e) {
     return { error: "Error al cargar parámetros: " + e.message };
   }
@@ -174,20 +202,24 @@ function guardarNuevoProyecto(datosProyecto) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos") || ss.insertSheet("BD_Proyectos");
+    
     var columnasRequeridas = [
       "ID Proyecto", "Fecha", "Departamento", "Centro", "Nombre Proyecto", "Descripción", 
       "Tipo de Obra", "Estado", "Equipo", "Creado por",
       "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+    
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(columnasRequeridas);
     }
     
     var data = sheet.getDataRange().getValues();
     var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+    
     var columnasFaltantes = [
       "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+    
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
       var colSinTilde = colBaja.replace(/[áéíóú]/g, function(match){
@@ -198,6 +230,7 @@ function guardarNuevoProyecto(datosProyecto) {
         headers.push(colBaja);
       }
     });
+    
     var idUnico = "PRY-" + Date.now().toString(36).toUpperCase();
     
     var mapaDatos = {
@@ -211,7 +244,7 @@ function guardarNuevoProyecto(datosProyecto) {
       "tipo de obra": datosProyecto.tipoObra,
       "estado": datosProyecto.estado,
       "equipo": JSON.stringify(datosProyecto.asignados),
-      "creado por": datosProyecto.usuario,
+      "creado por": datosProyecto.usuario, // Corresponde al usuarioNombre ya enviado desde el front en la creación
       "nro expediente": datosProyecto.expediente || "",
       "costo obra": datosProyecto.costo || "",
       "empresa": datosProyecto.empresa || "",
@@ -231,7 +264,8 @@ function guardarNuevoProyecto(datosProyecto) {
     }
     
     sheet.appendRow(nuevaFila);
-    registrarHitoHistorial(idUnico, new Date(), datosProyecto.usuario, "Creación de Proyecto", "Alta inicial en estado: " + datosProyecto.estado);
+    
+    registrarHitoHistorial(idUnico, new Date(), datosProyecto.usuario, "Creación", "Alta inicial en estado: " + datosProyecto.estado, "Proyecto creado exitosamente.");
 
     CacheService.getScriptCache().remove("cache_lista_proy");
     return { success: true };
@@ -240,10 +274,11 @@ function guardarNuevoProyecto(datosProyecto) {
   }
 }
 
-function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
+function cambiarEstadoProyecto(nombre, fecha, nuevoEstado, usuarioNombre, comentario) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos");
+    
     if (!sheet) return { success: false, error: "No se encontró la hoja de BD_Proyectos" };
     
     var data = sheet.getDataRange().getValues();
@@ -253,6 +288,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
     var idxFecha = headers.indexOf("fecha");
     var idxEstado = headers.indexOf("estado");
     var idxId = headers.indexOf("id proyecto");
+    
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -261,6 +297,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
       if (filaNombre === nombre && filaFecha === fecha) {
         var estadoAnterior = data[i][idxEstado] ? data[i][idxEstado].toString() : "Sin estado previo";
         var idProyecto = idxId !== -1 ? (data[i][idxId] ? data[i][idxId].toString() : "") : "";
+        
         if (!idProyecto) {
           idProyecto = "PRY-MIG-" + Date.now().toString(36).toUpperCase();
           if (idxId !== -1) {
@@ -269,11 +306,9 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
         }
         
         sheet.getRange(i + 1, idxEstado + 1).setValue(nuevoEstado);
-        var usuarioActivo = "";
-        try { usuarioActivo = Session.getActiveUser().getEmail(); } catch(e) {}
-        if (!usuarioActivo) usuarioActivo = "Actualización de Estado (App)";
+        
         var detalleCambio = "Pasó de '" + estadoAnterior + "' a '" + nuevoEstado + "'";
-        registrarHitoHistorial(idProyecto, new Date(), usuarioActivo, "Cambio de Estado", detalleCambio);
+        registrarHitoHistorial(idProyecto, new Date(), usuarioNombre || "Usuario Desconocido", "ESTADO", detalleCambio, comentario || "");
 
         CacheService.getScriptCache().remove("cache_lista_proy");
         return { success: true };
@@ -289,6 +324,7 @@ function editarDatosProyecto(datosEdicion) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos");
+    
     if (!sheet) return { success: false, error: "No se encontró la hoja BD_Proyectos" };
     
     var data = sheet.getDataRange().getValues();
@@ -297,6 +333,7 @@ function editarDatosProyecto(datosEdicion) {
     var columnasFaltantes = [
       "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+    
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
       var colSinTilde = colBaja.replace(/[áéíóú]/g, function(match){
@@ -307,6 +344,7 @@ function editarDatosProyecto(datosEdicion) {
         headers.push(colBaja);
       }
     });
+    
     data = sheet.getDataRange().getValues();
 
     var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
@@ -315,6 +353,7 @@ function editarDatosProyecto(datosEdicion) {
     
     var filaEncontrada = -1;
     var idProyecto = "";
+    
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -334,7 +373,6 @@ function editarDatosProyecto(datosEdicion) {
       if (idxId !== -1) sheet.getRange(filaEncontrada + 1, idxId + 1).setValue(idProyecto);
     }
 
-    var detallesCambios = [];
     var columnasAEditar = {
       "descripción": datosEdicion.descripcion,
       "descripcion": datosEdicion.descripcion,
@@ -348,23 +386,43 @@ function editarDatosProyecto(datosEdicion) {
       "ubicacion archivos": datosEdicion.ubicacionArchivos,
       "m2": datosEdicion.m2
     };
-    // 1. COMPARAR DATOS SIMPLES (Textos)
+    
+    var usuario = datosEdicion.usuarioNombre || "Usuario Desconocido";
+    var comentariosFront = datosEdicion.comentarios || {};
+
+    // 1. COMPARAR DATOS SIMPLES Y CREAR LOG INDIVIDUAL POR CAMPO
     for (var key in columnasAEditar) {
       var colIndex = headers.indexOf(key);
       if (colIndex !== -1 && columnasAEditar[key] !== undefined) {
         var valorViejo = data[filaEncontrada][colIndex] ? data[filaEncontrada][colIndex].toString().trim() : "";
         var valorNuevo = columnasAEditar[key] ? columnasAEditar[key].toString().trim() : "";
+        
         if (valorViejo !== valorNuevo) {
           sheet.getRange(filaEncontrada + 1, colIndex + 1).setValue(valorNuevo);
-          // Evitar registrar las columnas duplicadas (sin tilde) para que no salga doble el log
+          
           if (key !== "descripcion" && key !== "contacto telefono" && key !== "ubicacion archivos") {
+             var categoria = "";
+             var detalle = "";
+             
              if (key === "descripción") {
-                detallesCambios.push("DESCRIPCIÓN: Se modificó el texto detallado.");
+                categoria = "DESCRIPCIÓN";
+                detalle = "Se modificó el texto detallado.";
              } else {
+                categoria = key.toUpperCase();
                 var txtV = valorViejo !== "" ? valorViejo : "vacío";
                 var txtN = valorNuevo !== "" ? valorNuevo : "vacío";
-                detallesCambios.push(key.toUpperCase() + ": cambió de '" + txtV + "' a '" + txtN + "'");
+                detalle = "Cambió de '" + txtV + "' a '" + txtN + "'";
              }
+             
+             // Mapeo de la clave para coincidir con el JSON del frontend
+             var comentKey = key === "descripción" ? "descripcion" : 
+                             key === "contacto teléfono" ? "contactoTelefono" :
+                             key === "ubicación archivos" ? "ubicacionArchivos" :
+                             key === "nro expediente" ? "expediente" :
+                             key === "costo obra" ? "costo" : key;
+                             
+             var comentario = comentariosFront[comentKey] || "";
+             registrarHitoHistorial(idProyecto, new Date(), usuario, categoria, detalle, comentario);
           }
         }
       }
@@ -379,6 +437,7 @@ function editarDatosProyecto(datosEdicion) {
         
         if (equipoViejoStr !== equipoNuevoStr) {
           sheet.getRange(filaEncontrada + 1, colEquipo + 1).setValue(equipoNuevoStr);
+          
           var eqViejo = [];
           var eqNuevo = [];
           try { eqViejo = JSON.parse(equipoViejoStr); } catch(e){}
@@ -390,7 +449,6 @@ function editarDatosProyecto(datosEdicion) {
           eqNuevo.forEach(function(p){ mapN[p.participante] = p; });
           
           var logEquipo = [];
-          // Buscar participantes eliminados o modificados
           for (var partV in mapV) {
             if (!mapN[partV]) {
               logEquipo.push(partV + " (que tenía el rol de '" + mapV[partV].rol + "') ya no participa en el proyecto");
@@ -398,16 +456,15 @@ function editarDatosProyecto(datosEdicion) {
               var v = mapV[partV];
               var n = mapN[partV];
               var subLog = [];
-              if (v.rol !== n.rol) subLog.push("dejó de tener el rol de '" + v.rol + "' y pasó a tener el rol de '" + n.rol + "'");
+              if (v.rol !== n.rol) subLog.push("pasó al rol de '" + n.rol + "'");
               if (v.encargado !== n.encargado) {
-                 if (n.encargado) subLog.push("ahora figura como encargado");
-                 else subLog.push("dejó de ser el encargado");
+                 if (n.encargado) subLog.push("ahora es encargado");
+                 else subLog.push("dejó de ser encargado");
               }
               if (subLog.length > 0) logEquipo.push(partV + " " + subLog.join(" y "));
             }
           }
           
-          // Buscar participantes nuevos
           for (var partN in mapN) {
             if (!mapV[partN]) {
                var extra = mapN[partN].encargado ? " (como encargado)" : "";
@@ -416,41 +473,39 @@ function editarDatosProyecto(datosEdicion) {
           }
           
           if (logEquipo.length > 0) {
-             detallesCambios.push("EQUIPO: " + logEquipo.join(". "));
+             var comentEquipo = comentariosFront["equipo"] || "";
+             registrarHitoHistorial(idProyecto, new Date(), usuario, "EQUIPO", logEquipo.join(". "), comentEquipo);
           }
         }
       }
     }
 
-    if (detallesCambios.length > 0) {
-      var usuarioActivo = "";
-      try { usuarioActivo = Session.getActiveUser().getEmail(); } catch(e) {}
-      if (!usuarioActivo) usuarioActivo = datosEdicion.usuario || "Edición de Datos (App)";
-
-      var textoLog = detallesCambios.join(" | \n");
-      registrarHitoHistorial(idProyecto, new Date(), usuarioActivo, "Edición de Datos", textoLog);
-      
-      CacheService.getScriptCache().remove("cache_lista_proy");
-    }
-
+    CacheService.getScriptCache().remove("cache_lista_proy");
     return { success: true };
   } catch (e) {
     return { success: false, error: e.message };
   }
 }
 
-function registrarHitoHistorial(idProyecto, fecha, usuario, categoria, detalle) {
+function registrarHitoHistorial(idProyecto, fecha, usuario, categoria, detalle, comentario) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheetHistorial = ss.getSheetByName("BD_Historial");
     
     if (!sheetHistorial) {
       sheetHistorial = ss.insertSheet("BD_Historial");
-      sheetHistorial.appendRow(["ID Proyecto", "Fecha y Hora", "Usuario Responsable", "Categoría del Hito", "Detalle del Cambio"]);
-      sheetHistorial.getRange("A1:E1").setFontWeight("bold").setBackground("#D9E2F3");
+      sheetHistorial.appendRow(["ID Proyecto", "Fecha y Hora", "Usuario Responsable", "Categoría del Hito", "Detalle del Cambio", "Comentario"]);
+      sheetHistorial.getRange("A1:F1").setFontWeight("bold").setBackground("#D9E2F3");
+    } else {
+      // Si la columna de comentario no existe (bases viejas), la crea dinámicamente
+      if (sheetHistorial.getLastColumn() < 6) {
+         sheetHistorial.getRange(1, 6).setValue("Comentario").setFontWeight("bold").setBackground("#D9E2F3");
+      }
     }
     
-    sheetHistorial.appendRow([idProyecto, fecha, usuario, categoria, detalle]);
+    var usuarioLimpio = usuario ? usuario.toString().trim() : "Sistema";
+    var comentLimpio = comentario ? comentario.toString().trim() : "";
+    sheetHistorial.appendRow([idProyecto, fecha, usuarioLimpio, categoria, detalle, comentLimpio]);
   } catch (e) {
     console.error("Error guardando historial: " + e.message);
   }
@@ -500,7 +555,8 @@ function obtenerHistorialProyecto(nombre, fecha) {
           fecha: fechaTxt,
           usuario: dataHist[j][2] ? dataHist[j][2].toString() : "Sistema",
           categoria: dataHist[j][3] ? dataHist[j][3].toString() : "-",
-          detalle: dataHist[j][4] ? dataHist[j][4].toString() : "-"
+          detalle: dataHist[j][4] ? dataHist[j][4].toString() : "-",
+          comentario: dataHist[j][5] ? dataHist[j][5].toString() : ""
         });
       }
     }
