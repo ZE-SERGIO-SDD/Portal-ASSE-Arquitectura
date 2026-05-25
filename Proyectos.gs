@@ -72,7 +72,6 @@ function obtenerParametrosProyectos(forzar) {
       listaEmpresas = ["Teyma Uruguay S.A.", "Saceem S.A.", "Stiler S.A."]; 
     }
     listaEmpresas = [...new Set(listaEmpresas)].sort();
-    
     var sheetTipos = ssConfig.getSheetByName('Tipo de Obra');
     var sheetEstados = ssConfig.getSheetByName('Estados');
     
@@ -116,7 +115,6 @@ function obtenerParametrosProyectos(forzar) {
     var listaDeptos = [];
     var mapaCentros = {}; 
     var infoCentros = {};
-    
     var procesarFilaCentro = function(row) {
       var depto = (row.length > 6 && row[6]) ? row[6].toString().trim() : "";
       var centro = (row.length > 3 && row[3]) ? row[3].toString().trim() : "";
@@ -139,7 +137,6 @@ function obtenerParametrosProyectos(forzar) {
         }
       }
     };
-    
     try {
       var resSheets = Sheets.Spreadsheets.Values.get(DEPARTAMENTOS_CENTROS_ID, 'A:AD');
       var rows = resSheets.values;
@@ -177,11 +174,10 @@ function guardarNuevoProyecto(datosProyecto) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos") || ss.insertSheet("BD_Proyectos");
-    
     var columnasRequeridas = [
       "ID Proyecto", "Fecha", "Departamento", "Centro", "Nombre Proyecto", "Descripción", 
       "Tipo de Obra", "Estado", "Equipo", "Creado por",
-      "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos"
+      "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(columnasRequeridas);
@@ -189,9 +185,8 @@ function guardarNuevoProyecto(datosProyecto) {
     
     var data = sheet.getDataRange().getValues();
     var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
-    
     var columnasFaltantes = [
-      "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos"
+      "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
@@ -203,7 +198,6 @@ function guardarNuevoProyecto(datosProyecto) {
         headers.push(colBaja);
       }
     });
-    
     var idUnico = "PRY-" + Date.now().toString(36).toUpperCase();
     
     var mapaDatos = {
@@ -226,7 +220,8 @@ function guardarNuevoProyecto(datosProyecto) {
       "contacto telefono": datosProyecto.contactoTelefono || "",
       "ubicación archivos": datosProyecto.ubicacionArchivos || "",
       "ubicacion archivos": datosProyecto.ubicacionArchivos || "",
-      "fechas hitos": JSON.stringify(datosProyecto.hitos || {})
+      "fechas hitos": JSON.stringify(datosProyecto.hitos || {}),
+      "m2": datosProyecto.m2 || ""
     };
     
     var nuevaFila = new Array(headers.length);
@@ -236,7 +231,6 @@ function guardarNuevoProyecto(datosProyecto) {
     }
     
     sheet.appendRow(nuevaFila);
-    
     registrarHitoHistorial(idUnico, new Date(), datosProyecto.usuario, "Creación de Proyecto", "Alta inicial en estado: " + datosProyecto.estado);
 
     CacheService.getScriptCache().remove("cache_lista_proy");
@@ -259,7 +253,6 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
     var idxFecha = headers.indexOf("fecha");
     var idxEstado = headers.indexOf("estado");
     var idxId = headers.indexOf("id proyecto");
-    
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -268,7 +261,6 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
       if (filaNombre === nombre && filaFecha === fecha) {
         var estadoAnterior = data[i][idxEstado] ? data[i][idxEstado].toString() : "Sin estado previo";
         var idProyecto = idxId !== -1 ? (data[i][idxId] ? data[i][idxId].toString() : "") : "";
-        
         if (!idProyecto) {
           idProyecto = "PRY-MIG-" + Date.now().toString(36).toUpperCase();
           if (idxId !== -1) {
@@ -277,11 +269,9 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado) {
         }
         
         sheet.getRange(i + 1, idxEstado + 1).setValue(nuevoEstado);
-        
         var usuarioActivo = "";
         try { usuarioActivo = Session.getActiveUser().getEmail(); } catch(e) {}
         if (!usuarioActivo) usuarioActivo = "Actualización de Estado (App)";
-
         var detalleCambio = "Pasó de '" + estadoAnterior + "' a '" + nuevoEstado + "'";
         registrarHitoHistorial(idProyecto, new Date(), usuarioActivo, "Cambio de Estado", detalleCambio);
 
@@ -305,7 +295,7 @@ function editarDatosProyecto(datosEdicion) {
     var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
     
     var columnasFaltantes = [
-      "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos"
+      "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
@@ -317,7 +307,6 @@ function editarDatosProyecto(datosEdicion) {
         headers.push(colBaja);
       }
     });
-
     data = sheet.getDataRange().getValues();
 
     var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
@@ -326,7 +315,6 @@ function editarDatosProyecto(datosEdicion) {
     
     var filaEncontrada = -1;
     var idProyecto = "";
-
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -347,7 +335,6 @@ function editarDatosProyecto(datosEdicion) {
     }
 
     var detallesCambios = [];
-
     var columnasAEditar = {
       "descripción": datosEdicion.descripcion,
       "descripcion": datosEdicion.descripcion,
@@ -358,19 +345,17 @@ function editarDatosProyecto(datosEdicion) {
       "contacto teléfono": datosEdicion.contactoTelefono,
       "contacto telefono": datosEdicion.contactoTelefono,
       "ubicación archivos": datosEdicion.ubicacionArchivos,
-      "ubicacion archivos": datosEdicion.ubicacionArchivos
+      "ubicacion archivos": datosEdicion.ubicacionArchivos,
+      "m2": datosEdicion.m2
     };
-
     // 1. COMPARAR DATOS SIMPLES (Textos)
     for (var key in columnasAEditar) {
       var colIndex = headers.indexOf(key);
       if (colIndex !== -1 && columnasAEditar[key] !== undefined) {
         var valorViejo = data[filaEncontrada][colIndex] ? data[filaEncontrada][colIndex].toString().trim() : "";
         var valorNuevo = columnasAEditar[key] ? columnasAEditar[key].toString().trim() : "";
-        
         if (valorViejo !== valorNuevo) {
           sheet.getRange(filaEncontrada + 1, colIndex + 1).setValue(valorNuevo);
-          
           // Evitar registrar las columnas duplicadas (sin tilde) para que no salga doble el log
           if (key !== "descripcion" && key !== "contacto telefono" && key !== "ubicacion archivos") {
              if (key === "descripción") {
@@ -394,7 +379,6 @@ function editarDatosProyecto(datosEdicion) {
         
         if (equipoViejoStr !== equipoNuevoStr) {
           sheet.getRange(filaEncontrada + 1, colEquipo + 1).setValue(equipoNuevoStr);
-          
           var eqViejo = [];
           var eqNuevo = [];
           try { eqViejo = JSON.parse(equipoViejoStr); } catch(e){}
@@ -406,7 +390,6 @@ function editarDatosProyecto(datosEdicion) {
           eqNuevo.forEach(function(p){ mapN[p.participante] = p; });
           
           var logEquipo = [];
-          
           // Buscar participantes eliminados o modificados
           for (var partV in mapV) {
             if (!mapN[partV]) {

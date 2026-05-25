@@ -1,6 +1,6 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-<div id="pantalla-proyectos" style="display:none; width: 100%; flex-direction: column; align-items: center; padding: 20px;">
+<div id="pantalla-proyectos" style="display:none; width: 100%; flex-direction: column; align-items: center; padding: 10px 20px;">
   <div class="container" style="position: relative; max-width: 800px; width: 100%;">
     
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
@@ -12,17 +12,17 @@
       </button>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-      <button class="btn-volver" id="btn-volver-panel" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px;">
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <button class="btn-volver" id="btn-volver-panel" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
       </button>
-      <button class="btn-volver" id="btn-volver-menu-proy" onclick="mostrarSubPantallaProyectos('menu')" style="display: none; align-items: center; gap: 5px;">
+      <button class="btn-volver" id="btn-volver-menu-proy" onclick="mostrarSubPantallaProyectos('menu')" style="display: none; align-items: center; gap: 5px; margin-bottom: 10px;">
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER A GESTIÓN
       </button>
     </div>
 
-    <div class="titulo-azul" id="proy-titulo-principal">Gestión de Proyectos</div>
-    <p style="color: #666; margin-bottom: 30px;" id="proy-subtitulo-principal">Aplicación para registro, seguimiento e historial de proyectos vinculados a Arquitectura e Infraestructura de ASSE.</p>
+    <div class="titulo-azul" id="proy-titulo-principal" style="margin-bottom: 5px;">Gestión de Proyectos</div>
+    <p style="color: #666; margin-bottom: 15px; font-size: 13px;" id="proy-subtitulo-principal">Aplicación para registro, seguimiento e historial de proyectos vinculados a Arquitectura e Infraestructura de ASSE.</p>
 
     <div id="proy-menu-principal" class="portal-grid">
       <div class="portal-card" onclick="mostrarSubPantallaProyectos('nuevo')">
@@ -40,27 +40,32 @@
     </div>
 
     <div id="proy-seccion-nuevo" style="display: none;">
-      <div class="caja-inicio" style="text-align: left; width: 100%; max-width: 100%; padding: 30px;">
+      <div style="text-align: left; width: 100%; max-width: 100%; padding: 0;">
         
-        <div id="paso-1-unidad" style="border: 1px solid #1c4587; padding: 25px; border-radius: 8px; margin-bottom: 20px; background: #ffffff;">
-          <div style="font-size: 18px; font-weight: 700; color: #1c4587; margin-bottom: 15px; border-bottom: 1px solid #d1d9e0; padding-bottom: 10px;">
-             <span class="material-symbols-outlined" style="vertical-align: middle;">domain</span> Unidad Asistencial
+        <div id="paso-1-unidad" style="border: 1px solid #d1d9e0; padding: 15px; border-radius: 6px; margin-bottom: 20px; background: #ffffff;">
+          <div style="font-size: 14px; font-weight: 700; color: #1c4587; margin-bottom: 10px; border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+             <span class="material-symbols-outlined" style="font-size: 18px;">domain</span> 1. Unidad Asistencial
           </div>
           
-          <label style="font-weight: 700; color: #444;">1. Departamento</label>
-          <select id="proy-depto" onchange="actualizarCentros()" style="margin-bottom: 15px;">
-            <option value="">Cargando departamentos...</option>
-          </select>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Departamento:</label>
+              <select id="proy-depto" onchange="actualizarCentros()" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                <option value="">Cargando departamentos...</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Centro:</label>
+              <select id="proy-centro" onchange="resetearBotonUnidad()" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                <option value="">Seleccione departamento...</option>
+              </select>
+            </div>
+          </div>
 
-          <label style="font-weight: 700; color: #444; display: block;">2. Centro</label>
-          <select id="proy-centro" onchange="resetearBotonUnidad()">
-            <option value="">Seleccione primero un departamento...</option>
-          </select>
-
-          <div id="info-centro-tarjeta" style="display: none; background: #f8f9fa; padding: 15px; margin-top: 15px; border-left: 4px solid #1c4587; border-radius: 0 4px 4px 0; font-size: 13px; color: #444; line-height: 1.6;">
+          <div id="info-centro-tarjeta" style="display: none; background: #f8f9fa; padding: 10px 15px; border-left: 4px solid #1c4587; border-radius: 0 4px 4px 0; font-size: 12px; color: #444; line-height: 1.6; margin-bottom: 15px;">
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 200px;">
-                <div><strong>Dependencia Administrativa:</strong> <span id="info-dep"></span></div>
+                <div><strong>Dependencia:</strong> <span id="info-dep"></span></div>
                 <div><strong>Unidad Ejecutora:</strong> <span id="info-ue-num"></span> - <span id="info-ue-nom"></span></div>
               </div>
               <div style="flex: 1; min-width: 200px;">
@@ -71,90 +76,111 @@
             </div>
           </div>
 
-          <button id="btn-seleccionar-unidad" class="btn-azul" onclick="procesarPasoUnidad()" style="margin-top: 20px; width: 100%;">SELECCIONAR</button>
+          <button id="btn-seleccionar-unidad" class="btn-azul" onclick="procesarPasoUnidad()" style="margin-top: 0; width: 100%; padding: 10px; font-size: 14px;">SELECCIONAR UNIDAD</button>
         </div>
 
-        <div id="paso-2-intervencion" style="display: none; border: 1px solid #1c4587; padding: 25px; border-radius: 8px; margin-bottom: 20px; background: #ffffff;">
-          <div style="font-size: 18px; font-weight: 700; color: #1c4587; margin-bottom: 15px; border-bottom: 1px solid #d1d9e0; padding-bottom: 10px;">
-             <span class="material-symbols-outlined" style="vertical-align: middle;">construction</span> Intervención
+        <div id="paso-2-intervencion" style="display: none; border: 1px solid #d1d9e0; padding: 15px; border-radius: 6px; margin-bottom: 20px; background: #ffffff;">
+          <div style="font-size: 14px; font-weight: 700; color: #1c4587; margin-bottom: 10px; border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+             <span class="material-symbols-outlined" style="font-size: 18px;">construction</span> 2. Detalles de Intervención
           </div>
 
-          <label style="font-weight: 700; color: #444; display: block;">3. Nombre del Proyecto</label>
-          <input type="text" id="proy-nombre" placeholder="Ej: Nueva Policlínica Z" style="margin-bottom: 15px;">
+          <div style="display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 15px;">
+             <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Nombre Proyecto:</label>
+                <input type="text" id="proy-nombre" placeholder="Ej: Nueva Policlínica Z" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+             </div>
+             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Tipo de Obra:</label>
+                  <select id="proy-tipo-obra" onchange="actualizarEstados()" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                    <option value="">Cargando tipos de obra...</option>
+                  </select>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Estado Inicial:</label>
+                  <select id="proy-estado" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                    <option value="">Seleccione primero el Tipo de Obra...</option>
+                  </select>
+                </div>
+             </div>
+             <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 5px;">
+                <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0;">Descripción / Alcance:</label>
+                <textarea id="proy-descripcion" placeholder="Escriba los detalles del proyecto..." style="width: 100%; height: 60px; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; box-sizing: border-box; margin: 0; font-family: inherit; line-height: 1.4;"></textarea>
+             </div>
+          </div>
 
-          <label style="font-weight: 700; color: #444; display: block;">4. Descripción del Proyecto</label>
-          <textarea id="proy-descripcion" placeholder="Escriba libremente los detalles, alcance u observaciones del proyecto..." style="width: 100%; height: 100px; border: 1px solid #ccc; border-radius: 4px; padding: 10px; font-family: 'Inter', sans-serif; resize: vertical; box-sizing: border-box; margin-bottom: 15px; font-size: 14px;"></textarea>
+          <div style="background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+              <label style="font-size: 11px; font-weight: bold; color: #1c4587; margin: 0; display: flex; align-items: center; gap: 4px;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">group</span> Equipo Asignado
+              </label>
+              <button class="btn-info-app" onclick="agregarFilaParticipante()" style="margin: 0; font-weight: bold; display: flex; align-items: center; gap: 2px;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">person_add</span> Agregar
+              </button>
+            </div>
+            <div id="lista-participantes-roles" style="display: flex; flex-direction: column; gap: 5px;"></div>
+          </div>
 
-          <label style="font-weight: 700; color: #444;">5. Asignar Equipo y Rol</label>
-          <div id="lista-participantes-roles" style="margin-top: 5px; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa;"></div>
-          <button class="btn-info-app" onclick="agregarFilaParticipante()" style="margin-top: 10px; width: auto; padding: 5px 15px; display: flex; align-items: center; gap: 5px; margin-bottom: 20px;">
-            <span class="material-symbols-outlined" style="font-size: 16px;">person_add</span> Agregar Participante
-          </button>
-
-          <label style="font-weight: 700; color: #444; display: block;">6. Tipo de Obra</label>
-          <select id="proy-tipo-obra" style="margin-bottom: 15px;" onchange="actualizarEstados()">
-            <option value="">Cargando tipos de obra...</option>
-          </select>
-
-          <label style="font-weight: 700; color: #444; display: block;">7. Estado Inicial</label>
-          <select id="proy-estado">
-            <option value="">Seleccione primero el Tipo de Obra...</option>
-          </select>
-
-          <div style="display: flex; gap: 10px; margin-top: 30px;">
-            <button onclick="volverAPaso1()" style="flex: 1; padding: 12px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER A UNIDAD</button>
-            <button class="btn-azul" onclick="avanzarAPaso3()" style="flex: 2; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              SIGUIENTE <span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="volverAPaso1()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER A UNIDAD</button>
+            <button class="btn-azul" onclick="avanzarAPaso3()" style="flex: 2; margin-top: 0; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              SIGUIENTE <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
             </button>
           </div>
         </div>
 
-        <div id="paso-3-opcionales" style="display: none; border: 1px solid #1c4587; padding: 25px; border-radius: 8px; background: #ffffff;">
-          <div style="font-size: 18px; font-weight: 700; color: #1c4587; margin-bottom: 15px; border-bottom: 1px solid #d1d9e0; padding-bottom: 10px;">
-             <span class="material-symbols-outlined" style="vertical-align: middle;">assignment_late</span> Datos Complementarios (Opcionales)
+        <div id="paso-3-opcionales" style="display: none; border: 1px solid #d1d9e0; padding: 15px; border-radius: 6px; background: #ffffff;">
+          <div style="font-size: 14px; font-weight: 700; color: #1c4587; margin-bottom: 10px; border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+             <span class="material-symbols-outlined" style="font-size: 18px;">assignment_late</span> 3. Datos Complementarios (Opcionales)
           </div>
 
-          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-            <div style="flex: 1;">
-              <label style="font-weight: 700; color: #444; display: block;">Número de Expediente</label>
-              <input type="text" id="proy-expediente" placeholder="Ej: 2026-12-3-0001">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-bottom: none;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Expediente:</label>
+              <input type="text" id="proy-expediente" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
             </div>
-            <div style="flex: 1;">
-              <label style="font-weight: 700; color: #444; display: block;">Costo de la Obra</label>
-              <input type="text" id="proy-costo" placeholder="Ej: USD 120.000">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Costo:</label>
+              <input type="text" id="proy-costo" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
             </div>
-          </div>
-
-          <label style="font-weight: 700; color: #444; display: block;">Empresa Constructora / Adjudicataria</label>
-          <select id="proy-empresa" style="margin-bottom: 15px;">
-            <option value="">Cargando empresas...</option>
-          </select>
-
-          <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-            <div style="flex: 1;">
-              <label style="font-weight: 700; color: #444; display: block;">Contacto en Unidad (Nombre)</label>
-              <input type="text" id="proy-contacto-nombre" placeholder="Ej: Ing. María Sosa">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">M2 a intervenir:</label>
+              <input type="text" id="proy-m2" placeholder="Ej: 450" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
             </div>
-            <div style="flex: 1;">
-              <label style="font-weight: 700; color: #444; display: block;">Contacto en Unidad (Teléfono)</label>
-              <input type="text" id="proy-contacto-telefono" placeholder="Ej: 098765432">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Empresa:</label>
+              <select id="proy-empresa" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                <option value="">Cargando empresas...</option>
+              </select>
             </div>
           </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none;">
+             <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Nombre:</label>
+              <input type="text" id="proy-contacto-nombre" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Tel.:</label>
+              <input type="text" id="proy-contacto-telefono" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+            </div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; margin-top: -1px; display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+              <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Ubicación de archivos:</label>
+              <input type="text" id="proy-ubicacion-archivos" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+          </div>
 
-          <label style="font-weight: 700; color: #444; display: block;">Ubicación Física o Digital de Archivos</label>
-          <input type="text" id="proy-ubicacion-archivos" placeholder="Ej: Estante 2 / Carpeta Drive 'Obras Policlínicas'" style="margin-bottom: 20px;">
-
-          <label style="font-weight: 700; color: #1c4587; display: block; border-top: 1px solid #eee; padding-top: 15px; margin-bottom: 8px;">
-            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: text-bottom;">calendar_month</span> Fechas Planificadas por Hito / Estado
+          <label style="font-size: 12px; font-weight: 700; color: #1c4587; display: block; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 10px;">
+            <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: text-bottom;">calendar_month</span> Fechas Planificadas (Hitos)
           </label>
-          <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Establezca una fecha estimada o real para el cumplimiento de cada estado si lo desea.</p>
-          <div id="contenedor-hitos-fechas" style="background: #f8f9fa; border: 1px solid #e0e0e0; padding: 15px; border-radius: 6px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 12px;">
-            </div>
+          <div id="contenedor-hitos-fechas" style="background: #f8f9fa; border: 1px solid #e0e0e0; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+          </div>
 
-          <div style="display: flex; gap: 10px; margin-top: 30px;">
-            <button onclick="volverAPaso2()" style="flex: 1; padding: 12px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER</button>
-            <button class="btn-azul" onclick="previsualizarProyecto()" style="flex: 2; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span> REVISAR Y CREAR
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="volverAPaso2()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER</button>
+            <button class="btn-azul" onclick="previsualizarProyecto()" style="flex: 2; margin-top: 0; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span> REVISAR Y CREAR
             </button>
           </div>
         </div>
@@ -181,6 +207,21 @@
     <div class="titulo-azul" id="titulo-alerta-proy" style="font-size: 20px; margin-bottom: 10px;">Atención</div>
     <p style="color: #666; font-size: 15px; margin-bottom: 25px;" id="texto-alerta-proy">Mensaje</p>
     <button class="btn-azul" onclick="cerrarAlertaProy()">ENTENDIDO</button>
+  </div>
+</div>
+
+<div id="modal-preview" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 500px; text-align: left;">
+    <div class="titulo-azul" id="titulo-preview" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined">visibility</span> Resumen del Nuevo Proyecto
+    </div>
+    <div id="contenido-preview" style="color: #444; font-size: 13px; line-height: 1.6; margin-bottom: 20px; max-height: 400px; overflow-y: auto;"></div>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="cerrarVistaPrevia()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-preview" class="btn-azul" style="flex: 1; margin-top: 0; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span> CONFIRMAR
+      </button>
+    </div>
   </div>
 </div>
 
@@ -262,6 +303,7 @@
         document.getElementById('proy-contacto-nombre').value = '';
         document.getElementById('proy-contacto-telefono').value = '';
         document.getElementById('proy-ubicacion-archivos').value = '';
+        document.getElementById('proy-m2').value = '';
         document.getElementById('contenedor-hitos-fechas').innerHTML = '';
 
         if(opcionesConfig.participantes.length === 0) cargarDatosProyectos();
@@ -295,7 +337,7 @@
       }
       
       var selEmp = document.getElementById('proy-empresa');
-      selEmp.innerHTML = '<option value="">Seleccione Empresa (Opcional)...</option>';
+      selEmp.innerHTML = '<option value="">Seleccione Empresa...</option>';
       if (opcionesConfig.empresas) {
         opcionesConfig.empresas.forEach(emp => selEmp.innerHTML += `<option value="${emp}">${emp}</option>`);
       }
@@ -357,11 +399,11 @@
     if (opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[tipo]) {
       opcionesConfig.mapaTiposEstados[tipo].forEach(e => {
         var div = document.createElement('div');
-        div.style = "display: flex; align-items: center; justify-content: space-between; gap: 15px; border-bottom: 1px dashed #eee; padding-bottom: 8px;";
-        var marcaActual = (e === estado) ? ' <span style="color:#1c4587; font-size:11px; font-weight:bold;">(Actual)</span>' : '';
+        div.style = "display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px dashed #eee; padding-bottom: 4px;";
+        var marcaActual = (e === estado) ? ' <span style="color:#1c4587; font-size:10px; font-weight:bold;">(Actual)</span>' : '';
         div.innerHTML = `
-          <span style="font-size:13px; color:#444; font-weight:600;">${e}${marcaActual}</span>
-          <input type="date" class="input-fecha-hito" data-estado="${e}" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 13px; width: 160px;">
+          <span style="font-size:12px; color:#444; font-weight:600;">${e}${marcaActual}</span>
+          <input type="date" class="input-fecha-hito" data-estado="${e}" style="padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-family: inherit; font-size: 11px; width: 130px; margin: 0;">
         `;
         contenedor.appendChild(div);
       });
@@ -378,7 +420,7 @@
     var depto = document.getElementById('proy-depto').value;
     var selCentro = document.getElementById('proy-centro');
     if (!depto) { 
-      selCentro.innerHTML = '<option value="">Seleccione primero un departamento...</option>'; 
+      selCentro.innerHTML = '<option value="">Seleccione departamento...</option>'; 
       return; 
     }
     selCentro.innerHTML = '<option value="">Seleccione Centro...</option>';
@@ -391,7 +433,7 @@
 
   function resetearBotonUnidad() {
     var btn = document.getElementById('btn-seleccionar-unidad');
-    btn.innerHTML = "SELECCIONAR";
+    btn.innerHTML = "SELECCIONAR UNIDAD";
     document.getElementById('info-centro-tarjeta').style.display = 'none';
   }
 
@@ -405,7 +447,7 @@
       return;
     }
 
-    if (btn.innerText.trim() === "SELECCIONAR") {
+    if (btn.innerText.trim() === "SELECCIONAR UNIDAD") {
       if (opcionesConfig.infoCentros && opcionesConfig.infoCentros[centro]) {
         var info = opcionesConfig.infoCentros[centro];
         document.getElementById('info-dep').innerText = info.dependencia || "-";
@@ -433,25 +475,23 @@
     var container = document.getElementById('lista-participantes-roles');
     var esPrimero = (container.children.length === 0);
     var div = document.createElement('div');
-    div.style = "display: flex; gap: 10px; margin-bottom: 10px; align-items: center;";
-    var selPart = `<select class="sel-part" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="">Participante...</option>`;
+    div.style = "display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px;";
+    
+    var selPart = `<select class="sel-part" style="flex: 2; min-width: 0; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px; margin: 0;"><option value="">Participante...</option>`;
     if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}">${p}</option>`);
     selPart += `</select>`;
-    var selRol = `<select class="sel-rol" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="">Rol...</option>`;
+    
+    var selRol = `<select class="sel-rol" style="flex: 1; min-width: 0; padding: 4px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px; margin: 0;"><option value="">Rol...</option>`;
     if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}">${r}</option>`);
     selRol += `</select>`;
     
     var btnEncargado = `
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 5px;">
-        <span style="font-size: 10px; color: #1c4587; font-weight: bold; margin-bottom: 4px;">ENCARGADO</span>
-        <label class="switch">
-          <input type="checkbox" class="chk-encargado" ${esPrimero ? 'checked' : ''}>
-          <span class="slider round"></span>
-        </label>
-      </div>
+      <label style="font-size:10px; font-weight:bold; color:#1c4587; display:flex; align-items:center; gap:3px; white-space: nowrap;">
+         Encargado <input type="checkbox" class="chk-encargado" ${esPrimero ? 'checked' : ''} style="margin:0; width:14px; height:14px;">
+      </label>
     `;
 
-    div.innerHTML = selPart + selRol + btnEncargado + `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d32f2f; cursor:pointer; display: flex; align-items: center; justify-content: center;" title="Quitar"><span class="material-symbols-outlined">close</span></button>`;
+    div.innerHTML = selPart + selRol + btnEncargado + `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d32f2f; cursor:pointer; display: flex; align-items: center; justify-content: center; padding:0;" title="Quitar"><span class="material-symbols-outlined" style="font-size:16px;">cancel</span></button>`;
     container.appendChild(div);
   }
 
@@ -470,6 +510,7 @@
     var contactoNom = document.getElementById('proy-contacto-nombre').value.trim();
     var contactoTel = document.getElementById('proy-contacto-telefono').value.trim();
     var ubicacionArch = document.getElementById('proy-ubicacion-archivos').value.trim();
+    var m2 = document.getElementById('proy-m2').value.trim();
 
     var asignados = [];
     var equipoHtml = "<ul style='padding-left: 20px; margin-top: 5px;'>";
@@ -502,13 +543,13 @@
     datosProyectoTemporal = {
       departamento: depto, centro: centro, nombre: nombre, descripcion: descripcion,
       tipoObra: tipo, estado: estado, asignados: asignados, usuario: usuarioActivoEmail,
-      expediente: expediente, costo: costo, empresa: empresa,
+      expediente: expediente, costo: costo, empresa: empresa, m2: m2,
       contactoNombre: contactoNom, contactoTelefono: contactoTel,
       ubicacionArchivos: ubicacionArch || "", hitos: hitos
     };
 
     var htmlPrevia = `
-      <div style="font-family: sans-serif; line-height: 1.6; text-align: left; font-size:14px;">
+      <div style="font-family: sans-serif; line-height: 1.6; text-align: left; font-size:13px;">
         <p style="margin-bottom: 5px;"><strong>Ubicación:</strong> ${depto} - ${centro}</p>
         <p style="margin-bottom: 5px;"><strong>Proyecto:</strong> <span style="color: #1c4587; font-weight: 700;">${nombre}</span></p>
         <p style="margin-bottom: 12px; color: #555; font-style: italic;">"${descripcion}"</p>
@@ -516,16 +557,17 @@
         
         <div style="background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 6px; margin: 12px 0;">
           <strong style="color: #1c4587;">Información Complementaria Adicional:</strong>
-          <ul style="margin: 5px 0 0 0; padding-left: 20px; font-size:13px;">
+          <ul style="margin: 5px 0 0 0; padding-left: 20px; font-size:12px;">
             <li><strong>Expediente Nro:</strong> ${expediente || '-'}</li>
             <li><strong>Costo Estimado:</strong> ${costo || '-'}</li>
+            <li><strong>M2 a intervenir:</strong> ${m2 || '-'}</li>
             <li><strong>Empresa Asignada:</strong> ${empresa || '-'}</li>
-            <li><strong>Referente Unidad:</strong> ${contactoNom || '-'} ${contactoTel ? '('+contactoTel+')' : ''}</li>
-            <li><strong>Ubicación de Documentos:</strong> ${ubicacionArch || '-'}</li>
+            <li><strong>Contacto Nombre:</strong> ${contactoNom || '-'} ${contactoTel ? '('+contactoTel+')' : ''}</li>
+            <li><strong>Ubicación de archivos:</strong> ${ubicacionArch || '-'}</li>
           </ul>
         </div>
         
-        ${hitosHtml ? `<div style="font-size:13px; margin-bottom:12px;"><strong style="color:#1c4587;">Planificación Cronológica de Hitos:</strong><ul style="margin:5px 0 0 0; padding-left:20px;">${hitosHtml}</ul></div>` : ''}
+        ${hitosHtml ? `<div style="font-size:12px; margin-bottom:12px;"><strong style="color:#1c4587;">Planificación Cronológica de Hitos:</strong><ul style="margin:5px 0 0 0; padding-left:20px;">${hitosHtml}</ul></div>` : ''}
         
         <hr style="border: 0; border-top: 1px solid #eee; margin: 12px 0;">
         <p style="margin-bottom: 5px;"><strong>Equipo Técnico Designado:</strong></p>
@@ -537,7 +579,7 @@
     document.getElementById('contenido-preview').innerHTML = htmlPrevia;
     
     var btnConfirmar = document.getElementById('btn-confirmar-preview');
-    btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
     btnConfirmar.onclick = confirmarRegistroProyecto;
 
     document.getElementById('modal-preview').style.display = 'flex';
@@ -547,11 +589,11 @@
     if (!datosProyectoTemporal) return;
     var btn = document.getElementById('btn-confirmar-preview');
     btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; vertical-align: middle; animation: spin 2s linear infinite;">hourglass_empty</span> GUARDANDO PROYECTO...';
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">hourglass_empty</span> GUARDANDO...';
 
     google.script.run.withSuccessHandler(function(res) {
       btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
+      btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
       cerrarVistaPrevia();
       if (res.success) {
         document.getElementById('proy-nombre').value = '';

@@ -1,8 +1,8 @@
 <div id="proy-seccion-listados" style="display: none;">
   
-  <div id="listado-proyectos-wrapper" class="caja-inicio" style="width: 100%; max-width: 100%; padding: 30px; text-align: left;">
-     <div style="background: #f0f4f8; padding: 15px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 25px;">
-       <div style="font-weight: 700; color: #1c4587; margin-bottom: 10px; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+  <div id="listado-proyectos-wrapper" style="width: 100%; max-width: 100%; padding: 0; text-align: left;">
+     <div style="background: #f0f4f8; padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 15px;">
+       <div style="font-weight: 700; color: #1c4587; margin-bottom: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;">
          <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> Filtros de búsqueda:
        </div>
        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
@@ -32,9 +32,9 @@
      </div>
   </div>
 
-  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; max-width: 100%; padding: 15px 30px; text-align: left; background: #fff;">
+  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; max-width: 100%; padding: 0; text-align: left; background: transparent;">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 8px; margin-bottom: 12px;">
       <div style="display: flex; align-items: center; gap: 15px;">
         <button onclick="volverListadoProyectos()" style="background: #1c4587; border: none; color: white; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
           <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> VOLVER AL LISTADO
@@ -62,39 +62,43 @@
 
     <div style="display: flex; flex-direction: column; gap: 8px;">
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.2fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Estado:</label>
-          <select id="edit-estado" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; color: #1c4587;"></select>
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Estado:</label>
+          <select id="edit-estado" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; font-weight: bold; color: #1c4587;"></select>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Expediente:</label>
-          <input type="text" id="edit-expediente" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Expediente:</label>
+          <input type="text" id="edit-expediente" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Costo:</label>
-          <input type="text" id="edit-costo" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Costo:</label>
+          <input type="text" id="edit-costo" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">M2 a intervenir:</label>
+          <input type="text" id="edit-m2" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #fff; padding: 5px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none;">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Empresa:</label>
-          <select id="edit-empresa" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"></select>
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Empresa:</label>
+          <select id="edit-empresa" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"></select>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Cont. Nom:</label>
-          <input type="text" id="edit-contacto-nom" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Nombre:</label>
+          <input type="text" id="edit-contacto-nom" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Cont. Tel:</label>
-          <input type="text" id="edit-contacto-tel" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Tel.:</label>
+          <input type="text" id="edit-contacto-tel" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
         </div>
       </div>
 
       <div style="background: #fff; padding: 5px 15px 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none; display: flex; align-items: center; gap: 8px;">
-        <label style="font-size: 11px; font-weight: bold; color: #444; width: 70px; margin: 0;">Archivos:</label>
-        <input type="text" id="edit-archivos" style="flex: 1; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Ubicación de archivos:</label>
+        <input type="text" id="edit-archivos" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
       </div>
 
       <div style="display: flex; gap: 15px; margin-top: 5px;">
@@ -307,14 +311,12 @@
     });
   }
 
-  // --- MAGIA: Ocultar y Mostrar encabezados molestos del archivo Index/Padre ---
   function gestionarEncabezadoMolesto(ocultar) {
     try {
       var elementos = document.querySelectorAll('div, h2, h3, button, p');
       elementos.forEach(function(el) {
         if (el.innerText) {
           var txt = el.innerText.toLowerCase().trim();
-          // Detectamos el cuadro repetido o el botón de volver
           if (txt.includes("proyectos en curso - listado de obras") || txt === "volver a gestión" || txt === "volver a gestion") {
             if (ocultar) {
               if (el.style.display !== 'none' && !el.classList.contains('oculto-por-detalle')) {
@@ -334,10 +336,8 @@
     } catch(e) { console.log(e); }
   }
 
-  // --- LÓGICA DE LA PANTALLA DE DETALLE / EDICIÓN ---
-
   function abrirDetalleProyecto(index) {
-    gestionarEncabezadoMolesto(true); // Oculta el encabezado repetido
+    gestionarEncabezadoMolesto(true);
 
     proyectoActivoEditando = todosLosProyectosCargados[index];
     var p = proyectoActivoEditando;
@@ -383,11 +383,12 @@
     document.getElementById('edit-descripcion').value = p.descripcion || "";
     document.getElementById('edit-expediente').value = p.expediente || "";
     document.getElementById('edit-costo').value = p.costo || "";
+    document.getElementById('edit-m2').value = p.m2 || "";
     document.getElementById('edit-contacto-nom').value = p.contactoNombre || "";
     document.getElementById('edit-contacto-tel').value = p.contactoTelefono || "";
     document.getElementById('edit-archivos').value = p.ubicacionArchivos || "";
 
-    var inputsIds = ['edit-estado', 'edit-descripcion', 'edit-expediente', 'edit-costo', 'edit-empresa', 'edit-contacto-nom', 'edit-contacto-tel', 'edit-archivos'];
+    var inputsIds = ['edit-estado', 'edit-descripcion', 'edit-expediente', 'edit-costo', 'edit-empresa', 'edit-contacto-nom', 'edit-contacto-tel', 'edit-archivos', 'edit-m2'];
     inputsIds.forEach(id => {
       var el = document.getElementById(id);
       if(el) {
@@ -406,7 +407,7 @@
   }
 
   function volverListadoProyectos() {
-    gestionarEncabezadoMolesto(false); // Restaura el encabezado original al salir
+    gestionarEncabezadoMolesto(false);
     document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
     document.getElementById('listado-proyectos-wrapper').style.display = 'block';
     proyectoActivoEditando = null;
@@ -435,15 +436,15 @@
     var div = document.createElement('div');
     div.style = "display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px;";
     
-    var selPart = `<select class="det-part" style="flex: 2; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Participante...</option>`;
+    var selPart = `<select class="det-part" style="flex: 2; min-width: 0; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Participante...</option>`;
     if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}" ${p === participanteVal ? 'selected':''}>${p}</option>`);
     selPart += `</select>`;
     
-    var selRol = `<select class="det-rol" style="flex: 1; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Rol...</option>`;
+    var selRol = `<select class="det-rol" style="flex: 1; min-width: 0; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Rol...</option>`;
     if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}" ${r === rolVal ? 'selected':''}>${r}</option>`);
     selRol += `</select>`;
     
-    var chk = `<label style="font-size:9px; font-weight:bold; color: black; display:flex; flex-direction:row; align-items:center; gap: 2px;">Enc. <input type="checkbox" class="det-enc" ${encargadoVal ? 'checked' : ''} style="margin:0;"></label>`;
+    var chk = `<label style="font-size:9px; font-weight:bold; color: black; display:flex; flex-direction:row; align-items:center; gap: 2px; white-space: nowrap;">Encargado <input type="checkbox" class="det-enc" ${encargadoVal ? 'checked' : ''} style="margin:0;"></label>`;
     var btnDel = `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d93025; cursor:pointer; padding:0;" title="Quitar"><span class="material-symbols-outlined" style="font-size:14px;">cancel</span></button>`;
 
     div.innerHTML = selPart + selRol + chk + btnDel;
@@ -463,6 +464,7 @@
     var nDesc = document.getElementById('edit-descripcion').value.trim();
     var nExp = document.getElementById('edit-expediente').value.trim();
     var nCosto = document.getElementById('edit-costo').value.trim();
+    var nM2 = document.getElementById('edit-m2').value.trim();
     var nEmp = document.getElementById('edit-empresa').value;
     var nContNom = document.getElementById('edit-contacto-nom').value.trim();
     var nContTel = document.getElementById('edit-contacto-tel').value.trim();
@@ -486,14 +488,36 @@
     if (nDesc !== (p.descripcion||"")) { cambios.push(`<li><strong>Descripción:</strong> Se modificó el texto.</li>`); requiereGuardarDatos = true; }
     if (nExp !== (p.expediente||"")) { cambios.push(`<li><strong>Expediente:</strong> Se actualizó a '${nExp}'.</li>`); requiereGuardarDatos = true; }
     if (nCosto !== (p.costo||"")) { cambios.push(`<li><strong>Costo:</strong> Se actualizó a '${nCosto}'.</li>`); requiereGuardarDatos = true; }
+    if (nM2 !== (p.m2||"")) { cambios.push(`<li><strong>M2 a intervenir:</strong> Se actualizó a '${nM2}'.</li>`); requiereGuardarDatos = true; }
     if (nEmp !== (p.empresa||"")) { cambios.push(`<li><strong>Empresa:</strong> Se cambió a '${nEmp}'.</li>`); requiereGuardarDatos = true; }
     if (nContNom !== (p.contactoNombre||"") || nContTel !== (p.contactoTelefono||"")) { 
       cambios.push(`<li><strong>Contacto:</strong> Se actualizaron los datos del referente.</li>`); requiereGuardarDatos = true; 
     }
     if (nArch !== (p.ubicacionArchivos||"")) { cambios.push(`<li><strong>Archivos:</strong> Ubicación actualizada.</li>`); requiereGuardarDatos = true; }
     
-    if (JSON.stringify(nEquipo) !== JSON.stringify(p.equipo || [])) {
-      cambios.push(`<li><strong>Equipo:</strong> Se modificó la plantilla de participantes.</li>`); requiereGuardarDatos = true;
+    // NUEVA LÓGICA DE COMPARACIÓN DE EQUIPO (Detecta cambios reales)
+    var equipoOriginal = p.equipo || [];
+    var elEquipoCambio = false;
+
+    if (nEquipo.length !== equipoOriginal.length) {
+      elEquipoCambio = true;
+    } else {
+      // Verificar cada miembro del nuevo equipo para ver si coincide con el original
+      for (var e = 0; e < nEquipo.length; e++) {
+        var nuevoInt = nEquipo[e];
+        var origInt = equipoOriginal.find(function(m) { return m.participante === nuevoInt.participante; });
+        
+        // Si no se encuentra, o si cambió el rol, o si cambió el estado de "encargado" (manejando string vs bool)
+        if (!origInt || origInt.rol !== nuevoInt.rol || String(origInt.encargado) !== String(nuevoInt.encargado)) {
+          elEquipoCambio = true;
+          break;
+        }
+      }
+    }
+
+    if (elEquipoCambio) {
+      cambios.push(`<li><strong>Equipo:</strong> Se modificó la plantilla de participantes.</li>`); 
+      requiereGuardarDatos = true;
     }
 
     if (cambios.length === 0) {
@@ -508,6 +532,7 @@
       descripcion: nDesc,
       expediente: nExp,
       costo: nCosto,
+      m2: nM2,
       empresa: nEmp,
       contactoNombre: nContNom,
       contactoTelefono: nContTel,
@@ -562,7 +587,6 @@
     });
   }
 
-  // --- LÓGICA DE VISUALIZACIÓN DE HISTORIAL ---
   function abrirHistorialDesdeListado(index) {
     proyectoActivoEditando = todosLosProyectosCargados[index];
     abrirHistorialProyecto();

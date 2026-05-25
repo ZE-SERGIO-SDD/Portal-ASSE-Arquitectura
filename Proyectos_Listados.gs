@@ -17,7 +17,6 @@ function obtenerListaDeProyectos(forzar) {
     if (data.length <= 1) return []; 
     
     var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
-    
     var idxFecha = headers.indexOf("fecha");
     var idxDepto = headers.indexOf("departamento");
     var idxCentro = headers.indexOf("centro");
@@ -35,6 +34,7 @@ function obtenerListaDeProyectos(forzar) {
     var idxContactoNom = headers.indexOf("contacto nombre");
     var idxContactoTel = headers.indexOf("contacto teléfono") !== -1 ? headers.indexOf("contacto teléfono") : headers.indexOf("contacto telefono");
     var idxUbicArchivos = headers.indexOf("ubicación archivos") !== -1 ? headers.indexOf("ubicación archivos") : headers.indexOf("ubicacion archivos");
+    var idxM2 = headers.indexOf("m2");
 
     var proyectos = [];
     for (var i = 1; i < data.length; i++) {
@@ -62,6 +62,7 @@ function obtenerListaDeProyectos(forzar) {
       var contactoNom = idxContactoNom !== -1 ? fila[idxContactoNom] : "";
       var contactoTel = idxContactoTel !== -1 ? fila[idxContactoTel] : "";
       var ubicArchivos = idxUbicArchivos !== -1 ? fila[idxUbicArchivos] : "";
+      var m2 = idxM2 !== -1 ? fila[idxM2] : "";
 
       proyectos.push({
         fecha: fechaSegura, departamento: depto.toString(), centro: centro.toString(),
@@ -69,7 +70,7 @@ function obtenerListaDeProyectos(forzar) {
         estado: estado.toString(), equipo: equipoObj, creador: creador.toString(),
         expediente: expediente.toString(), costo: costo.toString(), empresa: empresa.toString(),
         contactoNombre: contactoNom.toString(), contactoTelefono: contactoTel.toString(),
-        ubicacionArchivos: ubicArchivos.toString()
+        ubicacionArchivos: ubicArchivos.toString(), m2: m2.toString()
       });
     }
     
