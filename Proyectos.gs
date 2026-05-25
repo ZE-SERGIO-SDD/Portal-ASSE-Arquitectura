@@ -269,7 +269,7 @@ function guardarNuevoProyecto(datosProyecto) {
     sheet.appendRow(nuevaFila);
     registrarHitoHistorial(idUnico, new Date(), datosProyecto.usuario, "Creación", "Alta inicial en estado: " + datosProyecto.estado, "Proyecto creado exitosamente.");
 
-    CacheService.getScriptCache().remove("cache_lista_proy");
+    CacheService.getScriptCache().remove("cache_lista_proy_chunks");
     return { success: true };
   } catch (e) {
     return { success: false, error: e.message };
@@ -323,7 +323,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado, usuarioNombre, coment
 
         registrarHitoHistorial(idProyecto, fechaRegistro, usuarioNombre || "Usuario Desconocido", "ESTADO", detalleCambio, comentario || "");
 
-        CacheService.getScriptCache().remove("cache_lista_proy");
+        CacheService.getScriptCache().remove("cache_lista_proy_chunks");
         return { success: true };
       }
     }
@@ -499,7 +499,7 @@ function editarDatosProyecto(datosEdicion) {
       }
     }
 
-    CacheService.getScriptCache().remove("cache_lista_proy");
+    CacheService.getScriptCache().remove("cache_lista_proy_chunks");
     return { success: true };
   } catch (e) {
     return { success: false, error: e.message };
