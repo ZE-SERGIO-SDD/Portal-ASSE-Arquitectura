@@ -1,9 +1,9 @@
 <style>
-  /* Regla estricta para garantizar que el contenedor blanco superior y la lista midan exactamente lo mismo siempre (600px) */
+  /* Regla estricta para garantizar que el contenedor blanco superior y la lista midan exactamente lo mismo siempre */
   #pantalla-proyectos .container {
     box-sizing: border-box !important;
     width: 100% !important;
-    max-width: 600px !important;
+    max-width: 800px !important;
   }
   #proy-seccion-listados, #proy-seccion-listados * {
     box-sizing: border-box;
@@ -26,19 +26,19 @@
          </button>
        </div>
        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-         <div style="flex: 1; min-width: 120px;">
+         <div style="flex: 1; min-width: 140px;">
            <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 1: PARTICIPANTE</label>
            <select id="filtro-participante" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 120px;">
+         <div style="flex: 1; min-width: 140px;">
            <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 2: DEPARTAMENTO</label>
            <select id="filtro-depto-listado" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 120px;">
+         <div style="flex: 1; min-width: 140px;">
            <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 3: TIPO DE OBRA</label>
            <select id="filtro-tipo-listado" onchange="actualizarEstadosFiltro()" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 120px;">
+         <div style="flex: 1; min-width: 140px;">
            <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 4: ESTADO</label>
            <select id="filtro-estado-listado" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
@@ -48,14 +48,14 @@
          <div style="font-weight: 700; color: #1c4587; font-size: 11px; display: flex; align-items: center; gap: 5px;">
            <span class="material-symbols-outlined" style="font-size: 14px;">sort</span> ORDENAR POR:
          </div>
-         <select id="orden-campo" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 120px; margin-bottom: 0;">
+         <select id="orden-campo" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 140px; margin-bottom: 0;">
            <option value="fecha">Fecha (Por defecto)</option>
            <option value="departamento">Departamento</option>
            <option value="tipoObra">Tipo de Obra</option>
            <option value="estado">Estado de Obra</option>
            <option value="participante">Participante Principal</option>
          </select>
-         <select id="orden-direccion" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 120px; margin-bottom: 0;">
+         <select id="orden-direccion" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 140px; margin-bottom: 0;">
            <option value="desc">Descendente (Z-A / Recientes)</option>
            <option value="asc">Ascendente (A-Z / Antiguos)</option>
          </select>
@@ -402,9 +402,8 @@
         return;
     }
 
-    // Porcentajes de columnas reajustados para el nuevo ancho de 600px
     contenedor.innerHTML = `
-      <div style="display: grid; grid-template-columns: 16% 24% 15% 15% 30%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 10px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
+      <div style="display: grid; grid-template-columns: 18% 26% 16% 16% 24%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 15px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
         <div>Ubicación</div>
         <div>Nombre del Proyecto</div>
         <div>Encargado</div>
@@ -460,9 +459,8 @@
             }
         }
 
-        // Porcentajes de columnas reajustados para el nuevo ancho de 600px
         var tarjeta = `
-          <div style="display: grid; grid-template-columns: 16% 24% 15% 15% 30%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 10px 10px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
+          <div style="display: grid; grid-template-columns: 18% 26% 16% 16% 24%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 10px 15px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
             
             <div style="min-width: 0; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
               <div style="display: flex; align-items: flex-start; gap: 4px; font-weight: bold; color: #1c4587;">
