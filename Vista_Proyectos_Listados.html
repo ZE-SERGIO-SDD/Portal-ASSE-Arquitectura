@@ -84,9 +84,14 @@
         </button>
         <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha de Proyecto</span>
       </div>
-      <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
-      </button>
+      <div style="display: flex; gap: 10px;">
+        <button id="btn-archivar-proyecto" onclick="prepararArchivadoProyecto()" style="display: none; background: #d93025; border: 1px solid #d93025; color: white; font-weight: bold; cursor: pointer; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <span class="material-symbols-outlined" style="font-size: 16px;">archive</span> ARCHIVAR PROYECTO
+        </button>
+        <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
+        </button>
+      </div>
     </div>
 
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
@@ -203,6 +208,34 @@
       <button onclick="document.getElementById('modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
       <button id="btn-confirmar-guardado-final" onclick="ejecutarGuardadoBackend()" class="btn-azul" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px;">
         <span class="material-symbols-outlined" style="font-size: 18px;">check</span> ACEPTAR Y GUARDAR
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-archivar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
+      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Archivar Proyecto
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      ¿Estás seguro de que deseas archivar este proyecto? Se moverá a la base de datos histórica y ya no aparecerá en el listado activo. Todo su registro y documentos se mantendrán a salvo.
+    </p>
+    
+    <div style="margin-bottom: 15px; background: #fce8e6; padding: 10px; border-radius: 6px; border: 1px solid #fad2cf; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <label style="font-size: 13px; font-weight: bold; color: #d93025; margin: 0;">Fecha del cierre / archivo:</label>
+      <input type="date" id="fecha-archivo-modal" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; font-family: inherit; font-weight: bold;">
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="font-size: 12px; font-weight: bold; color: #444; margin-bottom: 4px; display: block;">Motivo de archivo (Obligatorio):</label>
+      <textarea id="comentario-archivo-modal" placeholder="Ej: Obra inaugurada y entregada con conformidad final." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical; min-height: 60px; font-family: inherit;"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('modal-archivar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-archivo" onclick="ejecutarArchivadoBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">archive</span> CONFIRMAR ARCHIVO
       </button>
     </div>
   </div>
@@ -646,6 +679,9 @@
 
     document.getElementById('area-guardar-cambios').style.display = esModoEdicionPermitido ? 'block' : 'none';
     document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'flex' : 'none';
+    
+    // VISIBILIDAD DEL NUEVO BOTÓN DE ARCHIVAR
+    document.getElementById('btn-archivar-proyecto').style.display = esModoEdicionPermitido ? 'flex' : 'none';
 
     renderizarEquipoDetalle(p.equipo || []);
 
@@ -924,6 +960,70 @@
       btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
       alert("Hubo un error al guardar: " + err);
     });
+  }
+
+  // ---- NUEVAS FUNCIONES PARA EL MANEJO DEL ARCHIVADO ----
+
+  function prepararArchivadoProyecto() {
+    if (!proyectoActivoEditando) return;
+    
+    // Obtener la fecha de hoy para el modal
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
+    
+    document.getElementById('fecha-archivo-modal').value = localISOTime;
+    document.getElementById('comentario-archivo-modal').value = "";
+    document.getElementById('modal-archivar-proyecto').style.display = 'flex';
+  }
+
+  function ejecutarArchivadoBackend() {
+    var fechaArchivo = document.getElementById('fecha-archivo-modal').value;
+    var comentarioArchivo = document.getElementById('comentario-archivo-modal').value.trim();
+
+    if (!fechaArchivo) {
+      alert("Debe seleccionar una fecha de archivo.");
+      return;
+    }
+    if (!comentarioArchivo) {
+      alert("Debe ingresar un motivo o comentario que justifique el archivo del proyecto.");
+      return;
+    }
+
+    var btn = document.getElementById('btn-confirmar-archivo');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> PROCESANDO...';
+
+    var p = proyectoActivoEditando;
+    var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">archive</span> CONFIRMAR ARCHIVO';
+        
+        if (res.success) {
+          document.getElementById('modal-archivar-proyecto').style.display = 'none';
+          
+          if(typeof mostrarAlertaProy === 'function') {
+            mostrarAlertaProy("Proyecto Archivado", "El proyecto y su bitácora han sido movidos exitosamente al archivo histórico.", "archive", function(){
+               volverListadoProyectos();
+               ejecutarBusquedaProyectos(); // Se refresca la lista para que desaparezca
+            });
+          } else {
+            alert("Proyecto archivado exitosamente.");
+            volverListadoProyectos();
+            ejecutarBusquedaProyectos();
+          }
+        } else {
+          alert("Error al archivar el proyecto: " + res.error);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">archive</span> CONFIRMAR ARCHIVO';
+        alert("Error de conexión al intentar archivar: " + err);
+      })
+      .archivarProyectoBackend(p.nombre, p.fecha, fechaArchivo, comentarioArchivo, usuarioNombreAEnviar);
   }
 
   function abrirHistorialDesdeListado(index) {
