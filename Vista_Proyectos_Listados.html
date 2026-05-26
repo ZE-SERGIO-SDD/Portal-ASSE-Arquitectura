@@ -314,8 +314,8 @@
         var estadoTexto = p.estado ? p.estado.toString().toLowerCase().trim() : '';
         var esTerminado = estadoTexto.includes('terminad') || estadoTexto.includes('finaliz') || estadoTexto.includes('entregad');
         
-        if (vistaListadoActual === 'curso' && esTerminado) return false;
-        if (vistaListadoActual === 'terminado' && !esTerminado) return false;
+        if (typeof vistaListadoActual !== 'undefined' && vistaListadoActual === 'curso' && esTerminado) return false;
+        if (typeof vistaListadoActual !== 'undefined' && vistaListadoActual === 'terminado' && !esTerminado) return false;
 
         if (fPart) {
           var equipo = p.equipo || [];
@@ -333,7 +333,7 @@
         return true; 
     });
 
-    // --- NUEVO: LÓGICA DE ORDENAMIENTO ---
+    // --- LÓGICA DE ORDENAMIENTO ---
     var campoOrden = document.getElementById('orden-campo').value;
     var direccionOrden = document.getElementById('orden-direccion').value;
 
@@ -356,7 +356,7 @@
         } else if (campoOrden === "participante") {
             var eqA = a.equipo && a.equipo.length > 0 ? (a.equipo.find(m => m.encargado) || a.equipo[0]) : null;
             var eqB = b.equipo && b.equipo.length > 0 ? (b.equipo.find(m => m.encargado) || b.equipo[0]) : null;
-            valA = eqA && eqA.participante ? eqA.participante.toLowerCase() : "zzzz"; // 'zzzz' manda a los sin equipo al final en modo asc
+            valA = eqA && eqA.participante ? eqA.participante.toLowerCase() : "zzzz";
             valB = eqB && eqB.participante ? eqB.participante.toLowerCase() : "zzzz";
         }
 
@@ -374,6 +374,18 @@
         return;
     }
 
+    // --- ENCABEZADO ESTILO EXCEL CON GRID DE 6 COLUMNAS ---
+    contenedor.innerHTML = `
+      <div style="display: grid; grid-template-columns: 18% 26% 16% 13% 12% 15%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 15px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
+        <div>Ubicación</div>
+        <div>Nombre del Proyecto</div>
+        <div>Encargado</div>
+        <div>Tipo de Obra</div>
+        <div>Estado Actual</div>
+        <div style="text-align: right;">Acciones</div>
+      </div>
+    `;
+
     renderizarSiguientesProyectos();
   }
 
@@ -386,6 +398,10 @@
         var pEstado = p.estado ? p.estado.toString().trim() : 'Sin Estado';
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
         var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
+
+        // --- BUSCAMOS AL ENCARGADO EN EL EQUIPO ---
+        var encargadoObj = (p.equipo && p.equipo.length > 0) ? p.equipo.find(m => m.encargado === true || m.encargado === "true") : null;
+        var nombreEncargado = encargadoObj ? encargadoObj.participante : '-';
 
         // --- LÓGICA DE ESTADOS PARA LOS BOTONES EN LA LISTA ---
         var etapas = [];
@@ -412,41 +428,46 @@
             }
         }
 
+        // --- TARJETA ESTILO EXCEL CON GRID (6 COLUMNAS) ---
         var tarjeta = `
-          <div style="border-bottom: 1px solid #d1d9e0; padding: 8px 4px; background: #fff; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+          <div style="display: grid; grid-template-columns: 18% 26% 16% 13% 12% 15%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 12px 15px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
             
-            <div style="display: flex; flex: 1; min-width: 0; align-items: center;">
-              <div style="flex: 1.5; min-width: 0; padding-right: 10px;">
-                <div style="font-size: 11px; color: #555; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px;">
-                  <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span>
-                  <span>${p.departamento} - ${p.centro}</span>
-                </div>
-                <div style="font-size: 14px; font-weight: bold; color: black; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  ${p.nombre}
-                </div>
+            <div style="min-width: 0; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; align-items: flex-start; gap: 4px; font-weight: bold; color: #1c4587;">
+                <span class="material-symbols-outlined" style="font-size: 14px; flex-shrink: 0;">location_on</span>
+                <span style="word-break: break-word; line-height: 1.2;">${p.departamento}</span>
               </div>
-              <div style="width: 1px; height: 32px; background-color: #d1d9e0; flex-shrink: 0; margin: 0 10px;"></div>
-              <div style="flex: 1; min-width: 0; font-size: 11px; line-height: 1.4;">
-                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  <span style="color: #666; font-weight: bold;">TIPO DE OBRA:</span> 
-                  <span style="color: ${colorNombre}; font-weight: bold;">${p.tipoObra}</span>
-                </div>
-                <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  <span style="color: #666; font-weight: bold;">ESTADO:</span> 
-                  <span style="color: black; font-weight: bold;">${pEstado}</span>
-                </div>
+              <div style="color: #444; padding-left: 18px; word-break: break-word; line-height: 1.2;">
+                ${p.centro}
               </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-items: flex-end;">
-              <div style="display: flex; gap: 6px;">
+            <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.nombre}">
+              ${p.nombre}
+            </div>
+
+            <div style="min-width: 0; font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nombreEncargado}">
+              <span class="material-symbols-outlined" style="font-size: 14px; color: #666; flex-shrink: 0;">person</span>
+              <span style="overflow: hidden; text-overflow: ellipsis; font-weight: bold;">${nombreEncargado}</span>
+            </div>
+
+            <div style="min-width: 0; font-size: 11px; font-weight: bold; color: ${colorNombre}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.tipoObra}">
+              ${p.tipoObra}
+            </div>
+
+            <div style="min-width: 0; font-size: 11px; font-weight: bold; color: black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${pEstado}">
+              ${pEstado}
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end; min-width: 0;">
+              <div style="display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; width: 100%;">
                  ${botonesEstadoHtml}
               </div>
-              <div style="display: flex; gap: 6px;">
-                 <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Ver Bitácora">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                 <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Bitácora" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'">
                    <span class="material-symbols-outlined" style="font-size: 18px;">history</span>
                  </button>
-                 <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;" title="Ver Detalle">
+                 <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Detalle" onmouseover="this.style.background='#153261'" onmouseout="this.style.background='#1c4587'">
                    <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
                  </button>
               </div>
@@ -466,28 +487,46 @@
     }
   }
 
+  // --- NUEVA LÓGICA DE OCULTAMIENTO (APUNTANDO A IDs DIRECTOS) ---
   function gestionarEncabezadoMolesto(ocultar) {
     try {
-      var elementos = document.querySelectorAll('div, h2, h3, button, p');
-      elementos.forEach(function(el) {
-        if (el.innerText) {
-          var txt = el.innerText.toLowerCase().trim();
-          if (txt.includes("proyectos en curso - listado de obras") || txt === "volver a gestión" || txt === "volver a gestion") {
-            if (ocultar) {
-              if (el.style.display !== 'none' && !el.classList.contains('oculto-por-detalle')) {
-                el.setAttribute('data-display-original', el.style.display || 'block');
-                el.style.display = 'none';
-                el.classList.add('oculto-por-detalle');
-              }
-            } else {
-              if (el.classList.contains('oculto-por-detalle')) {
-                el.style.display = el.getAttribute('data-display-original') || '';
-                el.classList.remove('oculto-por-detalle');
-              }
-            }
-          }
+      var titulo = document.getElementById('proy-titulo-principal');
+      var subtitulo = document.getElementById('proy-subtitulo-principal');
+      var btnMenu = document.getElementById('btn-volver-menu-proy');
+      var btnPanel = document.getElementById('btn-volver-panel');
+      var contenedorPadre = document.querySelector('#pantalla-proyectos .container');
+
+      if (ocultar) {
+        // Ocultar los textos de cabecera
+        if (titulo) titulo.style.display = 'none';
+        if (subtitulo) subtitulo.style.display = 'none';
+        
+        // Ocultar los botones de "volver" superiores (la ventana de detalle tiene su propio botón "Volver al listado")
+        if (btnMenu) btnMenu.style.display = 'none';
+        if (btnPanel) btnPanel.style.display = 'none';
+        
+        // Eliminar el recuadro blanco quitándole el fondo y los bordes al contenedor principal
+        if (contenedorPadre) {
+          contenedorPadre.style.background = 'transparent';
+          contenedorPadre.style.boxShadow = 'none';
+          contenedorPadre.style.border = 'none';
         }
-      });
+      } else {
+        // Restaurar textos para la vista normal de listado
+        if (titulo) titulo.style.display = '';
+        if (subtitulo) subtitulo.style.display = '';
+        
+        // Dejar el botón "volver a gestión" oculto porque es inútil, pero asegurarnos de mostrar "volver al panel"
+        if (btnMenu) btnMenu.style.display = 'none'; 
+        if (btnPanel) btnPanel.style.display = 'flex';
+        
+        // Restaurar el recuadro blanco para la vista de listado
+        if (contenedorPadre) {
+          contenedorPadre.style.background = '';
+          contenedorPadre.style.boxShadow = '';
+          contenedorPadre.style.border = '';
+        }
+      }
     } catch(e) { console.log(e); }
   }
 
@@ -870,9 +909,9 @@
         historialActivoData = res.datos || [];
         
         if (historialActivoData.length > 0) {
-          var categorias = [...new Set(historialActivoData.map(h => h.categoria))].filter(c => c && c !== "-" && c !== "Creación");
+          var categories = [...new Set(historialActivoData.map(h => h.categoria))].filter(c => c && c !== "-" && c !== "Creación");
           selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
-          categorias.forEach(c => selectFiltro.innerHTML += `<option value="${c}">${c}</option>`);
+          categories.forEach(c => selectFiltro.innerHTML += `<option value="${c}">${c}</option>`);
           selectFiltro.disabled = false;
           
           renderizarHistorialActivo();
