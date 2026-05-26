@@ -75,7 +75,7 @@
      </div>
   </div>
 
-  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; text-align: left; background: transparent;">
+  <div id="detalle-proyecto-wrapper" style="display: none; width: 75%; margin: 0 auto; margin-top: 40px; text-align: left; background: transparent;">
     
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 8px; margin-bottom: 12px;">
       <div style="display: flex; align-items: center; gap: 15px;">
@@ -288,7 +288,14 @@
         if (opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart.innerHTML += `<option value="${p}">${p}</option>`);
         if (opcionesConfig.departamentos) opcionesConfig.departamentos.forEach(d => selDepto.innerHTML += `<option value="${d}">${d}</option>`);
         if (opcionesConfig.tiposObra) opcionesConfig.tiposObra.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
-        if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
+        
+        // Filtramos para NO mostrar los estados terminados
+        if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => {
+            var eL = e.toString().toLowerCase();
+            if(!(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad'))) {
+               selEstado.innerHTML += `<option value="${e}">${e}</option>`;
+            }
+        });
 
         selPart.value = valPart || ''; selDepto.value = valDepto || ''; selTipo.value = valTipo || ''; selEstado.value = valEstado || '';
         
@@ -304,7 +311,13 @@
     
     selEstado.innerHTML = '<option value="">Todos</option>';
     var estadosAMostrar = (tipo && opcionesConfig.mapaTiposEstados[tipo]) ? opcionesConfig.mapaTiposEstados[tipo] : (opcionesConfig.estados || []);
-    estadosAMostrar.forEach(e => selEstado.innerHTML += `<option value="${e}">${e}</option>`);
+    estadosAMostrar.forEach(e => {
+        var eL = e.toString().toLowerCase();
+        // Filtramos para NO mostrar los estados terminados
+        if(!(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad'))) {
+           selEstado.innerHTML += `<option value="${e}">${e}</option>`;
+        }
+    });
     selEstado.value = valEstado; 
     if(!selEstado.value) selEstado.value = ""; 
   }
@@ -344,8 +357,8 @@
         var estadoTexto = p.estado ? p.estado.toString().toLowerCase().trim() : '';
         var esTerminado = estadoTexto.includes('terminad') || estadoTexto.includes('finaliz') || estadoTexto.includes('entregad');
         
-        if (typeof vistaListadoActual !== 'undefined' && vistaListadoActual === 'curso' && esTerminado) return false;
-        if (typeof vistaListadoActual !== 'undefined' && vistaListadoActual === 'terminado' && !esTerminado) return false;
+        // Exclusivo: Si está finalizado, NO se muestra aquí (va a Archivados)
+        if (esTerminado) return false;
 
         if (fPart) {
           var equipo = p.equipo || [];
@@ -428,6 +441,12 @@
         var encargadoObj = (p.equipo && p.equipo.length > 0) ? p.equipo.find(m => m.encargado === true || m.encargado === "true") : null;
         var nombreEncargado = encargadoObj ? encargadoObj.participante : '-';
 
+        // --- NUEVO: Extraer Información de la Unidad Ejecutora desde las opciones ya cargadas ---
+        var infoCentro = opcionesConfig.infoCentros && opcionesConfig.infoCentros[p.centro] ? opcionesConfig.infoCentros[p.centro] : null;
+        var numUE = infoCentro && infoCentro.ueNum ? infoCentro.ueNum : '-';
+        var nomUE = infoCentro && infoCentro.ueNom ? infoCentro.ueNom : 'S/D';
+        var textoUE = (numUE !== '-' || nomUE !== 'S/D') ? `UE ${numUE} - ${nomUE}` : '';
+
         var etapas = [];
         if (p.tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[p.tipoObra]) {
             etapas = opcionesConfig.mapaTiposEstados[p.tipoObra];
@@ -470,6 +489,7 @@
               <div style="color: #444; padding-left: 18px; word-break: break-word; line-height: 1.2;">
                 ${p.centro}
               </div>
+              ${textoUE ? `<div style="color: #777; padding-left: 18px; font-size: 10px; font-style: italic; word-break: break-word; line-height: 1.1;">${textoUE}</div>` : ''}
             </div>
 
             <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; word-break: break-word;" title="${p.nombre}">

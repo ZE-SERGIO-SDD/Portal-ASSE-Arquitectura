@@ -34,9 +34,9 @@
         <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #1c4587;">architecture</span></span>
         <div class="card-title">Proyectos en curso</div>
       </div>
-      <div class="portal-card" onclick="mostrarSubPantallaProyectos('terminado')">
-        <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #1c4587;">task_alt</span></span>
-        <div class="card-title">Historial de proyectos</div>
+      <div class="portal-card" onclick="mostrarSubPantallaProyectos('archivado')">
+        <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #1c4587;">archive</span></span>
+        <div class="card-title">Proyectos Archivados</div>
       </div>
     </div>
 
@@ -273,6 +273,9 @@
     var listadosSeccion = document.getElementById('proy-seccion-listados');
     if(listadosSeccion) listadosSeccion.style.display = 'none';
     
+    var archivadosSeccion = document.getElementById('proy-seccion-archivados');
+    if(archivadosSeccion) archivadosSeccion.style.display = 'none';
+    
     var titulo = document.getElementById('proy-titulo-principal');
     var subtitulo = document.getElementById('proy-subtitulo-principal');
     var btnVolverMenu = document.getElementById('btn-volver-menu-proy');
@@ -309,13 +312,21 @@
 
         if(opcionesConfig.participantes.length === 0) cargarDatosProyectos();
 
-      } else {
-        vistaListadoActual = seccion;
+      } else if (seccion === 'curso') {
+        vistaListadoActual = 'curso';
         if(listadosSeccion) listadosSeccion.style.display = 'block';
-        titulo.innerText = seccion === 'curso' ? "Proyectos en curso" : "Historial de proyectos";
-        subtitulo.innerText = seccion === 'curso' ? "Listado de obras activas y en desarrollo." : "Archivo de proyectos finalizados o dados de baja.";
+        titulo.innerText = "Proyectos en curso";
+        subtitulo.innerText = "Listado de obras activas y en desarrollo.";
         
         if(typeof cargarListaDeProyectos === 'function') cargarListaDeProyectos();
+        
+      } else if (seccion === 'archivado') {
+        vistaListadoActual = 'archivado';
+        if(archivadosSeccion) archivadosSeccion.style.display = 'block';
+        titulo.innerText = "Proyectos Archivados";
+        subtitulo.innerText = "Archivo de proyectos finalizados o dados de baja.";
+        
+        if(typeof cargarListaArchivados === 'function') cargarListaArchivados();
       }
     }
   }

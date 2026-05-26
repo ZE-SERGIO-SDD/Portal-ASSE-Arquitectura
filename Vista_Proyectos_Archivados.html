@@ -1,0 +1,738 @@
+<style>
+  #proy-seccion-archivados, #proy-seccion-archivados * {
+    box-sizing: border-box;
+  }
+</style>
+
+<div id="proy-seccion-archivados" style="display: none; width: 100%;">
+  
+  <div id="listado-archivados-wrapper" style="width: 75%; margin: 0 auto; text-align: left;">
+     <div style="background: #f0f4f8; padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 10px; width: 100%;">
+       <div style="font-weight: 700; color: #1c4587; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+         <div style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+           <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span> Filtros:
+           <button onclick="toggleOrdenarArch()" style="background: none; border: none; color: #1c4587; cursor: pointer; display: flex; align-items: center; font-size: 11px; padding: 0; margin-left: 8px; font-weight: bold; text-decoration: underline;">
+              <span id="arch-icono-toggle-ordenar" class="material-symbols-outlined" style="font-size: 14px;">expand_more</span> <span id="arch-texto-toggle-ordenar">Mostrar Orden</span>
+           </button>
+         </div>
+         <button id="arch-btn-aplicar-filtros" onclick="ejecutarBusquedaArchivados()" style="background: #1c4587; border: none; color: white; padding: 4px; width: 125px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+           <span class="material-symbols-outlined" style="font-size: 14px;">search</span> APLICAR
+         </button>
+       </div>
+       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+         <div style="flex: 1; min-width: 140px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 1: PARTICIPANTE</label>
+           <select id="arch-filtro-participante" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
+         </div>
+         <div style="flex: 1; min-width: 140px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 2: DEPARTAMENTO</label>
+           <select id="arch-filtro-depto" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
+         </div>
+         <div style="flex: 1; min-width: 140px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 3: TIPO DE OBRA</label>
+           <select id="arch-filtro-tipo" onchange="actualizarEstadosFiltroArch()" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
+         </div>
+         <div style="flex: 1; min-width: 140px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 4: ESTADO</label>
+           <select id="arch-filtro-estado" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
+         </div>
+       </div>
+
+       <div id="arch-seccion-ordenar" style="display: none; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #d1d9e0; flex-wrap: wrap; align-items: center;">
+         <div style="font-weight: 700; color: #1c4587; font-size: 11px; display: flex; align-items: center; gap: 5px;">
+           <span class="material-symbols-outlined" style="font-size: 14px;">sort</span> ORDENAR POR:
+         </div>
+         <select id="arch-orden-campo" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 140px; margin-bottom: 0;">
+           <option value="fecha">Fecha (Por defecto)</option>
+           <option value="departamento">Departamento</option>
+           <option value="tipoObra">Tipo de Obra</option>
+           <option value="estado">Estado de Obra</option>
+           <option value="participante">Participante Principal</option>
+         </select>
+         <select id="arch-orden-direccion" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 140px; margin-bottom: 0;">
+           <option value="desc">Descendente (Z-A / Recientes)</option>
+           <option value="asc">Ascendente (A-Z / Antiguos)</option>
+         </select>
+       </div>
+     </div>
+     
+     <div id="arch-contenedor-lista" style="display: flex; flex-direction: column; gap: 0px; width: 100%;">
+        <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
+          <span class="material-symbols-outlined">info</span> Seleccione los filtros y presione "APLICAR" para cargar proyectos archivados.
+        </p>
+     </div>
+     
+     <div id="arch-contenedor-btn-mas" style="text-align: center; margin-top: 15px; margin-bottom: 15px; display: none;">
+        <button onclick="renderizarSiguientesArchivados()" style="background: #e0e0e0; color: #333; border: 1px solid #ccc; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; transition: 0.2s;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span> CARGAR MÁS
+        </button>
+     </div>
+  </div>
+
+  <div id="arch-detalle-wrapper" style="display: none; width: 75%; margin: 0 auto; margin-top: 40px; text-align: left; background: transparent;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 8px; margin-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <button onclick="volverListadoArchivados()" style="background: #1c4587; border: none; color: white; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> VOLVER AL LISTADO
+        </button>
+        <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha de Proyecto Archivante</span>
+      </div>
+      <button onclick="abrirHistorialProyectoArch()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
+      </button>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+      <div style="flex: 1;">
+        <div style="font-size: 12px; color: #555; display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+          <span class="material-symbols-outlined" style="font-size: 14px;">location_on</span> 
+          <span id="arch-det-centro" style="font-weight: bold; color: #000;"></span> - <span id="arch-det-depto"></span>
+        </div>
+        <div id="arch-det-nombre" style="font-size: 20px; color: #1c4587; font-weight: 800; line-height: 1.1; margin-bottom: 4px;"></div>
+        <div style="font-size: 11px; color: #777;">
+          Tipo de Obra: <strong id="arch-det-tipo" style="color: black;"></strong> | Creado por: <strong id="arch-det-creador" style="color: black;"></strong>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: #e8f0fe; padding: 15px 20px; border: 1px solid #c2d7f5; border-radius: 6px; margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;">
+      
+      <div style="flex-shrink: 0; min-width: 150px;">
+          <div style="font-size: 11px; font-weight: bold; color: #555; margin-bottom: 4px;">ESTADO FINAL</div>
+          <div id="arch-display-estado-actual" style="font-size: 18px; font-weight: 900; color: #1c4587; line-height: 1.2;"></div>
+          <input type="hidden" id="arch-edit-estado" value="">
+      </div>
+      
+      <div id="arch-contenedor-timeline" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center;"></div>
+      
+      <div id="arch-botones-estado" style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; min-width: 180px; align-items: flex-end;"></div>
+
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #f8f9fa; padding: 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Expediente:</label>
+          <input type="text" id="arch-edit-expediente" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Costo:</label>
+          <input type="text" id="arch-edit-costo" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">M2 a intervenir:</label>
+          <input type="text" id="arch-edit-m2" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; background: #fff; padding: 5px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Empresa:</label>
+          <select id="arch-edit-empresa" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;"></select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Nombre:</label>
+          <input type="text" id="arch-edit-contacto-nom" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Contacto Tel.:</label>
+          <input type="text" id="arch-edit-contacto-tel" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+        </div>
+      </div>
+
+      <div style="background: #fff; padding: 5px 15px 10px 15px; border: 1px solid #e0e0e0; border-radius: 4px; border-top: none; display: flex; align-items: center; gap: 8px;">
+        <label style="font-size: 11px; font-weight: bold; color: #444; margin: 0; white-space: nowrap;">Ubicación de archivos:</label>
+        <input type="text" id="arch-edit-archivos" style="flex: 1; min-width: 0; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px;">
+      </div>
+
+      <div style="display: flex; gap: 15px; margin-top: 5px;">
+        <div style="flex: 2; display: flex; flex-direction: column;">
+          <label style="font-size: 11px; font-weight: bold; color: #1c4587; margin-bottom: 4px;">Descripción / Alcance:</label>
+          <textarea id="arch-edit-descripcion" style="flex: 1; width: 100%; min-height: 80px; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; font-family: inherit; line-height: 1.4;"></textarea>
+        </div>
+        
+        <div style="flex: 1; display: flex; flex-direction: column; background: #fdfdfd; border: 1px solid #d1d9e0; border-radius: 4px; padding: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #eee; padding-bottom: 4px;">
+             <span style="font-size: 11px; font-weight: bold; color: #1c4587; display: flex; align-items: center; gap: 4px;">
+               <span class="material-symbols-outlined" style="font-size: 14px;">group</span> Equipo Asignado
+             </span>
+             <button id="arch-btn-add-participante" onclick="agregarFilaEquipoDetalleArch()" style="background: none; border: none; color: #1c4587; cursor: pointer; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 2px; padding: 0;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">add_circle</span> Añadir
+             </button>
+          </div>
+          <div id="arch-edit-lista-equipo" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="arch-area-guardar-cambios" style="margin-top: 15px; text-align: right; padding-top: 10px; display: none;">
+      <span style="font-size: 11px; color: #666; margin-right: 15px;">Hay cambios pendientes sin guardar</span>
+      <button class="btn-azul" onclick="prepararGuardadoProyectoArch()" style="font-size: 14px; padding: 10px 24px; display: inline-flex; align-items: center; gap: 6px; margin: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+        <span class="material-symbols-outlined" style="font-size: 18px;">save</span> GUARDAR TODOS LOS CAMBIOS
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div id="arch-modal-confirmar-edicion" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 500px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="color: #1c4587;">draw</span> Justificación de Modificaciones
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">Para guardar los cambios en la bitácora, es necesario añadir un breve motivo y confirmar la fecha del evento.</p>
+    
+    <div style="margin-bottom: 15px; background: #e8f0fe; padding: 10px; border-radius: 6px; border: 1px solid #c2d7f5; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <label style="font-size: 13px; font-weight: bold; color: #1c4587; margin: 0;">Fecha de cambio:</label>
+      <input type="date" id="arch-fecha-cambio-modal" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; font-family: inherit; font-weight: bold;">
+    </div>
+
+    <div id="arch-lista-cambios-detectados" style="background: #f8f9fa; border: 1px solid #eee; padding: 12px; border-radius: 6px; font-size: 13px; color: #333; margin-bottom: 20px; max-height: 350px; overflow-y: auto;"></div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('arch-modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="arch-btn-confirmar-guardado-final" onclick="ejecutarGuardadoBackendArch()" class="btn-azul" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">check</span> ACEPTAR Y GUARDAR
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="arch-modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 600px; text-align: left; max-height: 85vh; display: flex; flex-direction: column;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
+      <div class="titulo-azul" style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">history</span> Bitácora del Proyecto Archivando
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+         <label style="font-size: 11px; font-weight: bold; color: #666;">Filtrar por:</label>
+         <select id="arch-filtro-historial" onchange="renderizarHistorialActivoArch()" style="padding: 6px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; color: #333; font-weight: bold;">
+            <option value="ALL">Todos los cambios</option>
+         </select>
+      </div>
+    </div>
+    
+    <div id="arch-contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;"></div>
+
+    <div style="text-align: right; padding-top: 10px; border-top: 1px solid #eee;">
+      <button onclick="cerrarHistorialProyectoArch()" class="btn-azul" style="padding: 8px 20px; margin: 0;">CERRAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var todosLosArchivadosCargados = [];
+  var archivadosFiltradosActuales = [];
+  var archIndicePaginacion = 0;
+  const ARCH_PROYECTOS_POR_PAGINA = 10;
+  
+  var archProyectoActivoEditando = null;
+  var archEsModoEdicionPermitido = false;
+  var archHistorialActivoData = [];
+  var archDatosAEnviar = null;
+  var archRequiereGuardarEstado = false;
+  var archRequiereGuardarDatos = false;
+
+  function toggleOrdenarArch() {
+      var sec = document.getElementById('arch-seccion-ordenar');
+      var icono = document.getElementById('arch-icono-toggle-ordenar');
+      var texto = document.getElementById('arch-texto-toggle-ordenar');
+      if(sec.style.display === 'none') {
+          sec.style.display = 'flex';
+          icono.innerText = 'expand_less';
+          texto.innerText = 'Ocultar Orden';
+      } else {
+          sec.style.display = 'none';
+          icono.innerText = 'expand_more';
+          texto.innerText = 'Mostrar Orden';
+      }
+  }
+
+  function cargarListaArchivados(forzar = false) {
+    document.getElementById('arch-contenedor-lista').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Preparando filtros...</p>';
+    document.getElementById('arch-contenedor-btn-mas').style.display = 'none';
+
+    google.script.run.withSuccessHandler(function(resParams) {
+      if (!resParams.error) {
+        opcionesConfig = resParams;
+        var selPart = document.getElementById('arch-filtro-participante');
+        var selDepto = document.getElementById('arch-filtro-depto');
+        var selTipo = document.getElementById('arch-filtro-tipo');
+        var selEstado = document.getElementById('arch-filtro-estado');
+
+        var valPart = selPart.value, valDepto = selDepto.value, valTipo = selTipo.value, valEstado = selEstado.value;
+
+        selPart.innerHTML = '<option value="">Todos</option>';
+        selDepto.innerHTML = '<option value="">Todos</option>';
+        selTipo.innerHTML = '<option value="">Todos</option>';
+        selEstado.innerHTML = '<option value="">Todos</option>';
+
+        if (opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart.innerHTML += `<option value="${p}">${p}</option>`);
+        if (opcionesConfig.departamentos) opcionesConfig.departamentos.forEach(d => selDepto.innerHTML += `<option value="${d}">${d}</option>`);
+        if (opcionesConfig.tiposObra) opcionesConfig.tiposObra.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
+        if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => {
+            var eL = e.toString().toLowerCase();
+            if(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad')) {
+               selEstado.innerHTML += `<option value="${e}">${e}</option>`;
+            }
+        });
+
+        selPart.value = valPart || ''; selDepto.value = valDepto || ''; selTipo.value = valTipo || ''; selEstado.value = valEstado || '';
+        
+        document.getElementById('arch-contenedor-lista').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666; font-weight: bold;"><span class="material-symbols-outlined">info</span> Seleccione los filtros y presione \"APLICAR\" para buscar los proyectos archivados.</p>';
+      }
+    }).obtenerParametrosProyectos(forzar);
+  }
+
+  function actualizarEstadosFiltroArch() {
+    var tipo = document.getElementById('arch-filtro-tipo').value;
+    var selEstado = document.getElementById('arch-filtro-estado');
+    var valEstado = selEstado.value; 
+    
+    selEstado.innerHTML = '<option value="">Todos</option>';
+    var estadosAMostrar = (tipo && opcionesConfig.mapaTiposEstados[tipo]) ? opcionesConfig.mapaTiposEstados[tipo] : (opcionesConfig.estados || []);
+    estadosAMostrar.forEach(e => {
+        var eL = e.toString().toLowerCase();
+        if(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad')) {
+           selEstado.innerHTML += `<option value="${e}">${e}</option>`;
+        }
+    });
+    selEstado.value = valEstado; 
+    if(!selEstado.value) selEstado.value = ""; 
+  }
+  
+  function ejecutarBusquedaArchivados() {
+    var btn = document.getElementById('arch-btn-aplicar-filtros');
+    var textoOriginal = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> BUSCANDO...';
+    btn.disabled = true;
+
+    document.getElementById('arch-contenedor-lista').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Obteniendo proyectos de la base de datos...</p>';
+    document.getElementById('arch-contenedor-btn-mas').style.display = 'none';
+
+    google.script.run.withSuccessHandler(function(resProyectos) {
+      btn.innerHTML = textoOriginal;
+      btn.disabled = false;
+
+      if (resProyectos.error) {
+        document.getElementById('arch-contenedor-lista').innerHTML = '<p style="color:red; text-align:center;">Error al cargar datos.</p>';
+        return;
+      }
+      todosLosArchivadosCargados = resProyectos;
+      aplicarFiltrosArchivados(); 
+    }).obtenerListaDeProyectos(false); 
+  }
+
+  function aplicarFiltrosArchivados() {
+    var fPart = document.getElementById('arch-filtro-participante').value.trim();
+    var fDepto = document.getElementById('arch-filtro-depto').value.trim();
+    var fTipo = document.getElementById('arch-filtro-tipo').value.trim();
+    var fEstado = document.getElementById('arch-filtro-estado').value.trim();
+
+    var contenedor = document.getElementById('arch-contenedor-lista');
+    contenedor.innerHTML = '';
+
+    archivadosFiltradosActuales = todosLosArchivadosCargados.filter(p => {
+        var estadoTexto = p.estado ? p.estado.toString().toLowerCase().trim() : '';
+        var esTerminado = estadoTexto.includes('terminad') || estadoTexto.includes('finaliz') || estadoTexto.includes('entregad');
+        
+        // Exclusivo: Si no está finalizado/archivado, queda fuera de esta app
+        if (!esTerminado) return false;
+
+        if (fPart) {
+          var equipo = p.equipo || [];
+          var participa = equipo.some(miembro => miembro.participante && miembro.participante.toString().trim() === fPart);
+          if (!participa) return false;
+        }
+
+        var deptoTexto = p.departamento ? p.departamento.toString().trim() : '';
+        if (fDepto && deptoTexto !== fDepto) return false;
+        var tipoTexto = p.tipoObra ? p.tipoObra.toString().trim() : '';
+        if (fTipo && tipoTexto !== fTipo) return false;
+        var estadoRealTexto = p.estado ? p.estado.toString().trim() : '';
+        if (fEstado && estadoRealTexto !== fEstado) return false;
+
+        return true; 
+    });
+
+    var campoOrden = document.getElementById('arch-orden-campo').value;
+    var direccionOrden = document.getElementById('arch-orden-direccion').value;
+
+    archivadosFiltradosActuales.sort(function(a, b) {
+        var valA = "", valB = "";
+        if (campoOrden === "fecha") { valA = a.fecha || ""; valB = b.fecha || ""; }
+        else if (campoOrden === "departamento") { valA = a.departamento ? a.departamento.toLowerCase() : ""; valB = b.departamento ? b.departamento.toLowerCase() : ""; }
+        else if (campoOrden === "tipoObra") { valA = a.tipoObra ? a.tipoObra.toLowerCase() : ""; valB = b.tipoObra ? b.tipoObra.toLowerCase() : ""; }
+        else if (campoOrden === "estado") { valA = a.estado ? a.estado.toLowerCase() : ""; valB = b.estado ? b.estado.toLowerCase() : ""; }
+        else if (campoOrden === "participante") {
+            var eqA = a.equipo && a.equipo.length > 0 ? (a.equipo.find(m => m.encargado) || a.equipo[0]) : null;
+            var eqB = b.equipo && b.equipo.length > 0 ? (b.equipo.find(m => m.encargado) || b.equipo[0]) : null;
+            valA = eqA && eqA.participante ? eqA.participante.toLowerCase() : "zzzz";
+            valB = eqB && eqB.participante ? eqB.participante.toLowerCase() : "zzzz";
+        }
+        if (valA < valB) return direccionOrden === "asc" ? -1 : 1;
+        if (valA > valB) return direccionOrden === "asc" ? 1 : -1;
+        return 0;
+    });
+    
+    archIndicePaginacion = 0; 
+
+    if (archivadosFiltradosActuales.length === 0) {
+        contenedor.innerHTML = '<p style="text-align:center; padding:30px; border: 1px dashed #ccc; border-radius: 6px; color: black;">No hay proyectos archivados que coincidan con los filtros seleccionados.</p>';
+        document.getElementById('arch-contenedor-btn-mas').style.display = 'none';
+        return;
+    }
+
+    contenedor.innerHTML = `
+      <div style="display: grid; grid-template-columns: 18% 26% 16% 16% 24%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 15px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
+        <div>Ubicación</div>
+        <div>Nombre del Proyecto</div>
+        <div>Encargado</div>
+        <div>Tipo y Estado</div>
+        <div style="text-align: right; padding-right: 5px;">Acciones</div>
+      </div>
+    `;
+
+    renderizarSiguientesArchivados();
+  }
+
+  function renderizarSiguientesArchivados() {
+    var contenedor = document.getElementById('arch-contenedor-lista');
+    var limite = archIndicePaginacion + ARCH_PROYECTOS_POR_PAGINA;
+    var proyectosARenderizar = archivadosFiltradosActuales.slice(archIndicePaginacion, limite);
+
+    proyectosARenderizar.forEach((p) => {
+        var pEstado = p.estado ? p.estado.toString().trim() : 'Sin Estado';
+        var colorNombre = obtenerColorPorIndice(p.tipoObra);
+        var indexGlobal = todosLosArchivadosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
+
+        var encargadoObj = (p.equipo && p.equipo.length > 0) ? p.equipo.find(m => m.encargado === true || m.encargado === "true") : null;
+        var nombreEncargado = encargadoObj ? encargadoObj.participante : '-';
+
+        var tarjeta = `
+          <div style="display: grid; grid-template-columns: 18% 26% 16% 16% 24%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 10px 15px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
+            
+            <div style="min-width: 0; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; align-items: flex-start; gap: 4px; font-weight: bold; color: #1c4587;">
+                <span class="material-symbols-outlined" style="font-size: 14px; flex-shrink: 0;">location_on</span>
+                <span style="word-break: break-word; line-height: 1.2;">${p.departamento}</span>
+              </div>
+              <div style="color: #444; padding-left: 18px; word-break: break-word; line-height: 1.2;">${p.centro}</div>
+            </div>
+
+            <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; word-break: break-word;" title="${p.nombre}">${p.nombre}</div>
+
+            <div style="min-width: 0; font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; word-break: break-word;" title="${nombreEncargado}">
+              <span class="material-symbols-outlined" style="font-size: 14px; color: #666; flex-shrink: 0;">person</span>
+              <span style="font-weight: bold;">${nombreEncargado}</span>
+            </div>
+
+            <div style="min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 11px; font-weight: bold; color: ${colorNombre}; word-break: break-word;" title="${p.tipoObra}">${p.tipoObra}</div>
+              <div style="font-size: 11px; font-weight: bold; color: black; word-break: break-word;" title="${pEstado}">${pEstado}</div>
+            </div>
+
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; min-width: 0;">
+              <span style="color:#777; font-size:10px; font-style:italic; margin-right:10px;">Archivado</span>
+              <div style="display: flex; gap: 4px;">
+                 <button onclick="abrirHistorialDesdeListadoArch(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 30px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Bitácora">
+                   <span class="material-symbols-outlined" style="font-size: 16px;">history</span>
+                 </button>
+                 <button onclick="abrirDetalleProyectoArch(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 30px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Detalle">
+                   <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
+                 </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+        contenedor.innerHTML += tarjeta;
+    });
+
+    archIndicePaginacion = limite;
+    document.getElementById('arch-contenedor-btn-mas').style.display = (archIndicePaginacion < archivadosFiltradosActuales.length) ? 'block' : 'none';
+  }
+
+  function renderizarEstadoYTimelineArch(estadoActual, tipoObra) {
+    var etapas = [];
+    if (tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[tipoObra]) {
+        etapas = opcionesConfig.mapaTiposEstados[tipoObra];
+    } else if (opcionesConfig.estados) {
+        etapas = opcionesConfig.estados;
+    }
+    var etapaIndex = etapas.indexOf(estadoActual);
+
+    document.getElementById('arch-display-estado-actual').innerText = estadoActual || "Archivado";
+    document.getElementById('arch-edit-estado').value = estadoActual || "";
+
+    var timelineHtml = '<div style="display: flex; align-items: center; justify-content: center; width: 100%;">';
+    etapas.forEach((etapa, idx) => {
+        let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
+        timelineHtml += `<div title="${etapa}" style="width: 12px; height: 12px; background-color: ${bgColor}; border: 2px solid #1c4587; border-radius: 50%;"></div>`;
+        if (idx < etapas.length - 1) timelineHtml += `<div style="width: 15px; height: 3px; background-color: #1c4587;"></div>`;
+    });
+    timelineHtml += '</div>';
+    document.getElementById('arch-contenedor-timeline').innerHTML = timelineHtml;
+    document.getElementById('arch-botones-estado').innerHTML = `<span style="font-size: 11px; color: #666; font-style: italic; text-align: right;">Proyecto histórico inactivo.</span>`;
+  }
+
+  function abrirDetalleProyectoArch(index) {
+    gestionarEncabezadoMolesto(true);
+
+    archProyectoActivoEditando = todosLosArchivadosCargados[index];
+    var p = archProyectoActivoEditando;
+
+    var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
+    var esEncargado = p.equipo && p.equipo.some(m => m.participante === (typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "") && m.encargado === true);
+    archEsModoEdicionPermitido = esAdmin || esEncargado;
+
+    document.getElementById('arch-det-centro').innerText = p.centro;
+    document.getElementById('arch-det-depto').innerText = p.departamento;
+    document.getElementById('arch-det-nombre').innerText = p.nombre;
+    document.getElementById('arch-det-tipo').innerText = p.tipoObra;
+    document.getElementById('arch-det-creador').innerText = p.creador;
+
+    renderizarEstadoYTimelineArch(p.estado, p.tipoObra);
+
+    var selEmpresa = document.getElementById('arch-edit-empresa');
+    selEmpresa.innerHTML = '<option value="">Sin asignar / Otra</option>';
+    if (opcionesConfig.empresas) opcionesConfig.empresas.forEach(e => selEmpresa.innerHTML += `<option value="${e}">${e}</option>`);
+    selEmpresa.value = p.empresa || "";
+
+    document.getElementById('arch-edit-descripcion').value = p.descripcion || "";
+    document.getElementById('arch-edit-expediente').value = p.expediente || "";
+    document.getElementById('arch-edit-costo').value = p.costo || "";
+    document.getElementById('arch-edit-m2').value = p.m2 || "";
+    document.getElementById('arch-edit-contacto-nom').value = p.contactoNombre || "";
+    document.getElementById('arch-edit-contacto-tel').value = p.contactoTelefono || "";
+    document.getElementById('arch-edit-archivos').value = p.ubicacionArchivos || "";
+
+    var inputsIds = ['arch-edit-descripcion', 'arch-edit-expediente', 'arch-edit-costo', 'arch-edit-empresa', 'arch-edit-contacto-nom', 'arch-edit-contacto-tel', 'arch-edit-archivos', 'arch-edit-m2'];
+    inputsIds.forEach(id => {
+      var el = document.getElementById(id);
+      if(el) {
+        el.disabled = !archEsModoEdicionPermitido;
+        el.style.backgroundColor = archEsModoEdicionPermitido ? '#fff' : '#f5f5f5';
+      }
+    });
+
+    document.getElementById('arch-area-guardar-cambios').style.display = archEsModoEdicionPermitido ? 'block' : 'none';
+    document.getElementById('arch-btn-add-participante').style.display = archEsModoEdicionPermitido ? 'flex' : 'none';
+
+    renderizarEquipoDetalleArch(p.equipo || []);
+
+    document.getElementById('listado-archivados-wrapper').style.display = 'none';
+    document.getElementById('arch-detalle-wrapper').style.display = 'block';
+  }
+
+  function volverListadoArchivados() {
+    gestionarEncabezadoMolesto(false);
+    document.getElementById('arch-detalle-wrapper').style.display = 'none';
+    document.getElementById('listado-archivados-wrapper').style.display = 'block';
+    archProyectoActivoEditando = null;
+  }
+
+  function renderizarEquipoDetalleArch(equipo) {
+    var cont = document.getElementById('arch-edit-lista-equipo');
+    cont.innerHTML = '';
+    if (equipo.length === 0 && !archEsModoEdicionPermitido) {
+      cont.innerHTML = '<span style="font-size:11px; color:#888;">Sin equipo asignado</span>';
+      return;
+    }
+    equipo.forEach(m => agregarFilaEquipoDetalleArch(m.participante, m.rol, m.encargado));
+  }
+
+  function agregarFilaEquipoDetalleArch(participanteVal = "", rolVal = "", encargadoVal = false) {
+    var cont = document.getElementById('arch-edit-lista-equipo');
+    if (!archEsModoEdicionPermitido) {
+      var badge = encargadoVal ? '<span style="background: #1c4587; color: white; padding: 2px 4px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 5px;">ENCARGADO</span>' : '';
+      cont.innerHTML += `<div style="font-size:11px; margin-bottom:2px; color: black; border-bottom: 1px solid #eee; padding-bottom: 2px;"><strong>${participanteVal}</strong> - ${rolVal} ${badge}</div>`;
+      return;
+    }
+
+    var div = document.createElement('div');
+    div.style = "display: flex; gap: 6px; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 4px;";
+    
+    var selPart = `<select class="arch-det-part" style="flex: 2; min-width: 0; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Participante...</option>`;
+    if(opcionesConfig.participantes) opcionesConfig.participantes.forEach(p => selPart += `<option value="${p}" ${p === participanteVal ? 'selected':''}>${p}</option>`);
+    selPart += `</select>`;
+    
+    var selRol = `<select class="arch-det-rol" style="flex: 1; min-width: 0; padding: 2px; border: 1px solid #ccc; border-radius: 3px; font-size:10px; color: black;"><option value="">Rol...</option>`;
+    if(opcionesConfig.roles) opcionesConfig.roles.forEach(r => selRol += `<option value="${r}" ${r === rolVal ? 'selected':''}>${r}</option>`);
+    selRol += `</select>`;
+    
+    var chk = `<label style="font-size:9px; font-weight:bold; color: black; display:flex; flex-direction:row; align-items:center; gap: 2px; white-space: nowrap;">Encargado <input type="checkbox" class="arch-det-enc" ${encargadoVal ? 'checked' : ''} style="margin:0;"></label>`;
+    var btnDel = `<button onclick="this.parentElement.remove()" style="background:none; border:none; color:#d93025; cursor:pointer; padding:0;" title="Quitar"><span class="material-symbols-outlined" style="font-size:14px;">cancel</span></button>`;
+
+    div.innerHTML = selPart + selRol + chk + btnDel;
+    cont.appendChild(div);
+  }
+
+  function prepararGuardadoProyectoArch() {
+    if (!archProyectoActivoEditando) return;
+    var p = archProyectoActivoEditando;
+    var cambiosDetectados = [];
+
+    var nDesc = document.getElementById('arch-edit-descripcion').value.trim();
+    var nExp = document.getElementById('arch-edit-expediente').value.trim();
+    var nCosto = document.getElementById('arch-edit-costo').value.trim();
+    var nM2 = document.getElementById('arch-edit-m2').value.trim();
+    var nEmp = document.getElementById('arch-edit-empresa').value;
+    var nContNom = document.getElementById('arch-edit-contacto-nom').value.trim();
+    var nContTel = document.getElementById('arch-edit-contacto-tel').value.trim();
+    var nArch = document.getElementById('arch-edit-archivos').value.trim();
+
+    var nEquipo = [];
+    document.querySelectorAll('#arch-edit-lista-equipo > div').forEach(f => {
+      var part = f.querySelector('.arch-det-part') ? f.querySelector('.arch-det-part').value : null;
+      var rol = f.querySelector('.arch-det-rol') ? f.querySelector('.arch-det-rol').value : null;
+      var enc = f.querySelector('.arch-det-enc') ? f.querySelector('.arch-det-enc').checked : false;
+      if (part && rol) nEquipo.push({ participante: part, rol: rol, encargado: enc });
+    });
+
+    archRequiereGuardarEstado = false; 
+    archRequiereGuardarDatos = false;
+    
+    if (nDesc !== (p.descripcion||"")) { cambiosDetectados.push({ key: 'descripcion', titulo: 'Descripción', texto: 'Modificación del alcance histórico.' }); archRequiereGuardarDatos = true; }
+    if (nExp !== (p.expediente||"")) { cambiosDetectados.push({ key: 'expediente', titulo: 'Nro de Expediente', texto: `Se actualizó a '${nExp}'.` }); archRequiereGuardarDatos = true; }
+    if (nCosto !== (p.costo||"")) { cambiosDetectados.push({ key: 'costo', titulo: 'Costo de Obra', texto: `Se actualizó a '${nCosto}'.` }); archRequiereGuardarDatos = true; }
+    if (nM2 !== (p.m2||"")) { cambiosDetectados.push({ key: 'm2', titulo: 'Metros Cuadrados (m2)', texto: `Se actualizó a '${nM2}'.` }); archRequiereGuardarDatos = true; }
+    if (nEmp !== (p.empresa||"")) { cambiosDetectados.push({ key: 'empresa', titulo: 'Empresa Adjudicada', texto: `Se cambió a '${nEmp}'.` }); archRequiereGuardarDatos = true; }
+    if (nContNom !== (p.contactoNombre||"")) { cambiosDetectados.push({ key: 'contacto nombre', titulo: 'Nombre del Contacto', texto: `Se actualizó a '${nContNom}'.` }); archRequiereGuardarDatos = true; }
+    if (nContTel !== (p.contactoTelefono||"")) { cambiosDetectados.push({ key: 'contactoTelefono', titulo: 'Teléfono del Contacto', texto: `Se actualizó a '${nContTel}'.` }); archRequiereGuardarDatos = true; }
+    if (nArch !== (p.ubicacionArchivos||"")) { cambiosDetectados.push({ key: 'ubicacionArchivos', titulo: 'Ubicación de Archivos', texto: 'Se actualizó el enlace del archivo.' }); archRequiereGuardarDatos = true; }
+    
+    var equipoOriginal = p.equipo || [];
+    var elEquipoCambio = (nEquipo.length !== equipoOriginal.length);
+    if (!elEquipoCambio) {
+      for (var e = 0; e < nEquipo.length; e++) {
+        var nuevoInt = nEquipo[e];
+        var origInt = equipoOriginal.find(m => m.participante === nuevoInt.participante);
+        if (!origInt || origInt.rol !== nuevoInt.rol || String(origInt.encargado) !== String(nuevoInt.encargado)) { elEquipoCambio = true; break; }
+      }
+    }
+    if (elEquipoCambio) { cambiosDetectados.push({ key: 'equipo', titulo: 'Equipo Asignado', texto: 'Modificación técnica del personal de cierre.' }); archRequiereGuardarDatos = true; }
+
+    if (cambiosDetectados.length === 0) { alert("No has realizado ninguna modificación."); return; }
+
+    var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
+    archDatosAEnviar = {
+      nombreOriginal: p.nombre, fechaOriginal: p.fecha, estadoNuevo: p.estado,
+      descripcion: nDesc, expediente: nExp, costo: nCosto, m2: nM2, empresa: nEmp,
+      contactoNombre: nContNom, contactoTelefono: nContTel, ubicacionArchivos: nArch,
+      asignados: nEquipo, usuarioNombre: usuarioNombreAEnviar
+    };
+
+    var htmlFormularioCambios = '';
+    cambiosDetectados.forEach(c => {
+       htmlFormularioCambios += `
+         <div style="margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
+            <div style="font-size: 13px; margin-bottom: 6px; color: #1c4587;"><strong>[${c.titulo}]</strong> <span style="color:#555; font-size: 12px;">${c.texto}</span></div>
+            <input type="text" class="arch-input-comentario-cambio" data-key="${c.key}" placeholder="Explique brevemente el motivo..." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #1c4587; border-radius: 4px; background: #fff;" required>
+         </div>`;
+    });
+
+    document.getElementById('arch-lista-cambios-detectados').innerHTML = htmlFormularioCambios;
+    
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    document.getElementById('arch-fecha-cambio-modal').value = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
+    document.getElementById('arch-modal-confirmar-edicion').style.display = 'flex';
+  }
+
+  function ejecutarGuardadoBackendArch() {
+    var inputs = document.querySelectorAll('.arch-input-comentario-cambio');
+    var comentarios = {};
+    for (var i = 0; i < inputs.length; i++) {
+        var val = inputs[i].value.trim();
+        if (!val) { alert("Es obligatorio justificar todos los cambios."); inputs[i].focus(); return; }
+        comentarios[inputs[i].getAttribute('data-key')] = val;
+    }
+    var fechaSeleccionada = document.getElementById('arch-fecha-cambio-modal').value;
+    if(!fechaSeleccionada) { alert("Seleccione la fecha."); return; }
+
+    archDatosAEnviar.comentarios = comentarios;
+    archDatosAEnviar.fechaCambio = fechaSeleccionada;
+
+    var btn = document.getElementById('arch-btn-confirmar-guardado-final');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
+
+    google.script.run.withSuccessHandler(function() {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
+      document.getElementById('arch-modal-confirmar-edicion').style.display = 'none';
+      
+      mostrarAlertaProy("¡Éxito!", "Los datos del proyecto archivado han sido actualizados.", "task_alt", function(){
+         volverListadoArchivados();
+         ejecutarBusquedaArchivados();
+      });
+    }).withFailureHandler(function(err) {
+      btn.disabled = false;
+      alert("Error: " + err);
+    }).editarDatosProyecto(archDatosAEnviar);
+  }
+
+  function abrirHistorialDesdeListadoArch(index) {
+    archProyectoActivoEditando = todosLosArchivadosCargados[index];
+    abrirHistorialProyectoArch();
+  }
+
+  function abrirHistorialProyectoArch() {
+    if (!archProyectoActivoEditando) return;
+    var p = archProyectoActivoEditando;
+    
+    var modal = document.getElementById('arch-modal-ver-historial');
+    var contenedor = document.getElementById('arch-contenido-historial');
+    var selectFiltro = document.getElementById('arch-filtro-historial');
+    
+    contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px;">sync</span><br><br>Cargando bitácora...</p>';
+    selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
+    selectFiltro.disabled = true;
+    modal.style.display = 'flex';
+
+    google.script.run.withSuccessHandler(function(res) {
+        if (!res.success) { contenedor.innerHTML = '<p style="color:#d93025; text-align:center;">' + res.error + '</p>'; return; }
+        archHistorialActivoData = res.datos || [];
+        if (archHistorialActivoData.length > 0) {
+          var categories = [...new Set(archHistorialActivoData.map(h => h.categoria))].filter(c => c && c !== "-" && c !== "Creación");
+          categories.forEach(c => selectFiltro.innerHTML += `<option value="${c}">${c}</option>`);
+          selectFiltro.disabled = false;
+          renderizarHistorialActivoArch();
+        } else {
+          contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 20px;">Sin historial.</p>';
+        }
+    }).obtenerHistorialProyecto(p.nombre, p.fecha);
+  }
+
+  function renderizarHistorialActivoArch() {
+    var contenedor = document.getElementById('arch-contenido-historial');
+    var filtro = document.getElementById('arch-filtro-historial').value;
+    var registrosAMostrar = filtro === "ALL" ? archHistorialActivoData : archHistorialActivoData.filter(h => h.categoria === filtro);
+    
+    if(registrosAMostrar.length === 0) { contenedor.innerHTML = '<p style="text-align:center;">Sin registros.</p>'; return; }
+
+    var html = '<div style="position: relative; padding-left: 20px; border-left: 2px solid #1c4587; margin-left: 10px; margin-top: 10px;">';
+    registrosAMostrar.forEach(function(h) {
+      var bloqueComentario = h.comentario ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 12px; color: #1c4587;"><strong>Motivo:</strong> <em>${h.comentario}</em></div>` : '';
+      var detalleFormateado = h.detalle ? h.detalle.replace(/\n/g, '<br>') : "-";
+      html += `
+        <div style="position: relative; margin-bottom: 25px;">
+          <div style="position: absolute; left: -27px; top: 2px; width: 12px; height: 12px; background: #fff; border: 2px solid #1c4587; border-radius: 50%;"></div>
+          <div style="font-size: 11px; color: black; font-weight: bold; margin-bottom: 2px;">${h.fecha} &nbsp;•&nbsp; ${h.usuario}</div>
+          <div style="font-size: 14px; color: #1c4587; font-weight: 800; margin: 2px 0;">${h.categoria}</div>
+          <div style="font-size: 13px; color: black; background: #f8f9fa; padding: 10px; border-radius: 4px; border: 1px solid #e0e0e0; margin-top: 5px;">
+            <span>${detalleFormateado}</span>
+            ${bloqueComentario}
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+    contenedor.innerHTML = html;
+  }
+
+  function cerrarHistorialProyectoArch() { document.getElementById('arch-modal-ver-historial').style.display = 'none'; }
+</script>
