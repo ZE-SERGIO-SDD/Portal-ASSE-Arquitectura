@@ -1,53 +1,68 @@
-<div id="proy-seccion-listados" style="display: none;">
+<style>
+  /* Regla estricta para garantizar que el contenedor blanco superior y la lista midan exactamente lo mismo siempre (600px) */
+  #pantalla-proyectos .container {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 600px !important;
+  }
+  #proy-seccion-listados, #proy-seccion-listados * {
+    box-sizing: border-box;
+  }
+</style>
+
+<div id="proy-seccion-listados" style="display: none; width: 100%;">
   
-  <div id="listado-proyectos-wrapper" style="width: 100%; max-width: 100%; padding: 0; text-align: left;">
-     <div style="background: #f0f4f8; padding: 10px 15px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 15px;">
-       <div style="font-weight: 700; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-         <div style="display: flex; align-items: center; gap: 6px;">
-           <span class="material-symbols-outlined" style="font-size: 18px;">filter_alt</span> Filtros de búsqueda:
+  <div id="listado-proyectos-wrapper" style="width: 100%; text-align: left;">
+     <div style="background: #f0f4f8; padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 10px; width: 100%;">
+       <div style="font-weight: 700; color: #1c4587; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+         <div style="display: flex; align-items: center; gap: 6px; font-size: 12px;">
+           <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span> Filtros:
+           <button onclick="toggleOrdenar()" style="background: none; border: none; color: #1c4587; cursor: pointer; display: flex; align-items: center; font-size: 11px; padding: 0; margin-left: 8px; font-weight: bold; text-decoration: underline;">
+              <span id="icono-toggle-ordenar" class="material-symbols-outlined" style="font-size: 14px;">expand_more</span> <span id="texto-toggle-ordenar">Mostrar Orden</span>
+           </button>
          </div>
-         <button id="btn-aplicar-filtros" onclick="ejecutarBusquedaProyectos()" style="background: #1c4587; border: none; color: white; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-           <span class="material-symbols-outlined" style="font-size: 16px;">search</span> APLICAR
+         <button id="btn-aplicar-filtros" onclick="ejecutarBusquedaProyectos()" style="background: #1c4587; border: none; color: white; padding: 4px; width: 125px; border-radius: 4px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+           <span class="material-symbols-outlined" style="font-size: 14px;">search</span> APLICAR
          </button>
        </div>
-       <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-         <div style="flex: 1; min-width: 160px;">
-           <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 1: PARTICIPANTE</label>
-           <select id="filtro-participante" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+       <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+         <div style="flex: 1; min-width: 120px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 1: PARTICIPANTE</label>
+           <select id="filtro-participante" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 160px;">
-           <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 2: DEPARTAMENTO</label>
-           <select id="filtro-depto-listado" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+         <div style="flex: 1; min-width: 120px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 2: DEPARTAMENTO</label>
+           <select id="filtro-depto-listado" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 160px;">
-           <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 3: TIPO DE OBRA</label>
-           <select id="filtro-tipo-listado" onchange="actualizarEstadosFiltro()" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+         <div style="flex: 1; min-width: 120px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 3: TIPO DE OBRA</label>
+           <select id="filtro-tipo-listado" onchange="actualizarEstadosFiltro()" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
-         <div style="flex: 1; min-width: 160px;">
-           <label style="font-size: 11px; color: #666; font-weight: bold; display: block; margin-bottom: 4px;">FILTRO 4: ESTADO</label>
-           <select id="filtro-estado-listado" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;"><option value="">Todos</option></select>
+         <div style="flex: 1; min-width: 120px;">
+           <label style="font-size: 10px; color: #666; font-weight: bold; display: block; margin-bottom: 2px;">FILTRO 4: ESTADO</label>
+           <select id="filtro-estado-listado" style="width: 100%; padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; margin-bottom: 0;"><option value="">Todos</option></select>
          </div>
        </div>
 
-       <div style="display: flex; gap: 15px; margin-top: 15px; padding-top: 12px; border-top: 1px dashed #d1d9e0; flex-wrap: wrap; align-items: center;">
-         <div style="font-weight: 700; color: #1c4587; font-size: 12px; display: flex; align-items: center; gap: 5px;">
-           <span class="material-symbols-outlined" style="font-size: 18px;">sort</span> ORDENAR POR:
+       <div id="seccion-ordenar" style="display: none; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #d1d9e0; flex-wrap: wrap; align-items: center;">
+         <div style="font-weight: 700; color: #1c4587; font-size: 11px; display: flex; align-items: center; gap: 5px;">
+           <span class="material-symbols-outlined" style="font-size: 14px;">sort</span> ORDENAR POR:
          </div>
-         <select id="orden-campo" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; flex: 1; min-width: 160px;">
+         <select id="orden-campo" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 120px; margin-bottom: 0;">
            <option value="fecha">Fecha (Por defecto)</option>
            <option value="departamento">Departamento</option>
            <option value="tipoObra">Tipo de Obra</option>
            <option value="estado">Estado de Obra</option>
            <option value="participante">Participante Principal</option>
          </select>
-         <select id="orden-direccion" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; min-width: 160px;">
+         <select id="orden-direccion" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 11px; flex: 1; min-width: 120px; margin-bottom: 0;">
            <option value="desc">Descendente (Z-A / Recientes)</option>
            <option value="asc">Ascendente (A-Z / Antiguos)</option>
          </select>
        </div>
-       </div>
+     </div>
      
-     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 0px;">
+     <div id="contenedor-lista-proyectos" style="display: flex; flex-direction: column; gap: 0px; width: 100%;">
         <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: #666;">
           <span class="material-symbols-outlined">info</span> Seleccione los filtros y presione "APLICAR" para cargar proyectos.
         </p>
@@ -60,7 +75,7 @@
      </div>
   </div>
 
-  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; max-width: 100%; padding: 0; text-align: left; background: transparent;">
+  <div id="detalle-proyecto-wrapper" style="display: none; width: 100%; text-align: left; background: transparent;">
     
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 8px; margin-bottom: 12px;">
       <div style="display: flex; align-items: center; gap: 15px;">
@@ -141,7 +156,7 @@
       <div style="display: flex; gap: 15px; margin-top: 5px;">
         <div style="flex: 2; display: flex; flex-direction: column;">
           <label style="font-size: 11px; font-weight: bold; color: #1c4587; margin-bottom: 4px;">Descripción / Alcance:</label>
-          <textarea id="edit-descripcion" style="flex: 1; width: 100%; min-height: 80px; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; box-sizing: border-box; font-family: inherit; line-height: 1.4;"></textarea>
+          <textarea id="edit-descripcion" style="flex: 1; width: 100%; min-height: 80px; padding: 6px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; resize: vertical; font-family: inherit; line-height: 1.4;"></textarea>
         </div>
         
         <div style="flex: 1; display: flex; flex-direction: column; background: #fdfdfd; border: 1px solid #d1d9e0; border-radius: 4px; padding: 8px;">
@@ -229,6 +244,21 @@
   var datosAEnviar = null;
   var requiereGuardarEstado = false;
   var requiereGuardarDatos = false;
+
+  function toggleOrdenar() {
+      var sec = document.getElementById('seccion-ordenar');
+      var icono = document.getElementById('icono-toggle-ordenar');
+      var texto = document.getElementById('texto-toggle-ordenar');
+      if(sec.style.display === 'none') {
+          sec.style.display = 'flex';
+          icono.innerText = 'expand_less';
+          texto.innerText = 'Ocultar Orden';
+      } else {
+          sec.style.display = 'none';
+          icono.innerText = 'expand_more';
+          texto.innerText = 'Mostrar Orden';
+      }
+  }
 
   function obtenerColorPorIndice(tipo) {
     var colores = ['#000000', '#188038', '#1C4587', '#D93025', '#673AB7', '#F29900', '#795548'];
@@ -333,7 +363,6 @@
         return true; 
     });
 
-    // --- LÓGICA DE ORDENAMIENTO ---
     var campoOrden = document.getElementById('orden-campo').value;
     var direccionOrden = document.getElementById('orden-direccion').value;
 
@@ -364,7 +393,6 @@
         if (valA > valB) return direccionOrden === "asc" ? 1 : -1;
         return 0;
     });
-    // --- FIN ORDENAMIENTO ---
     
     indicePaginacion = 0; 
 
@@ -374,15 +402,14 @@
         return;
     }
 
-    // --- ENCABEZADO ESTILO EXCEL CON GRID DE 6 COLUMNAS ---
+    // Porcentajes de columnas reajustados para el nuevo ancho de 600px
     contenedor.innerHTML = `
-      <div style="display: grid; grid-template-columns: 18% 26% 16% 13% 12% 15%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 15px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
+      <div style="display: grid; grid-template-columns: 16% 24% 15% 15% 30%; align-items: center; gap: 10px; border-bottom: 2px solid #1c4587; padding: 12px 10px; background: #e8f0fe; text-align: left; font-size: 11px; font-weight: bold; color: #1c4587; text-transform: uppercase; border-radius: 6px 6px 0 0;">
         <div>Ubicación</div>
         <div>Nombre del Proyecto</div>
         <div>Encargado</div>
-        <div>Tipo de Obra</div>
-        <div>Estado Actual</div>
-        <div style="text-align: right;">Acciones</div>
+        <div>Tipo y Estado</div>
+        <div style="text-align: right; padding-right: 5px;">Acciones</div>
       </div>
     `;
 
@@ -399,11 +426,9 @@
         var colorNombre = obtenerColorPorIndice(p.tipoObra);
         var indexGlobal = todosLosProyectosCargados.findIndex(orig => orig.nombre === p.nombre && orig.fecha === p.fecha);
 
-        // --- BUSCAMOS AL ENCARGADO EN EL EQUIPO ---
         var encargadoObj = (p.equipo && p.equipo.length > 0) ? p.equipo.find(m => m.encargado === true || m.encargado === "true") : null;
         var nombreEncargado = encargadoObj ? encargadoObj.participante : '-';
 
-        // --- LÓGICA DE ESTADOS PARA LOS BOTONES EN LA LISTA ---
         var etapas = [];
         if (p.tipoObra && opcionesConfig.mapaTiposEstados && opcionesConfig.mapaTiposEstados[p.tipoObra]) {
             etapas = opcionesConfig.mapaTiposEstados[p.tipoObra];
@@ -420,17 +445,24 @@
 
         var botonesEstadoHtml = '';
         if(permitirEdicion) {
-            if(prevEst) {
-               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${prevEst}')" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 2px;" title="Retroceder a ${prevEst}"><span class="material-symbols-outlined" style="font-size:14px;">arrow_back</span> Retroceder a ${prevEst}</button>`;
-            }
+            var btnFantasma = `<div style="width: 130px; height: 26px;"></div>`;
+            
             if(nextEst) {
-               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${nextEst}')" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 2px;" title="Avanzar a ${nextEst}">Avanzar a ${nextEst} <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span></button>`;
+               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${nextEst}')" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 130px; height: 26px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: flex-end; padding: 0 6px; gap: 4px; transition: 0.2s;" title="Ir a ${nextEst}"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: right;">Ir a ${nextEst}</span> <span class="material-symbols-outlined" style="font-size:14px; flex-shrink: 0;">arrow_forward</span></button>`;
+            } else {
+               botonesEstadoHtml += btnFantasma;
+            }
+            
+            if(prevEst) {
+               botonesEstadoHtml += `<button onclick="prepararGuardadoRapidoEstado(${indexGlobal}, '${prevEst}')" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 130px; height: 26px; border-radius: 4px; font-size: 9px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; padding: 0 6px; gap: 4px; transition: 0.2s;" title="Ir a ${prevEst}"><span class="material-symbols-outlined" style="font-size:14px; flex-shrink: 0;">arrow_back</span> <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left;">Ir a ${prevEst}</span></button>`;
+            } else {
+               botonesEstadoHtml += btnFantasma;
             }
         }
 
-        // --- TARJETA ESTILO EXCEL CON GRID (6 COLUMNAS) ---
+        // Porcentajes de columnas reajustados para el nuevo ancho de 600px
         var tarjeta = `
-          <div style="display: grid; grid-template-columns: 18% 26% 16% 13% 12% 15%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 12px 15px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
+          <div style="display: grid; grid-template-columns: 16% 24% 15% 15% 30%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 10px 10px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
             
             <div style="min-width: 0; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
               <div style="display: flex; align-items: flex-start; gap: 4px; font-weight: bold; color: #1c4587;">
@@ -442,35 +474,39 @@
               </div>
             </div>
 
-            <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.nombre}">
+            <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; word-break: break-word;" title="${p.nombre}">
               ${p.nombre}
             </div>
 
-            <div style="min-width: 0; font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${nombreEncargado}">
+            <div style="min-width: 0; font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; word-break: break-word;" title="${nombreEncargado}">
               <span class="material-symbols-outlined" style="font-size: 14px; color: #666; flex-shrink: 0;">person</span>
-              <span style="overflow: hidden; text-overflow: ellipsis; font-weight: bold;">${nombreEncargado}</span>
+              <span style="font-weight: bold;">${nombreEncargado}</span>
             </div>
 
-            <div style="min-width: 0; font-size: 11px; font-weight: bold; color: ${colorNombre}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.tipoObra}">
-              ${p.tipoObra}
+            <div style="min-width: 0; display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 11px; font-weight: bold; color: ${colorNombre}; word-break: break-word;" title="${p.tipoObra}">
+                ${p.tipoObra}
+              </div>
+              <div style="font-size: 11px; font-weight: bold; color: black; word-break: break-word;" title="${pEstado}">
+                ${pEstado}
+              </div>
             </div>
 
-            <div style="min-width: 0; font-size: 11px; font-weight: bold; color: black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${pEstado}">
-              ${pEstado}
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end; min-width: 0;">
-              <div style="display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; width: 100%;">
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; min-width: 0;">
+              
+              <div style="display: flex; flex-direction: column; gap: 4px;">
                  ${botonesEstadoHtml}
               </div>
-              <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                 <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Bitácora" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'">
-                   <span class="material-symbols-outlined" style="font-size: 18px;">history</span>
+              
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                 <button onclick="abrirHistorialDesdeListado(${indexGlobal})" style="background: #fff; border: 1px solid #1c4587; color: #1c4587; width: 30px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Bitácora" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'">
+                   <span class="material-symbols-outlined" style="font-size: 16px;">history</span>
                  </button>
-                 <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Detalle" onmouseover="this.style.background='#153261'" onmouseout="this.style.background='#1c4587'">
-                   <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                 <button onclick="abrirDetalleProyecto(${indexGlobal})" style="background: #1c4587; border: 1px solid #1c4587; color: #fff; width: 30px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s;" title="Ver Detalle" onmouseover="this.style.background='#153261'" onmouseout="this.style.background='#1c4587'">
+                   <span class="material-symbols-outlined" style="font-size: 16px;">visibility</span>
                  </button>
               </div>
+
             </div>
 
           </div>
@@ -487,7 +523,6 @@
     }
   }
 
-  // --- NUEVA LÓGICA DE OCULTAMIENTO (APUNTANDO A IDs DIRECTOS) ---
   function gestionarEncabezadoMolesto(ocultar) {
     try {
       var titulo = document.getElementById('proy-titulo-principal');
@@ -497,30 +532,22 @@
       var contenedorPadre = document.querySelector('#pantalla-proyectos .container');
 
       if (ocultar) {
-        // Ocultar los textos de cabecera
         if (titulo) titulo.style.display = 'none';
         if (subtitulo) subtitulo.style.display = 'none';
-        
-        // Ocultar los botones de "volver" superiores (la ventana de detalle tiene su propio botón "Volver al listado")
         if (btnMenu) btnMenu.style.display = 'none';
         if (btnPanel) btnPanel.style.display = 'none';
         
-        // Eliminar el recuadro blanco quitándole el fondo y los bordes al contenedor principal
         if (contenedorPadre) {
           contenedorPadre.style.background = 'transparent';
           contenedorPadre.style.boxShadow = 'none';
           contenedorPadre.style.border = 'none';
         }
       } else {
-        // Restaurar textos para la vista normal de listado
         if (titulo) titulo.style.display = '';
         if (subtitulo) subtitulo.style.display = '';
-        
-        // Dejar el botón "volver a gestión" oculto porque es inútil, pero asegurarnos de mostrar "volver al panel"
         if (btnMenu) btnMenu.style.display = 'none'; 
         if (btnPanel) btnPanel.style.display = 'flex';
         
-        // Restaurar el recuadro blanco para la vista de listado
         if (contenedorPadre) {
           contenedorPadre.style.background = '';
           contenedorPadre.style.boxShadow = '';
@@ -547,7 +574,7 @@
     etapas.forEach((etapa, idx) => {
         let bgColor = idx <= etapaIndex ? '#1c4587' : 'transparent';
         let borderColor = '#1c4587';
-        timelineHtml += `<div title="${etapa}" style="width: 12px; height: 12px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 50%; box-sizing: border-box;"></div>`;
+        timelineHtml += `<div title="${etapa}" style="width: 12px; height: 12px; background-color: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 50%;"></div>`;
         if (idx < etapas.length - 1) timelineHtml += `<div style="width: 15px; height: 3px; background-color: ${borderColor};"></div>`;
     });
     timelineHtml += '</div>';

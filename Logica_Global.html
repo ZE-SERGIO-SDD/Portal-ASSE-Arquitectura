@@ -249,7 +249,13 @@
     if(p === 'plantillas' && !arbolPlantillas) recargarPlantillas();
     if(p === 'documentos') recargarDocumentos();
     if(p === 'mis-archivos') recargarMisArchivos();
-    if(p === 'proyectos') cargarDatosProyectos(); 
+    if(p === 'proyectos') {
+      cargarDatosProyectos(); 
+      // NUEVO: Resetea forzadamente el submenú de proyectos
+      if (typeof mostrarSubPantallaProyectos === 'function') {
+        mostrarSubPantallaProyectos('menu');
+      }
+    }
     if(p === 'admin') cargarUsuariosAdmin();
     
     // Ocultar cualquier error de login si volvemos a inicio
