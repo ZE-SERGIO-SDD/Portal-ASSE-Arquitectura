@@ -2,6 +2,57 @@
   #proy-seccion-archivados, #proy-seccion-archivados * {
     box-sizing: border-box;
   }
+
+  /* Estilos para el menú desplegable */
+  .btn-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #ffffff;
+    min-width: 230px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 2000;
+    border-radius: 4px;
+    border: 1px solid #d1d9e0;
+    flex-direction: column;
+    margin-top: 5px;
+  }
+  .btn-dropdown:hover .dropdown-menu {
+    display: flex;
+  }
+  .dropdown-item {
+    padding: 10px 15px;
+    color: #444;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .dropdown-item:hover {
+    background-color: #f0f4f8;
+    color: #1c4587;
+  }
+  .dropdown-item.danger-item {
+    color: #d93025;
+  }
+  .dropdown-item.danger-item:hover {
+    background-color: #fce8e6;
+    color: #b3261e;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 4px 0;
+  }
 </style>
 
 <div id="proy-seccion-archivados" style="display: none; width: 100%;">
@@ -78,10 +129,35 @@
         </button>
         <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha Histórica del Proyecto</span>
       </div>
-      <button onclick="abrirHistorialProyectoArch()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
-      </button>
-    </div>
+
+      <div class="btn-dropdown">
+        <button style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">settings</span> OPCIONES <span class="material-symbols-outlined" style="font-size: 16px;">arrow_drop_down</span>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" onclick="abrirHistorialProyectoArch()">
+            <span class="material-symbols-outlined" style="font-size: 18px;">history</span> Ver Bitácora (historial)
+          </a>
+          <a class="dropdown-item" onclick="mostrarAlertaProy('Próximamente', 'La información del centro estará disponible en futuras actualizaciones.', 'info')">
+            <span class="material-symbols-outlined" style="font-size: 18px;">domain</span> Ir a información del centro
+          </a>
+          
+          <div id="arch-li-reactivar-proyecto" style="display: none;">
+             <a class="dropdown-item" onclick="prepararReactivacionProyecto()">
+               <span class="material-symbols-outlined" style="font-size: 18px;">unarchive</span> Reactivar proyecto
+             </a>
+          </div>
+
+          <div id="arch-separador-peligro" class="dropdown-divider" style="display: none;"></div>
+          
+          <div id="arch-li-eliminar-proyecto" style="display: none;">
+             <a class="dropdown-item danger-item" onclick="prepararEliminacionProyectoArch()">
+               <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> Eliminar proyecto
+             </a>
+          </div>
+        </div>
+      </div>
+      </div>
 
     <div style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 8px 15px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
       <span class="material-symbols-outlined" style="font-size: 16px;">lock</span> Este proyecto se encuentra archivado y su información es de solo lectura.
@@ -177,6 +253,50 @@
   </div>
 </div>
 
+<div id="modal-reactivar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="color: #1c4587;">unarchive</span> Reactivar Proyecto
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      El proyecto regresará al listado de proyectos activos (En Curso) y su información volverá a ser editable.
+    </p>
+    
+    <div style="margin-bottom: 15px; background: #e8f0fe; padding: 10px; border-radius: 6px; border: 1px solid #c2d7f5; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <label style="font-size: 13px; font-weight: bold; color: #1c4587; margin: 0;">Fecha de reactivación:</label>
+      <input type="date" id="fecha-reactivar-modal" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; font-family: inherit; font-weight: bold;">
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <label style="font-size: 12px; font-weight: bold; color: #444; margin-bottom: 4px; display: block;">Motivo de reactivación (Obligatorio):</label>
+      <textarea id="comentario-reactivar-modal" placeholder="Ej: Se retomaron las obras tras aprobación de nuevo presupuesto." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: vertical; min-height: 60px; font-family: inherit;"></textarea>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('modal-reactivar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="arch-btn-confirmar-reactivar" onclick="ejecutarReactivacionBackend()" class="btn-azul" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">unarchive</span> CONFIRMAR REACTIVACIÓN
+      </button>
+    </div>
+  </div>
+</div>
+<div id="modal-eliminar-proyecto-arch" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
+      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Eliminar Proyecto Definitivamente
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      <strong>¡ATENCIÓN!</strong> ¿Estás seguro de que deseas eliminar este proyecto? Esta acción es <span style="color: #d93025; font-weight: bold;">irreversible</span> y borrará todo registro del mismo, inclusive todo el historial en la bitácora.
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-top: 25px;">
+      <button onclick="document.getElementById('modal-eliminar-proyecto-arch').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="arch-btn-confirmar-eliminar" onclick="ejecutarEliminacionBackendArch()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> ELIMINAR PROYECTO
+      </button>
+    </div>
+  </div>
+</div>
 <div id="arch-modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
   <div class="modal-content" style="width: 600px; text-align: left; max-height: 85vh; display: flex; flex-direction: column;">
     
@@ -208,7 +328,8 @@
   
   var archProyectoActivoEditando = null;
   
-  // VARIABLE MODIFICADA: Siempre será false para proteger la información del archivo.
+  // VARIABLE MODIFICADA: Siempre será false en términos de edición directa, 
+  // pero usaremos validación extra para habilitar los botones de Acciones en el menú
   var archEsModoEdicionPermitido = false; 
   
   var archHistorialActivoData = [];
@@ -291,7 +412,7 @@
     document.getElementById('arch-contenedor-lista').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Obteniendo proyectos archivados de la base de datos...</p>';
     document.getElementById('arch-contenedor-btn-mas').style.display = 'none';
 
-    // AQUI SE HIZO EL CAMBIO CLAVE EN LA LLAMADA AL BACKEND
+    // ACA EL PARAMETRO SE SETEA EN TRUE PARA FORZAR EL REFRESCO Y SALTEAR EL CACHÉ.
     google.script.run.withSuccessHandler(function(resProyectos) {
       btn.innerHTML = textoOriginal;
       btn.disabled = false;
@@ -302,7 +423,7 @@
       }
       todosLosArchivadosCargados = resProyectos;
       aplicarFiltrosArchivados(); 
-    }).obtenerListaDeProyectosArchivados(false); 
+    }).obtenerListaDeProyectosArchivados(true); 
   }
 
   function aplicarFiltrosArchivados() {
@@ -455,11 +576,21 @@
   }
 
   function abrirDetalleProyectoArch(index) {
-    // ESTA VARIABLE ASEGURA QUE LA PANTALLA ESTÉ BLOQUEADA.
+    // La edición directa de los datos en esta pantalla está SIEMPRE bloqueada
     archEsModoEdicionPermitido = false;
 
     archProyectoActivoEditando = todosLosArchivadosCargados[index];
     var p = archProyectoActivoEditando;
+
+    // LÓGICA DE PERMISOS PARA LAS OPCIONES DESPLEGABLES (Reactivar / Eliminar)
+    var esAdmin = typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin;
+    var esEncargado = p.equipo && p.equipo.some(m => m.participante === (typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "") && m.encargado === true);
+    var permitirAccionesPeligrosas = esAdmin || esEncargado;
+
+    // Mostrar/Ocultar opciones en el menú desplegable dependiendo si tienen permiso
+    document.getElementById('arch-li-reactivar-proyecto').style.display = permitirAccionesPeligrosas ? 'block' : 'none';
+    document.getElementById('arch-li-eliminar-proyecto').style.display = permitirAccionesPeligrosas ? 'block' : 'none';
+    document.getElementById('arch-separador-peligro').style.display = permitirAccionesPeligrosas ? 'block' : 'none';
 
     document.getElementById('arch-det-centro').innerText = p.centro;
     document.getElementById('arch-det-depto').innerText = p.departamento;
@@ -482,11 +613,12 @@
     document.getElementById('arch-edit-contacto-tel').value = p.contactoTelefono || "";
     document.getElementById('arch-edit-archivos').value = p.ubicacionArchivos || "";
 
+    // Bloquear todos los inputs
     var inputsIds = ['arch-edit-descripcion', 'arch-edit-expediente', 'arch-edit-costo', 'arch-edit-empresa', 'arch-edit-contacto-nom', 'arch-edit-contacto-tel', 'arch-edit-archivos', 'arch-edit-m2'];
     inputsIds.forEach(id => {
       var el = document.getElementById(id);
       if(el) {
-        el.disabled = !archEsModoEdicionPermitido; // Se bloquean los inputs
+        el.disabled = !archEsModoEdicionPermitido; 
         el.style.backgroundColor = archEsModoEdicionPermitido ? '#fff' : '#f5f5f5';
       }
     });
@@ -525,6 +657,113 @@
     }
   }
 
+  // ---- FUNCIONES DE REACTIVACIÓN ----
+  function prepararReactivacionProyecto() {
+    if (!archProyectoActivoEditando) return;
+    
+    // Obtener la fecha de hoy para el modal
+    var tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
+    
+    document.getElementById('fecha-reactivar-modal').value = localISOTime;
+    document.getElementById('comentario-reactivar-modal').value = "";
+    document.getElementById('modal-reactivar-proyecto').style.display = 'flex';
+  }
+
+  function ejecutarReactivacionBackend() {
+    var fechaReactivacion = document.getElementById('fecha-reactivar-modal').value;
+    var comentarioReactivacion = document.getElementById('comentario-reactivar-modal').value.trim();
+
+    if (!fechaReactivacion) {
+      alert("Debe seleccionar una fecha de reactivación.");
+      return;
+    }
+    if (!comentarioReactivacion) {
+      alert("Debe ingresar un motivo o comentario que justifique la reactivación del proyecto.");
+      return;
+    }
+
+    var btn = document.getElementById('arch-btn-confirmar-reactivar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> PROCESANDO...';
+
+    var p = archProyectoActivoEditando;
+    var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">unarchive</span> CONFIRMAR REACTIVACIÓN';
+        
+        if (res.success) {
+          document.getElementById('modal-reactivar-proyecto').style.display = 'none';
+          
+          if(typeof mostrarAlertaProy === 'function') {
+            mostrarAlertaProy("Proyecto Reactivado", "El proyecto y su bitácora han sido restaurados al listado activo.", "unarchive", function(){
+               volverListadoArchivados();
+               ejecutarBusquedaArchivados(); // Se refresca la lista para que desaparezca
+            });
+          } else {
+            alert("Proyecto reactivado exitosamente.");
+            volverListadoArchivados();
+            ejecutarBusquedaArchivados();
+          }
+        } else {
+          alert("Error al reactivar el proyecto: " + res.error);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">unarchive</span> CONFIRMAR REACTIVACIÓN';
+        alert("Error de conexión al intentar reactivar: " + err);
+      })
+      .reactivarProyectoBackend(p.nombre, p.fecha, fechaReactivacion, comentarioReactivacion, usuarioNombreAEnviar);
+  }
+
+  // ---- FUNCIONES DE ELIMINACIÓN ----
+  function prepararEliminacionProyectoArch() {
+    if (!archProyectoActivoEditando) return;
+    document.getElementById('modal-eliminar-proyecto-arch').style.display = 'flex';
+  }
+
+  function ejecutarEliminacionBackendArch() {
+    var btn = document.getElementById('arch-btn-confirmar-eliminar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> ELIMINANDO...';
+
+    var p = archProyectoActivoEditando;
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        
+        if (res.success) {
+          document.getElementById('modal-eliminar-proyecto-arch').style.display = 'none';
+          
+          if(typeof mostrarAlertaProy === 'function') {
+            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y todo su historial han sido eliminados de forma definitiva.", "delete", function(){
+               volverListadoArchivados();
+               ejecutarBusquedaArchivados();
+            });
+          } else {
+            alert("Proyecto eliminado exitosamente.");
+            volverListadoArchivados();
+            ejecutarBusquedaArchivados();
+          }
+        } else {
+          alert("Error al eliminar el proyecto: " + res.error);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        alert("Error de conexión al intentar eliminar: " + err);
+      })
+      .eliminarProyectoBackend(p.nombre, p.fecha); // USA LA MISMA FUNCIÓN DE BACKEND QUE EN LISTADOS
+  }
+
+  // ---- FUNCIONES DE BITÁCORA ----
   function abrirHistorialDesdeListadoArch(index) {
     archProyectoActivoEditando = todosLosArchivadosCargados[index];
     abrirHistorialProyectoArch();

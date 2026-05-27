@@ -8,6 +8,57 @@
   #proy-seccion-listados, #proy-seccion-listados * {
     box-sizing: border-box;
   }
+
+  /* Estilos para el nuevo menú desplegable */
+  .btn-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: #ffffff;
+    min-width: 230px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 2000;
+    border-radius: 4px;
+    border: 1px solid #d1d9e0;
+    flex-direction: column;
+    margin-top: 5px;
+  }
+  .btn-dropdown:hover .dropdown-menu {
+    display: flex;
+  }
+  .dropdown-item {
+    padding: 10px 15px;
+    color: #444;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .dropdown-item:hover {
+    background-color: #f0f4f8;
+    color: #1c4587;
+  }
+  .dropdown-item.danger-item {
+    color: #d93025;
+  }
+  .dropdown-item.danger-item:hover {
+    background-color: #fce8e6;
+    color: #b3261e;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 4px 0;
+  }
 </style>
 
 <div id="proy-seccion-listados" style="display: none; width: 100%;">
@@ -84,15 +135,35 @@
         </button>
         <span style="font-size: 18px; font-weight: 800; color: #1c4587; margin: 0;">Ficha de Proyecto</span>
       </div>
-      <div style="display: flex; gap: 10px;">
-        <button id="btn-archivar-proyecto" onclick="prepararArchivadoProyecto()" style="display: none; background: #d93025; border: 1px solid #d93025; color: white; font-weight: bold; cursor: pointer; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <span class="material-symbols-outlined" style="font-size: 16px;">archive</span> ARCHIVAR PROYECTO
+      
+      <div class="btn-dropdown">
+        <button style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">settings</span> OPCIONES <span class="material-symbols-outlined" style="font-size: 16px;">arrow_drop_down</span>
         </button>
-        <button onclick="abrirHistorialProyecto()" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
-          <span class="material-symbols-outlined" style="font-size: 16px;">history</span> VER BITÁCORA
-        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" onclick="abrirHistorialProyecto()">
+            <span class="material-symbols-outlined" style="font-size: 18px;">history</span> Ver Bitácora (historial)
+          </a>
+          <a class="dropdown-item" onclick="mostrarAlertaProy('Próximamente', 'La información del centro estará disponible en futuras actualizaciones.', 'info')">
+            <span class="material-symbols-outlined" style="font-size: 18px;">domain</span> Ir a información del centro
+          </a>
+          
+          <div id="li-archivar-proyecto" style="display: none;">
+             <a class="dropdown-item" onclick="prepararArchivadoProyecto()">
+               <span class="material-symbols-outlined" style="font-size: 18px;">archive</span> Archivar proyecto
+             </a>
+          </div>
+
+          <div id="separador-peligro" class="dropdown-divider" style="display: none;"></div>
+          
+          <div id="li-eliminar-proyecto" style="display: none;">
+             <a class="dropdown-item danger-item" onclick="prepararEliminacionProyecto()">
+               <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> Eliminar proyecto
+             </a>
+          </div>
+        </div>
       </div>
-    </div>
+      </div>
 
     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
       <div style="flex: 1;">
@@ -241,6 +312,23 @@
   </div>
 </div>
 
+<div id="modal-eliminar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
+      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Eliminar Proyecto Definitivamente
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      <strong>¡ATENCIÓN!</strong> ¿Estás seguro de que deseas eliminar este proyecto? Esta acción es <span style="color: #d93025; font-weight: bold;">irreversible</span> y borrará todo registro del mismo, inclusive todo el historial en la bitácora.
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-top: 25px;">
+      <button onclick="document.getElementById('modal-eliminar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-eliminar" onclick="ejecutarEliminacionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> ELIMINAR PROYECTO
+      </button>
+    </div>
+  </div>
+</div>
 <div id="modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
   <div class="modal-content" style="width: 600px; text-align: left; max-height: 85vh; display: flex; flex-direction: column;">
     
@@ -680,8 +768,10 @@
     document.getElementById('area-guardar-cambios').style.display = esModoEdicionPermitido ? 'block' : 'none';
     document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'flex' : 'none';
     
-    // VISIBILIDAD DEL NUEVO BOTÓN DE ARCHIVAR
-    document.getElementById('btn-archivar-proyecto').style.display = esModoEdicionPermitido ? 'flex' : 'none';
+    // VISIBILIDAD DE OPCIONES SENSIBLES EN EL MENÚ DESPLEGABLE
+    document.getElementById('li-archivar-proyecto').style.display = esModoEdicionPermitido ? 'block' : 'none';
+    document.getElementById('li-eliminar-proyecto').style.display = esModoEdicionPermitido ? 'block' : 'none';
+    document.getElementById('separador-peligro').style.display = esModoEdicionPermitido ? 'block' : 'none';
 
     renderizarEquipoDetalle(p.equipo || []);
 
@@ -962,7 +1052,7 @@
     });
   }
 
-  // ---- NUEVAS FUNCIONES PARA EL MANEJO DEL ARCHIVADO ----
+  // ---- NUEVAS FUNCIONES PARA EL MANEJO DEL ARCHIVADO Y ELIMINACIÓN ----
 
   function prepararArchivadoProyecto() {
     if (!proyectoActivoEditando) return;
@@ -1026,6 +1116,50 @@
       .archivarProyectoBackend(p.nombre, p.fecha, fechaArchivo, comentarioArchivo, usuarioNombreAEnviar);
   }
 
+  // ---- NUEVA FUNCIÓN DE ELIMINACIÓN ----
+  function prepararEliminacionProyecto() {
+    if (!proyectoActivoEditando) return;
+    document.getElementById('modal-eliminar-proyecto').style.display = 'flex';
+  }
+
+  function ejecutarEliminacionBackend() {
+    var btn = document.getElementById('btn-confirmar-eliminar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> ELIMINANDO...';
+
+    var p = proyectoActivoEditando;
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        
+        if (res.success) {
+          document.getElementById('modal-eliminar-proyecto').style.display = 'none';
+          
+          if(typeof mostrarAlertaProy === 'function') {
+            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y todo su historial han sido eliminados de forma definitiva.", "delete", function(){
+               volverListadoProyectos();
+               ejecutarBusquedaProyectos();
+            });
+          } else {
+            alert("Proyecto eliminado exitosamente.");
+            volverListadoProyectos();
+            ejecutarBusquedaProyectos();
+          }
+        } else {
+          alert("Error al eliminar el proyecto: " + res.error);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        alert("Error de conexión al intentar eliminar: " + err);
+      })
+      .eliminarProyectoBackend(p.nombre, p.fecha); // ESTA FUNCIÓN DEBE ESTAR EN TU APP SCRIPT (.gs)
+  }
+
+  // ---- FUNCIONES DE HISTORIAL ----
   function abrirHistorialDesdeListado(index) {
     proyectoActivoEditando = todosLosProyectosCargados[index];
     abrirHistorialProyecto();
