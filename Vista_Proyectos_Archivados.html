@@ -1,4 +1,11 @@
 <style>
+  /* Regla estricta para garantizar que el contenedor blanco superior y la lista midan exactamente lo mismo siempre */
+  #pantalla-proyectos .container {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 800px !important;
+  }
+  
   #proy-seccion-archivados, #proy-seccion-archivados * {
     box-sizing: border-box;
   }
@@ -332,7 +339,42 @@
   var archHistorialActivoData = [];
   var archDatosAEnviar = null;
 
-  // NUEVA FUNCIÓN: Abre o cierra el menú de opciones al hacer clic
+  // NUEVA FUNCIÓN PARA GESTIONAR EL ENCABEZADO "MOLESTO"
+  function gestionarEncabezadoMolestoArch(ocultar) {
+    try {
+      var titulo = document.getElementById('proy-titulo-principal');
+      var subtitulo = document.getElementById('proy-subtitulo-principal');
+      var btnMenu = document.getElementById('btn-volver-menu-proy');
+      var btnPanel = document.getElementById('btn-volver-panel');
+      var contenedorPadre = document.querySelector('#pantalla-proyectos .container');
+
+      if (ocultar) {
+        if (titulo) titulo.style.display = 'none';
+        if (subtitulo) subtitulo.style.display = 'none';
+        if (btnMenu) btnMenu.style.display = 'none';
+        if (btnPanel) btnPanel.style.display = 'none';
+        
+        if (contenedorPadre) {
+          contenedorPadre.style.background = 'transparent';
+          contenedorPadre.style.boxShadow = 'none';
+          contenedorPadre.style.border = 'none';
+        }
+      } else {
+        if (titulo) titulo.style.display = '';
+        if (subtitulo) subtitulo.style.display = '';
+        if (btnMenu) btnMenu.style.display = 'flex'; 
+        if (btnPanel) btnPanel.style.display = 'none';
+        
+        if (contenedorPadre) {
+          contenedorPadre.style.background = '';
+          contenedorPadre.style.boxShadow = '';
+          contenedorPadre.style.border = '';
+        }
+      }
+    } catch(e) { console.log(e); }
+  }
+
+  // Abre o cierra el menú de opciones al hacer clic
   function toggleMenuOpcionesArchivados(event) {
     event.stopPropagation(); // Evita que el click se propague y lo cierre inmediatamente
     var menu = document.getElementById('dropdown-opciones-archivados');
@@ -343,7 +385,7 @@
     }
   }
 
-  // NUEVO LISTENER: Cierra el menú si se hace clic en cualquier otro lado
+  // Cierra el menú si se hace clic en cualquier otro lado
   document.addEventListener('click', function(event) {
     var menu = document.getElementById('dropdown-opciones-archivados');
     if (menu && menu.style.display === 'flex') {
@@ -594,6 +636,9 @@
   }
 
   function abrirDetalleProyectoArch(index) {
+    // LLAMADA PARA OCULTAR EL ENCABEZADO
+    gestionarEncabezadoMolestoArch(true);
+
     // La edición directa de los datos en esta pantalla está SIEMPRE bloqueada
     archEsModoEdicionPermitido = false;
 
@@ -651,6 +696,9 @@
   }
 
   function volverListadoArchivados() {
+    // LLAMADA PARA RESTAURAR EL ENCABEZADO
+    gestionarEncabezadoMolestoArch(false);
+
     document.getElementById('arch-detalle-wrapper').style.display = 'none';
     document.getElementById('listado-archivados-wrapper').style.display = 'block';
     archProyectoActivoEditando = null;
