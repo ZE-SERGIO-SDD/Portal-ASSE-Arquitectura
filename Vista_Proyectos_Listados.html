@@ -15,7 +15,7 @@
     display: inline-block;
   }
   .dropdown-menu {
-    display: none;
+    display: none; /* Se maneja por JS ahora */
     position: absolute;
     right: 0;
     top: 100%;
@@ -27,9 +27,6 @@
     border: 1px solid #d1d9e0;
     flex-direction: column;
     margin-top: 5px;
-  }
-  .btn-dropdown:hover .dropdown-menu {
-    display: flex;
   }
   .dropdown-item {
     padding: 10px 15px;
@@ -137,10 +134,10 @@
       </div>
       
       <div class="btn-dropdown">
-        <button style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
+        <button onclick="toggleMenuOpciones(event)" style="background: #f0f4f8; border: 1px solid #1c4587; color: #1c4587; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 4px; font-size: 11px;">
           <span class="material-symbols-outlined" style="font-size: 16px;">settings</span> OPCIONES <span class="material-symbols-outlined" style="font-size: 16px;">arrow_drop_down</span>
         </button>
-        <div class="dropdown-menu">
+        <div id="dropdown-opciones-proyecto" class="dropdown-menu">
           <a class="dropdown-item" onclick="abrirHistorialProyecto()">
             <span class="material-symbols-outlined" style="font-size: 18px;">history</span> Ver Bitácora (historial)
           </a>
@@ -366,6 +363,28 @@
   var requiereGuardarEstado = false;
   var requiereGuardarDatos = false;
 
+  // NUEVA FUNCIÓN: Abre o cierra el menú de opciones al hacer clic
+  function toggleMenuOpciones(event) {
+    event.stopPropagation(); // Evita que se cierre por el clic en window
+    var menu = document.getElementById('dropdown-opciones-proyecto');
+    if (menu.style.display === 'flex') {
+      menu.style.display = 'none';
+    } else {
+      menu.style.display = 'flex';
+    }
+  }
+
+  // NUEVO LISTENER: Cierra el menú de opciones si se hace clic fuera
+  document.addEventListener('click', function(event) {
+    var menu = document.getElementById('dropdown-opciones-proyecto');
+    if (menu && menu.style.display === 'flex') {
+      // Si el clic no fue adentro del dropdown, lo cerramos
+      if (!event.target.closest('.btn-dropdown')) {
+        menu.style.display = 'none';
+      }
+    }
+  });
+
   function toggleOrdenar() {
       var sec = document.getElementById('seccion-ordenar');
       var icono = document.getElementById('icono-toggle-ordenar');
@@ -410,12 +429,9 @@
         if (opcionesConfig.departamentos) opcionesConfig.departamentos.forEach(d => selDepto.innerHTML += `<option value="${d}">${d}</option>`);
         if (opcionesConfig.tiposObra) opcionesConfig.tiposObra.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
         
-        // Filtramos para NO mostrar los estados terminados
+        // Carga todos los estados sin filtrar los terminados
         if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => {
-            var eL = e.toString().toLowerCase();
-            if(!(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad'))) {
-               selEstado.innerHTML += `<option value="${e}">${e}</option>`;
-            }
+            selEstado.innerHTML += `<option value="${e}">${e}</option>`;
         });
 
         selPart.value = valPart || ''; selDepto.value = valDepto || ''; selTipo.value = valTipo || ''; selEstado.value = valEstado || '';
@@ -432,13 +448,12 @@
     
     selEstado.innerHTML = '<option value="">Todos</option>';
     var estadosAMostrar = (tipo && opcionesConfig.mapaTiposEstados[tipo]) ? opcionesConfig.mapaTiposEstados[tipo] : (opcionesConfig.estados || []);
+    
+    // Carga todos los estados sin filtrar los terminados
     estadosAMostrar.forEach(e => {
-        var eL = e.toString().toLowerCase();
-        // Filtramos para NO mostrar los estados terminados
-        if(!(eL.includes('terminad') || eL.includes('finaliz') || eL.includes('entregad'))) {
-           selEstado.innerHTML += `<option value="${e}">${e}</option>`;
-        }
+        selEstado.innerHTML += `<option value="${e}">${e}</option>`;
     });
+    
     selEstado.value = valEstado; 
     if(!selEstado.value) selEstado.value = ""; 
   }
@@ -475,12 +490,7 @@
     contenedor.innerHTML = '';
 
     proyectosFiltradosActuales = todosLosProyectosCargados.filter(p => {
-        var estadoTexto = p.estado ? p.estado.toString().toLowerCase().trim() : '';
-        var esTerminado = estadoTexto.includes('terminad') || estadoTexto.includes('finaliz') || estadoTexto.includes('entregad');
         
-        // Exclusivo: Si está finalizado, NO se muestra aquí (va a Archivados)
-        if (esTerminado) return false;
-
         if (fPart) {
           var equipo = p.equipo || [];
           var participa = equipo.some(miembro => miembro.participante && miembro.participante.toString().trim() === fPart);
