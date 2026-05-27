@@ -21,7 +21,7 @@
     </div>
     <p style="font-size:13px; color:#666; margin-bottom:20px;">Selecciona un documento para previsualizarlo y generarlo con la lámina oficial.</p>
 
-    <div id="lista-documentos">
+    <div id="lista-documentos-internos">
       <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #666;">
         <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Inicializando módulo...
       </p>
@@ -44,6 +44,42 @@
   </div>
 </div>
 
+<div id="modal-preview-doc" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center;">
+  <div class="modal-content" style="width: 800px; max-width: 95%;">
+    <div class="titulo-azul" id="titulo-preview-doc" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined">visibility</span> Vista Previa
+    </div>
+    <div id="contenido-preview-doc" style="max-height: 500px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px;"></div>
+    <div style="display: flex; gap: 15px;">
+      <button onclick="cerrarVistaPreviaDoc()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%;">VOLVER A EDITAR</button>
+      <button class="btn-azul" id="btn-confirmar-preview-doc" style="margin-top: 0; width: 50%;">CONFIRMAR Y GENERAR</button>
+    </div>
+  </div>
+</div>
+
+<div id="pantalla-exito-doc" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: #f0f4f8; z-index: 99999; justify-content: center; align-items: center;">
+  <div class="caja-exito" style="background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 500px; width: 90%;">
+    <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
+      <span class="material-symbols-outlined" style="font-size: 35px;">check_circle</span> ¡Documento Generado!
+    </div>
+    <p style="color: #666; margin-top: 0; margin-bottom: 30px; font-size: 15px;">El archivo está listo para su revisión.</p>
+    
+    <a id="link-doc" href="#" target="_blank" class="btn-azul" style="display:inline-flex; justify-content: center; align-items: center; gap: 8px; width:auto; padding: 16px 40px; text-decoration:none; font-size: 16px; margin-bottom: 20px;">
+      <span class="material-symbols-outlined">open_in_new</span> ABRIR DOCUMENTO
+    </a>
+    
+    <div class="aviso-borrado" style="text-align: left;">
+      <strong><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: text-bottom;">warning</span> IMPORTANTE:</strong><br>
+      Este archivo es temporal y <strong>se eliminará automáticamente al día siguiente</strong> de la base de datos de Drive.<br><br>
+      Por favor, ábralo y <strong>descárguelo en su formato preferido (PDF o Word)</strong> para asegurar su conservación definitiva en su expediente.
+    </div>
+    
+    <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    </button>
+  </div>
+</div>
+
 <script>
   function abrirInfoDocumentos() {
     document.getElementById('modal-info-documentos').style.display = 'flex';
@@ -59,7 +95,7 @@
         var btn = document.getElementById('btn-recargar-docs');
         if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
 
-        ejecutarLlamadaDocumentos(true);
+        ejecutarLlamadaDocumentosInternos(true);
 
         setTimeout(function() {
           if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>';
@@ -69,35 +105,36 @@
     }
   }
 
-  function ejecutarLlamadaDocumentos(forzar) {
+  // Funciones renombradas para aislamiento total
+  function ejecutarLlamadaDocumentosInternos(forzar) {
     forzar = forzar === true; 
     var iconName = forzar ? 'sync' : 'hourglass_empty';
     var msgText = intentosDocumentos === 0
               ? (forzar ? 'Actualizando desde Drive...' : 'Leyendo biblioteca...')
               : 'Reconectando (' + (intentosDocumentos + 1) + '/' + MAX_INTENTOS + ')...';
 
-    document.getElementById('lista-documentos').innerHTML =
+    document.getElementById('lista-documentos-internos').innerHTML =
       '<p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">' +
         '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">' + iconName + '</span> ' + msgText +
       '</p>';
 
     google.script.run
-      .withSuccessHandler(mostrarDocumentos)
-      .withFailureHandler(errorDocumentos)
+      .withSuccessHandler(mostrarListaDocumentosInternos)
+      .withFailureHandler(errorDocumentosInternos)
       .listarDocumentosContenido(forzar);
   }
 
-  function mostrarDocumentos(r) {
+  function mostrarListaDocumentosInternos(r) {
     intentosDocumentos = 0;
-    var c = document.getElementById('lista-documentos');
+    var c = document.getElementById('lista-documentos-internos');
 
     if(!r) {
-      errorDocumentos({message: "No se recibió respuesta del servidor."});
+      errorDocumentosInternos({message: "No se recibió respuesta del servidor."});
       return;
     }
 
     if(r.error) {
-      errorDocumentos({message: r.error});
+      errorDocumentosInternos({message: r.error});
       return;
     }
 
@@ -108,7 +145,7 @@
 
     var html = '<table class="tabla-archivos" style="width: 100%; border-collapse: collapse;">';
     r.forEach(function(doc) {
-      var safeName = doc.nombre.replace(/'/g, "\\'");
+      var safeName = doc.nombre.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, " ").replace(/\r/g, "");
       html +=
       '<tr class="fila-nav" onclick="abrirVistaPreviaDocumento(\'' + doc.id + '\', \'' + safeName + '\')" style="border-bottom: 1px solid #eee; cursor: pointer;">' +
         '<td style="padding: 15px 10px; display: flex; align-items: center; gap: 8px;">' +
@@ -123,13 +160,13 @@
     c.innerHTML = html + '</table>';
   }
 
-  function errorDocumentos(e) {
+  function errorDocumentosInternos(e) {
     intentosDocumentos++;
     if (intentosDocumentos < MAX_INTENTOS) {
-      setTimeout(function() { ejecutarLlamadaDocumentos(false); }, 1500);
+      setTimeout(function() { ejecutarLlamadaDocumentosInternos(false); }, 1500);
     } else {
       var errorMsg = e ? (e.message || e) : "Error desconocido";
-      document.getElementById('lista-documentos').innerHTML =
+      document.getElementById('lista-documentos-internos').innerHTML =
         '<p style="color:#d32f2f; text-align:center; padding:20px; display:flex; justify-content:center; align-items:center; gap:8px;">' +
           '<span class="material-symbols-outlined">error</span> Error al conectar con Drive: ' + errorMsg +
         '</p>';
@@ -138,29 +175,35 @@
 
   function abrirVistaPreviaDocumento(id, nombre) {
     docActivoParaGenerar = id;
-    document.getElementById('titulo-preview').innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">visibility</span> Vista Previa: ' + nombre;
+    
+    document.getElementById('titulo-preview-doc').innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">visibility</span> Vista Previa: ' + nombre;
 
+    // Se eliminó el enlace de "Ver en nueva pestaña"
     var iframeHtml =
       '<p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">' +
         '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando documento original...' +
       '</p>';
-    iframeHtml += '<iframe src="https://docs.google.com/document/d/' + id + '/preview" width="100%" height="400px" style="border:none;" onload="this.previousSibling.style.display=\'none\'"></iframe>';
+    iframeHtml += '<iframe src="https://docs.google.com/document/d/' + id + '/preview" width="100%" height="400px" style="border:1px solid #d1d9e0; border-radius: 4px;" onload="this.previousSibling.style.display=\'none\'"></iframe>';
 
-    document.getElementById('contenido-preview').innerHTML = iframeHtml;
+    document.getElementById('contenido-preview-doc').innerHTML = iframeHtml;
 
-    var btnConfirmar = document.getElementById('btn-confirmar-preview');
+    var btnConfirmar = document.getElementById('btn-confirmar-preview-doc');
     btnConfirmar.onclick = function() {
-      generarDocumentoConfirmado();
+      generarDocumentoInternoConfirmado();
     };
     btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; vertical-align: middle;">check_circle</span> CONFIRMAR Y GENERAR';
     btnConfirmar.disabled = false;
     btnConfirmar.style.backgroundColor = '#1c4587';
 
-    document.getElementById('modal-preview').style.display = 'flex';
+    document.getElementById('modal-preview-doc').style.display = 'flex';
   }
 
-  function generarDocumentoConfirmado() {
-    var btn = document.getElementById('btn-confirmar-preview');
+  function cerrarVistaPreviaDoc() {
+    document.getElementById('modal-preview-doc').style.display = 'none';
+  }
+
+  function generarDocumentoInternoConfirmado() {
+    var btn = document.getElementById('btn-confirmar-preview-doc');
     btn.disabled = true;
     btn.style.backgroundColor = '#f29900';
 
@@ -189,22 +232,30 @@
         clearInterval(animacionProgreso);
         if(res.error) {
           alert("Error: " + res.error);
-          cerrarVistaPrevia();
+          cerrarVistaPreviaDoc();
           recargarDocumentos();
           return;
         }
-        document.getElementById('link').href = res.url;
-        cerrarVistaPrevia();
-        ir('exito');
-        recargarDocumentos();
+        
+        try {
+          // Asigna el link y navega a la pantalla de éxito que ahora está perfectamente centrada
+          document.getElementById('link-doc').href = res.url;
+          cerrarVistaPreviaDoc();
+          
+          ir('exito-doc');
+          
+          recargarDocumentos();
+        } catch(e) {
+          console.error(e);
+          alert("El documento fue creado, pero hubo un error en pantalla: " + e.message);
+        }
       })
       .withFailureHandler(function(err) {
         clearInterval(animacionProgreso);
         alert("Fallo de conexión al generar: " + err.message);
-        cerrarVistaPrevia();
+        cerrarVistaPreviaDoc();
         recargarDocumentos();
       })
-      // AQUÍ ENVIAMOS EL NOMBRE DEL USUARIO ADEMÁS DEL EMAIL
       .generarDocumentoMembretado(docActivoParaGenerar, usuarioActivoEmail, usuarioActivoNombre);
   }
 </script>
