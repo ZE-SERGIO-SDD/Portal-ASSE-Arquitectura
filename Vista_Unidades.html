@@ -1,10 +1,9 @@
-<div id="pantalla-unidades" style="display: none;">
-  <div class="caja-inicio" id="contenedor-dinamico-unidades" style="max-width: 700px; width: 100%; position: relative; min-height: 300px;">
+<div id="pantalla-unidades" style="display: none; width: 100%; min-height: 100vh; background-color: #f4f7f6; flex-direction: column; align-items: center; justify-content: flex-start; box-sizing: border-box; padding-top: 40px;">
+  <div class="caja-inicio" id="contenedor-dinamico-unidades" style="max-width: 700px; width: 100%; position: relative; min-height: 300px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center;">
     
     <div style="padding: 50px; text-align: center;">
-      <h2 style="color: #1c4587;">Conectando...</h2>
-      <p style="color: #666;">Buscando la aplicación en el servidor externo.</p>
-      <button class="btn-azul" onclick="ir('portal')" style="margin-top: 20px;">CANCELAR Y VOLVER</button>
+      <span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 50px; color: #1c4587;">sync</span>
+      <h3 style="color: #666; margin-top: 20px; font-family: sans-serif;">Cargando panel externo...</h3>
     </div>
 
   </div>
@@ -14,23 +13,17 @@
   function arrancarUnidadesAsistenciales() {
     var contenedor = document.getElementById('contenedor-dinamico-unidades');
     
-    // Ponemos la rueda de carga para asegurarnos de que la pantalla se está viendo
-    contenedor.innerHTML = `
-      <div style="padding: 50px; text-align: center;">
-        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 50px; color: #1c4587;">sync</span>
-        <h3 style="color: #666; margin-top: 20px; font-family: sans-serif;">Cargando módulo externo...</h3>
-      </div>
-    `;
+    contenedor.innerHTML = '<div style="padding: 50px; text-align: center;">' +
+                           '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 50px; color: #1c4587;">sync</span>' +
+                           '<h3 style="color: #666; margin-top: 20px; font-family: sans-serif;">Conectando con el servidor externo...</h3>' +
+                           '</div>';
     
-    // Llamamos al archivo Unidades.gs
     google.script.run
       .withSuccessHandler(function(html) {
-         // Cuando el servidor responde, metemos el código dentro de la caja
          contenedor.innerHTML = html;
       })
       .withFailureHandler(function(err) {
-         // Si hay un error de conexión, se mostrará en rojo para no dejarte en blanco
-         contenedor.innerHTML = '<div style="color: red; padding: 30px;"><h2>Error de conexión</h2><p>' + err + '</p><button class="btn-azul" onclick="ir(\'portal\')" style="margin-top:20px;">VOLVER AL PORTAL</button></div>';
+         contenedor.innerHTML = '<div style="color: red; padding: 30px;"><h2>Error de comunicación</h2><p>' + err + '</p><button class="btn-azul" onclick="ir(\'portal\')" style="margin-top:20px;">VOLVER AL PORTAL</button></div>';
       })
       .obtenerVistaUnidades();
   }
