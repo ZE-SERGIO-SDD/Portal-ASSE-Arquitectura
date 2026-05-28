@@ -38,6 +38,11 @@
         <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #1c4587;">archive</span></span>
         <div class="card-title">Proyectos Archivados</div>
       </div>
+      
+      <div class="portal-card" id="card-proyectos-eliminados" onclick="ir('proyectos-eliminados')" style="display: none; background: #fce8e6; border-color: #fad2cf;">
+        <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #d93025;">delete</span></span>
+        <div class="card-title" style="color: #d93025;">Papelera (Solo Admin)</div>
+      </div>
     </div>
 
     <div id="proy-seccion-nuevo" style="display: none;">
@@ -287,6 +292,13 @@
       subtitulo.innerText = "Aplicación para registro, seguimiento e historial de proyectos vinculados a Arquitectura e Infraestructura de ASSE.";
       btnVolverMenu.style.display = 'none'; 
       btnVolverPanel.style.display = 'flex'; 
+
+      // CONTROL DE SEGURIDAD: Muestra la papelera solo si es Administrador
+      var cardPapelera = document.getElementById('card-proyectos-eliminados');
+      if (cardPapelera) {
+        cardPapelera.style.display = (typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin) ? 'flex' : 'none';
+      }
+
     } else {
       btnVolverPanel.style.display = 'none'; 
       btnVolverMenu.style.display = 'flex'; 

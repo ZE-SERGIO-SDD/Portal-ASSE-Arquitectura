@@ -312,16 +312,16 @@
 <div id="modal-eliminar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
   <div class="modal-content" style="width: 450px; text-align: left;">
     <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
-      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Eliminar Proyecto Definitivamente
+      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Eliminar Proyecto a la Papelera
     </div>
     <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
-      <strong>¡ATENCIÓN!</strong> ¿Estás seguro de que deseas eliminar este proyecto? Esta acción es <span style="color: #d93025; font-weight: bold;">irreversible</span> y borrará todo registro del mismo, inclusive todo el historial en la bitácora.
+      <strong>ATENCIÓN:</strong> ¿Estás seguro de que deseas eliminar este proyecto? Se enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.
     </p>
 
     <div style="display: flex; gap: 10px; margin-top: 25px;">
       <button onclick="document.getElementById('modal-eliminar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
       <button id="btn-confirmar-eliminar" onclick="ejecutarEliminacionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
-        <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> ELIMINAR PROYECTO
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete</span> ELIMINAR PROYECTO
       </button>
     </div>
   </div>
@@ -363,9 +363,8 @@
   var requiereGuardarEstado = false;
   var requiereGuardarDatos = false;
 
-  // NUEVA FUNCIÓN: Abre o cierra el menú de opciones al hacer clic
   function toggleMenuOpciones(event) {
-    event.stopPropagation(); // Evita que se cierre por el clic en window
+    event.stopPropagation();
     var menu = document.getElementById('dropdown-opciones-proyecto');
     if (menu.style.display === 'flex') {
       menu.style.display = 'none';
@@ -374,11 +373,9 @@
     }
   }
 
-  // NUEVO LISTENER: Cierra el menú de opciones si se hace clic fuera
   document.addEventListener('click', function(event) {
     var menu = document.getElementById('dropdown-opciones-proyecto');
     if (menu && menu.style.display === 'flex') {
-      // Si el clic no fue adentro del dropdown, lo cerramos
       if (!event.target.closest('.btn-dropdown')) {
         menu.style.display = 'none';
       }
@@ -429,7 +426,6 @@
         if (opcionesConfig.departamentos) opcionesConfig.departamentos.forEach(d => selDepto.innerHTML += `<option value="${d}">${d}</option>`);
         if (opcionesConfig.tiposObra) opcionesConfig.tiposObra.forEach(t => selTipo.innerHTML += `<option value="${t}">${t}</option>`);
         
-        // Carga todos los estados sin filtrar los terminados
         if (opcionesConfig.estados) opcionesConfig.estados.forEach(e => {
             selEstado.innerHTML += `<option value="${e}">${e}</option>`;
         });
@@ -449,7 +445,6 @@
     selEstado.innerHTML = '<option value="">Todos</option>';
     var estadosAMostrar = (tipo && opcionesConfig.mapaTiposEstados[tipo]) ? opcionesConfig.mapaTiposEstados[tipo] : (opcionesConfig.estados || []);
     
-    // Carga todos los estados sin filtrar los terminados
     estadosAMostrar.forEach(e => {
         selEstado.innerHTML += `<option value="${e}">${e}</option>`;
     });
@@ -490,7 +485,6 @@
     contenedor.innerHTML = '';
 
     proyectosFiltradosActuales = todosLosProyectosCargados.filter(p => {
-        
         if (fPart) {
           var equipo = p.equipo || [];
           var participa = equipo.some(miembro => miembro.participante && miembro.participante.toString().trim() === fPart);
@@ -572,7 +566,6 @@
         var encargadoObj = (p.equipo && p.equipo.length > 0) ? p.equipo.find(m => m.encargado === true || m.encargado === "true") : null;
         var nombreEncargado = encargadoObj ? encargadoObj.participante : '-';
 
-        // --- NUEVO: Extraer Información de la Unidad Ejecutora desde las opciones ya cargadas ---
         var infoCentro = opcionesConfig.infoCentros && opcionesConfig.infoCentros[p.centro] ? opcionesConfig.infoCentros[p.centro] : null;
         var numUE = infoCentro && infoCentro.ueNum ? infoCentro.ueNum : '-';
         var nomUE = infoCentro && infoCentro.ueNom ? infoCentro.ueNom : 'S/D';
@@ -694,10 +687,6 @@
       } else {
         if (titulo) titulo.style.display = '';
         if (subtitulo) subtitulo.style.display = '';
-        
-        // --- CORRECCIÓN APLICADA AQUÍ ---
-        // Al regresar del detalle, debemos volver al "Listado", por lo que corresponde 
-        // habilitar el botón que te regresa a "Gestión", no el que te regresa al "Panel".
         if (btnMenu) btnMenu.style.display = 'flex'; 
         if (btnPanel) btnPanel.style.display = 'none'; 
         
@@ -782,7 +771,6 @@
     document.getElementById('area-guardar-cambios').style.display = esModoEdicionPermitido ? 'block' : 'none';
     document.getElementById('btn-add-participante').style.display = esModoEdicionPermitido ? 'flex' : 'none';
     
-    // VISIBILIDAD DE OPCIONES SENSIBLES EN EL MENÚ DESPLEGABLE
     document.getElementById('li-archivar-proyecto').style.display = esModoEdicionPermitido ? 'block' : 'none';
     document.getElementById('li-eliminar-proyecto').style.display = esModoEdicionPermitido ? 'block' : 'none';
     document.getElementById('separador-peligro').style.display = esModoEdicionPermitido ? 'block' : 'none';
@@ -1066,12 +1054,9 @@
     });
   }
 
-  // ---- NUEVAS FUNCIONES PARA EL MANEJO DEL ARCHIVADO Y ELIMINACIÓN ----
-
   function prepararArchivadoProyecto() {
     if (!proyectoActivoEditando) return;
     
-    // Obtener la fecha de hoy para el modal
     var tzoffset = (new Date()).getTimezoneOffset() * 60000;
     var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 10);
     
@@ -1111,7 +1096,7 @@
           if(typeof mostrarAlertaProy === 'function') {
             mostrarAlertaProy("Proyecto Archivado", "El proyecto y su bitácora han sido movidos exitosamente al archivo histórico.", "archive", function(){
                volverListadoProyectos();
-               ejecutarBusquedaProyectos(); // Se refresca la lista para que desaparezca
+               ejecutarBusquedaProyectos(); 
             });
           } else {
             alert("Proyecto archivado exitosamente.");
@@ -1130,7 +1115,7 @@
       .archivarProyectoBackend(p.nombre, p.fecha, fechaArchivo, comentarioArchivo, usuarioNombreAEnviar);
   }
 
-  // ---- NUEVA FUNCIÓN DE ELIMINACIÓN ----
+  // --- FUNCIÓN ACTUALIZADA EN EL PASO 2 ---
   function prepararEliminacionProyecto() {
     if (!proyectoActivoEditando) return;
     document.getElementById('modal-eliminar-proyecto').style.display = 'flex';
@@ -1142,22 +1127,24 @@
     btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> ELIMINANDO...';
 
     var p = proyectoActivoEditando;
+    // Capturamos el nombre del usuario logueado para guardarlo en la papelera
+    var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
 
     google.script.run
       .withSuccessHandler(function(res) {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        btn.innerHTML = '<span class="material-symbols-outlined">delete</span> ELIMINAR PROYECTO';
         
         if (res.success) {
           document.getElementById('modal-eliminar-proyecto').style.display = 'none';
           
           if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y todo su historial han sido eliminados de forma definitiva.", "delete", function(){
+            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y su bitácora han sido movidos a la Papelera de Reciclaje.", "delete", function(){
                volverListadoProyectos();
                ejecutarBusquedaProyectos();
             });
           } else {
-            alert("Proyecto eliminado exitosamente.");
+            alert("Proyecto movido a la papelera exitosamente.");
             volverListadoProyectos();
             ejecutarBusquedaProyectos();
           }
@@ -1167,10 +1154,10 @@
       })
       .withFailureHandler(function(err) {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> ELIMINAR PROYECTO';
+        btn.innerHTML = '<span class="material-symbols-outlined">delete</span> ELIMINAR PROYECTO';
         alert("Error de conexión al intentar eliminar: " + err);
       })
-      .eliminarProyectoBackend(p.nombre, p.fecha); // ESTA FUNCIÓN DEBE ESTAR EN TU APP SCRIPT (.gs)
+      .eliminarProyectoBackend(p.nombre, p.fecha, usuarioNombreAEnviar); // Ahora pasamos el usuario
   }
 
   // ---- FUNCIONES DE HISTORIAL ----

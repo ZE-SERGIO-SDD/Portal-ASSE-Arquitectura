@@ -1,0 +1,163 @@
+<div id="pantalla-proyectos-eliminados" style="display:none; width: 100%; flex-direction: column; align-items: center; padding: 10px 20px;">
+  <div class="container" style="position: relative; max-width: 800px; width: 100%; padding: 15px 25px;">
+    
+    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+      <button class="btn-volver" onclick="ir('proyectos')" style="display: flex; align-items: center; gap: 3px; margin-bottom: 0; padding: 4px 10px; font-size: 11px;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> VOLVER A GESTIÓN DE PROYECTOS
+      </button>
+    </div>
+
+    <div class="titulo-azul" style="margin-bottom: 0px; margin-top: 5px; font-size: 20px; color: #d93025; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="font-size: 24px;">delete</span> Papelera de Proyectos
+    </div>
+    <p style="color: #666; margin-bottom: 20px; margin-top: 2px; font-size: 12px; line-height: 1.3;">
+      Proyectos eliminados de la base de datos. Solo los administradores pueden ver esta sección y restaurar los registros a su ubicación original.
+    </p>
+
+    <div id="contenedor-lista-eliminados" style="display: flex; flex-direction: column; gap: 0px; width: 100%;">
+       </div>
+
+  </div>
+</div>
+
+<div id="modal-restaurar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
+  <div class="modal-content" style="width: 450px; text-align: left;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #188038;">
+      <span class="material-symbols-outlined" style="color: #188038;">restore</span> Restaurar Proyecto
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      ¿Estás seguro de que deseas restaurar este proyecto? <br><br>
+      Volverá a su estado original (<strong><span id="txt-origen-restaurar"></span></strong>) junto con todo su historial y bitácora.
+    </p>
+
+    <div style="display: flex; gap: 10px; margin-top: 25px;">
+      <button onclick="document.getElementById('modal-restaurar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-restaurar" onclick="ejecutarRestauracionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #188038; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">restore</span> RESTAURAR
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var proyectoARestaurar = null;
+
+  function cargarListaEliminados() {
+    var contenedor = document.getElementById('contenedor-lista-eliminados');
+    contenedor.innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Buscando proyectos eliminados...</p>';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (!res.success) {
+          contenedor.innerHTML = '<p style="color:#d93025; text-align:center; padding: 20px; font-weight: bold;">Error: ' + res.error + '</p>';
+          return;
+        }
+        renderizarProyectosEliminados(res.datos);
+      })
+      .withFailureHandler(function(err) {
+        contenedor.innerHTML = '<p style="color:#d93025; text-align:center; padding: 20px; font-weight: bold;">Error de conexión con el servidor.</p>';
+      })
+      .obtenerProyectosEliminados();
+  }
+
+  function renderizarProyectosEliminados(datos) {
+    var contenedor = document.getElementById('contenedor-lista-eliminados');
+    contenedor.innerHTML = '';
+
+    if (!datos || datos.length === 0) {
+        contenedor.innerHTML = '<p style="text-align:center; padding:30px; border: 1px dashed #ccc; border-radius: 6px; color: #666; font-weight: bold;">La papelera está vacía.</p>';
+        return;
+    }
+
+    // Encabezado de la tabla
+    contenedor.innerHTML = `
+      <div style="display: grid; grid-template-columns: 25% 25% 20% 15% 15%; align-items: center; gap: 10px; border-bottom: 2px solid #d93025; padding: 12px 15px; background: #fce8e6; text-align: left; font-size: 11px; font-weight: bold; color: #d93025; text-transform: uppercase; border-radius: 6px 6px 0 0;">
+        <div>Proyecto</div>
+        <div>Ubicación</div>
+        <div>Eliminación</div>
+        <div>Origen</div>
+        <div style="text-align: right; padding-right: 5px;">Acción</div>
+      </div>
+    `;
+
+    datos.forEach((p) => {
+        var tarjeta = `
+          <div style="display: grid; grid-template-columns: 25% 25% 20% 15% 15%; align-items: center; gap: 10px; border-bottom: 1px solid #d1d9e0; padding: 10px 15px; background: #fff; transition: background 0.2s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='#fff'">
+            
+            <div style="min-width: 0; font-size: 13px; font-weight: bold; color: black; line-height: 1.2; word-break: break-word;">
+              ${p.nombre}
+            </div>
+
+            <div style="min-width: 0; font-size: 11px; display: flex; flex-direction: column; gap: 3px;">
+              <div style="display: flex; align-items: flex-start; gap: 4px; font-weight: bold; color: #666;">
+                <span class="material-symbols-outlined" style="font-size: 14px; flex-shrink: 0;">location_on</span>
+                <span style="word-break: break-word; line-height: 1.2;">${p.departamento}</span>
+              </div>
+              <div style="color: #444; padding-left: 18px; word-break: break-word; line-height: 1.2;">
+                ${p.centro}
+              </div>
+            </div>
+
+            <div style="min-width: 0; font-size: 10px; color: #444; display: flex; flex-direction: column; gap: 3px;">
+              <div><strong style="color:#d93025;">Por:</strong> ${p.eliminadoPor}</div>
+              <div><strong style="color:#d93025;">El:</strong> ${p.fechaEliminacion}</div>
+            </div>
+
+            <div style="min-width: 0; font-size: 11px; font-weight: bold; color: #1c4587;">
+              ${p.origen}
+            </div>
+
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; min-width: 0;">
+                 <button onclick="prepararRestauracion('${p.nombre}', '${p.fecha}', '${p.origen}')" style="background: #188038; border: none; color: #fff; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: bold; transition: 0.2s;" title="Restaurar Proyecto" onmouseover="this.style.background='#13602a'" onmouseout="this.style.background='#188038'">
+                   <span class="material-symbols-outlined" style="font-size: 14px;">restore</span> RESTAURAR
+                 </button>
+            </div>
+
+          </div>
+        `;
+        contenedor.innerHTML += tarjeta;
+    });
+  }
+
+  function prepararRestauracion(nombre, fecha, origen) {
+    proyectoARestaurar = { nombre: nombre, fecha: fecha, origen: origen };
+    document.getElementById('txt-origen-restaurar').innerText = origen;
+    document.getElementById('modal-restaurar-proyecto').style.display = 'flex';
+  }
+
+  function ejecutarRestauracionBackend() {
+    if (!proyectoARestaurar) return;
+
+    var btn = document.getElementById('btn-confirmar-restaurar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> RESTAURANDO...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> RESTAURAR';
+        
+        if (res.success) {
+          document.getElementById('modal-restaurar-proyecto').style.display = 'none';
+          
+          if(typeof mostrarAlertaProy === 'function') {
+            mostrarAlertaProy("Restauración Exitosa", "El proyecto ha vuelto a su ubicación: " + proyectoARestaurar.origen, "task_alt", function(){
+               cargarListaEliminados();
+            });
+          } else {
+             alert("El proyecto ha sido restaurado exitosamente a su ubicación: " + proyectoARestaurar.origen);
+             cargarListaEliminados();
+          }
+          
+        } else {
+          alert("Error al restaurar: " + res.error);
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> RESTAURAR';
+        alert("Error de conexión al restaurar: " + err);
+      })
+      .restaurarProyectoBackend(proyectoARestaurar.nombre, proyectoARestaurar.fecha);
+  }
+</script>

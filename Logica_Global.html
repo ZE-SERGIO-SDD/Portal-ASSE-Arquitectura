@@ -256,6 +256,13 @@
         mostrarSubPantallaProyectos('menu');
       }
     }
+    
+    // --- NUEVA RUTA DE LA PAPELERA ---
+    if(p === 'proyectos-eliminados') {
+      if (typeof cargarListaEliminados === 'function') cargarListaEliminados();
+    }
+    // ---------------------------------
+
     if(p === 'admin') cargarUsuariosAdmin();
     
     // Ocultar cualquier error de login si volvemos a inicio
