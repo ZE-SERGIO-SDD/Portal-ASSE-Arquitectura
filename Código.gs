@@ -4,11 +4,11 @@
 var FOLDER_ID = '1EUPj6r_VtvQPzUILLa_EARadWQ2YAi1V';
 var TEMPLATE_ID = '1NWIA_949kF5TqEQiAQ9EPKloNcKAWVTStguPHpaFjjU'; 
 var FOLDER_PLANTILLAS_ID = '16RhCKtWRqvBuBZREd1A-Y296W4Rpuixf';
-var USERS_SHEET_ID = '18MRDKeWsbaciGSTrP63bSM-z_l9EvdjKIQZTJ5BjYNo'; 
+var USERS_SHEET_ID = '18MRDKeWsbaciGSTrP63bSM-z_l9EvdjKIQZTJ5BjYNo';
 var BORRADORES_SHEET_ID = '13Dyg_fIxrbsw--0r1k-jLV7TuhPdWOYAr__OgJ06eT8'; 
 
 // ID extraído de la planilla: 00_Memorias_Base de datos
-var RUBROS_SHEET_ID = '1e5zU-WiVsRi4WUNdzH9zPNvpA_2td2sas5Ha12C1xhY'; 
+var RUBROS_SHEET_ID = '1e5zU-WiVsRi4WUNdzH9zPNvpA_2td2sas5Ha12C1xhY';
 
 // VARIABLES SECCIÓN DOCUMENTOS
 var LAMINA_TEMPLATE_ID = '1qaknDVROitOKqXfuyLUkOkLUWC9J5Nl9yGDASZXAtm4';
@@ -45,22 +45,25 @@ function validarCredenciales(email, password) {
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
     var emailBusqueda = email.trim().toLowerCase();
-    
+
     for (var i = 1; i < data.length; i++) {
       if (data[i][0].toString().toLowerCase() === emailBusqueda && data[i][1].toString() === password) {
         
-        // Verificamos permisos desde las columnas F(5), G(6), H(7), I(8), y la NUEVA J(9)
+        // Verificamos permisos desde las columnas F(5), G(6), H(7), I(8), J(9) y NUEVA L(11)
         var esAdminFijo = (emailBusqueda === "ze-sergio@hotmail.com");
         var pAdmin = esAdminFijo || (data[i][5] === true || data[i][5] === "TRUE" || data[i][5] === "VERDADERO");
-        
         var pMem = (data[i][6] === "") ? true : (data[i][6] === true || data[i][6] === "TRUE" || data[i][6] === "VERDADERO");
         var pDoc = (data[i][7] === "") ? true : (data[i][7] === true || data[i][7] === "TRUE" || data[i][7] === "VERDADERO");
         var pPla = (data[i][8] === "") ? true : (data[i][8] === true || data[i][8] === "TRUE" || data[i][8] === "VERDADERO");
         
-        // Control seguro para la columna 9 (Proyectos) en caso de planillas cortas
         var pProy = true; // Por defecto encendido
         if (data[i].length > 9 && data[i][9] !== "") {
            pProy = (data[i][9] === true || data[i][9] === "TRUE" || data[i][9] === "VERDADERO");
+        }
+
+        var pUnid = false; // Por defecto apagado para la nueva app
+        if (data[i].length > 11 && data[i][11] !== "") {
+           pUnid = (data[i][11] === true || data[i][11] === "TRUE" || data[i][11] === "VERDADERO");
         }
 
         return { 
@@ -72,7 +75,8 @@ function validarCredenciales(email, password) {
             memorias: pMem,
             documentos: pDoc,
             plantillas: pPla,
-            proyectos: pProy
+            proyectos: pProy,
+            unidades: pUnid
           }
         };
       }
@@ -89,15 +93,15 @@ function registrarUsuarioNuevo(email, password, nombre, apellido) {
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
     var emailLimpio = email.trim().toLowerCase();
-    
+
     for (var i = 1; i < data.length; i++) {
       if (data[i][0].toString().toLowerCase() === emailLimpio) {
         return { success: false, error: "Este correo ya está registrado." };
       }
     }
     
-    // Al crear usuario: Nombre, Apellido, Fecha, Admin(false), Memorias(true), Documentos(true), Plantillas(true), Proyectos(true)
-    sheet.appendRow([emailLimpio, password, nombre.trim(), apellido.trim(), new Date(), false, true, true, true, true]);
+    // Al crear usuario lo dejamos vacío en K (índice 10) y apagado en L (índice 11)
+    sheet.appendRow([emailLimpio, password, nombre.trim(), apellido.trim(), new Date(), false, true, true, true, true, "", false]);
     
     // Registramos la acción en la bitácora
     registrarActividad(emailLimpio, nombre + " " + apellido, "se unió al portal de Arquitectura.");
@@ -128,7 +132,7 @@ function actualizarPerfilUsuario(email, nombre, apellido, password) {
     var sheet = ss.getSheets()[0];
     var emailBusqueda = email.trim().toLowerCase();
     var data = sheet.getDataRange().getValues();
-    
+
     for (var i = 1; i < data.length; i++) {
       if (data[i][0].toString().toLowerCase() === emailBusqueda) {
         sheet.getRange(i + 1, 2).setValue(password);
@@ -136,6 +140,7 @@ function actualizarPerfilUsuario(email, nombre, apellido, password) {
         sheet.getRange(i + 1, 4).setValue(apellido);
         
         registrarActividad(email, nombre + " " + apellido, "actualizó sus datos de perfil.");
+        
         return { success: true, nuevoNombre: nombre + " " + apellido };
       }
     }
@@ -167,6 +172,7 @@ function limpiarCarpetaAutomaticamente() {
   var carpeta = DriveApp.getFolderById(FOLDER_ID);
   var archivos = carpeta.getFiles();
   var fechaLimite = new Date(new Date().getTime() - (3 * 24 * 60 * 60 * 1000));
+  
   while (archivos.hasNext()) {
     var archivo = archivos.next();
     if (archivo.getDateCreated() < fechaLimite) archivo.setTrashed(true);
@@ -199,9 +205,10 @@ function obtenerListaUsuariosAdmin() {
     var sheet = ss.getSheets()[0];
     var data = sheet.getDataRange().getValues();
     var usuarios = [];
-    
+
     for (var i = 1; i < data.length; i++) {
       var mail = data[i][0].toString().toLowerCase().trim();
+      
       if (mail !== "") {
         var esAdminFijo = (mail === "ze-sergio@hotmail.com");
         var pAdmin = esAdminFijo || (data[i][5] === true || data[i][5] === "TRUE" || data[i][5] === "VERDADERO");
@@ -214,6 +221,11 @@ function obtenerListaUsuariosAdmin() {
            pProy = (data[i][9] === true || data[i][9] === "TRUE" || data[i][9] === "VERDADERO");
         }
 
+        var pUnid = false;
+        if (data[i].length > 11 && data[i][11] !== "") {
+           pUnid = (data[i][11] === true || data[i][11] === "TRUE" || data[i][11] === "VERDADERO");
+        }
+
         usuarios.push({
           email: mail,
           nombre: data[i][2] + " " + data[i][3],
@@ -222,11 +234,11 @@ function obtenerListaUsuariosAdmin() {
           documentos: pDoc,
           plantillas: pPla,
           proyectos: pProy,
-          esSuperAdmin: esAdminFijo // Usado para evitar que te quites los permisos a ti mismo por accidente
+          unidades: pUnid,
+          esSuperAdmin: esAdminFijo 
         });
       }
     }
-    // Ordenamos alfabéticamente
     usuarios.sort(function(a, b) { return a.nombre.localeCompare(b.nombre); });
     return usuarios;
   } catch (e) { return { error: e.toString() }; }
@@ -239,13 +251,13 @@ function cambiarPermisoUsuario(emailUsuario, modulo, estado) {
     var data = sheet.getDataRange().getValues();
     var emailBusqueda = emailUsuario.toLowerCase();
 
-    // Mapeamos el módulo a su número de columna correspondiente (en setRange empieza en 1)
     var colIndex = -1;
     if (modulo === "admin") colIndex = 6;       // Columna F
     else if (modulo === "memorias") colIndex = 7; // Columna G
     else if (modulo === "documentos") colIndex = 8; // Columna H
     else if (modulo === "plantillas") colIndex = 9; // Columna I
     else if (modulo === "proyectos") colIndex = 10; // Columna J
+    else if (modulo === "unidades") colIndex = 12; // Columna L
 
     if (colIndex === -1) return {success: false, error: "Módulo desconocido."};
 
@@ -260,16 +272,14 @@ function cambiarPermisoUsuario(emailUsuario, modulo, estado) {
 }
 
 // =====================================================================
-// MÓDULO: BITÁCORA Y RESUMEN DE ACTIVIDAD (NUEVO)
+// MÓDULO: BITÁCORA Y RESUMEN DE ACTIVIDAD 
 // =====================================================================
 
-// Llama a esta función para anotar silenciosamente qué hizo cada usuario
 function registrarActividad(email, nombre, accion) {
   try {
     var ss = SpreadsheetApp.openById(USERS_SHEET_ID);
     var sheet = ss.getSheetByName('Registro_Actividad');
     
-    // Si la hoja no existe, la IA la crea automáticamente la primera vez
     if (!sheet) {
       sheet = ss.insertSheet('Registro_Actividad');
       sheet.appendRow(['Fecha', 'Email', 'Nombre', 'Acción']);
@@ -279,18 +289,15 @@ function registrarActividad(email, nombre, accion) {
     var fecha = new Date();
     sheet.appendRow([fecha, email, nombre, accion]);
   } catch(e) {
-    // Falla silenciosamente para no interrumpir al usuario si hay un error
     console.error("No se pudo registrar actividad: " + e.message);
   }
 }
 
-// Esta es la función que lee el registro y usa a Gemini o lanza el Plan B
 function obtenerResumenActividad(nombreUsuarioActivo) {
   try {
     var ss = SpreadsheetApp.openById(USERS_SHEET_ID);
     var sheet = ss.getSheetByName('Registro_Actividad');
     
-    // Si la hoja no existe o está vacía
     if (!sheet || sheet.getLastRow() <= 1) {
       return {
         tipo: "vacio",
@@ -300,7 +307,7 @@ function obtenerResumenActividad(nombreUsuarioActivo) {
     
     var data = sheet.getDataRange().getValues();
     var ultimasAcciones = [];
-    var maxAcciones = Math.min(data.length - 1, 10); // Agarraremos hasta las últimas 10 acciones
+    var maxAcciones = Math.min(data.length - 1, 10); 
     
     for (var i = data.length - 1; i >= data.length - maxAcciones; i--) {
       var fechaObj = new Date(data[i][0]);
@@ -316,16 +323,13 @@ function obtenerResumenActividad(nombreUsuarioActivo) {
     }
     
     var textoCrudo = ultimasAcciones.join("\n");
-    
-    // ESTE ES EL PLAN B (LA LISTA CLÁSICA Y SEGURA)
     var htmlRespaldo = "<ul style='margin:0; padding-left: 20px; color:#555; font-size:12px; margin-top: 5px;'>" + 
                        ultimasAcciones.map(function(a){ return "<li style='margin-bottom: 4px;'>"+a+"</li>"; }).join("") + 
                        "</ul>";
 
-    // INTENTAMOS CONECTAR CON GEMINI (PLAN A)
     var apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
     if (!apiKey) {
-       return { tipo: "lista", html: htmlRespaldo }; // Si no hay llave, salta el Plan B automático
+       return { tipo: "lista", html: htmlRespaldo };
     }
 
     var promptIA = "Eres el presentador amigable del Portal de Arquitectura de ASSE. Escribe UN SOLO PÁRRAFO CORTO (máximo 4 líneas) dirigido a " + nombreUsuarioActivo + " resumiendo las siguientes acciones recientes del equipo. Sé profesional pero cercano. NO uses viñetas, redacta un párrafo continuo.\n\nActividad reciente:\n" + textoCrudo;
@@ -335,30 +339,24 @@ function obtenerResumenActividad(nombreUsuarioActivo) {
       "contents": [{"parts": [{"text": promptIA}]}],
       "generationConfig": {"temperature": 0.4, "maxOutputTokens": 150} 
     };
-
     var options = {
       'method' : 'post',
       'contentType': 'application/json',
       'payload' : JSON.stringify(payload),
       'muteHttpExceptions': true
     };
-
     var response = UrlFetchApp.fetch(urlIA, options);
     var json = JSON.parse(response.getContentText());
 
-    // Si Gemini da error o llega al límite, se dispara el PLAN B
     if (json.error || !json.candidates || json.candidates.length === 0) {
        return { tipo: "lista", html: htmlRespaldo };
     }
 
     var textoIA = json.candidates[0].content.parts[0].text.trim();
-    // Limpiamos formato markdown en caso de que la IA responda con negritas (**texto**)
     textoIA = textoIA.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
     return { tipo: "ia", html: "<span>" + textoIA + "</span>" };
 
   } catch (e) {
-    // Si todo explota, salta este error en vez de romper el portal
     return { tipo: "error", html: "<span style='color:#d32f2f;'>No se pudo cargar la actividad reciente.</span>" };
   }
 }
@@ -371,7 +369,7 @@ function consultarAsistenteIA(preguntaUsuario, emailUsuario) {
   try {
     var apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
     if (!apiKey) return "⚠️ Error interno: La llave de la IA no está configurada.\n\nFuente: Interfaz del Portal";
-
+    
     var ss = SpreadsheetApp.openById(USERS_SHEET_ID);
     var sheetCerebro = ss.getSheetByName('Cerebro_IA');
 
@@ -477,14 +475,14 @@ function consultarAsistenteIA(preguntaUsuario, emailUsuario) {
       "contents": [{"parts": [{"text": contextoOculto}]}],
       "generationConfig": {"temperature": 0.1} 
     };
-
+    
     var options = {
       'method' : 'post',
       'contentType': 'application/json',
       'payload' : JSON.stringify(payload),
       'muteHttpExceptions': true
     };
-
+    
     var response = UrlFetchApp.fetch(urlIA, options);
     var json = JSON.parse(response.getContentText());
 
@@ -512,7 +510,7 @@ function extraerTextoDeUrl(url) {
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')   
       .replace(/<[^>]+>/g, ' ')                        
       .replace(/\s+/g, ' ')                            
-      .substring(0, 10000);                            
+      .substring(0, 10000);
     return texto;
   } catch(e) {
     return "Error al leer la web: " + e.message;

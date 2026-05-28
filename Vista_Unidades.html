@@ -1,0 +1,37 @@
+<div id="pantalla-unidades" style="display: none;">
+  <div class="caja-inicio" id="contenedor-dinamico-unidades" style="max-width: 700px; width: 100%; position: relative; min-height: 300px;">
+    
+    <div style="padding: 50px; text-align: center;">
+      <h2 style="color: #1c4587;">Conectando...</h2>
+      <p style="color: #666;">Buscando la aplicación en el servidor externo.</p>
+      <button class="btn-azul" onclick="ir('portal')" style="margin-top: 20px;">CANCELAR Y VOLVER</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function arrancarUnidadesAsistenciales() {
+    var contenedor = document.getElementById('contenedor-dinamico-unidades');
+    
+    // Ponemos la rueda de carga para asegurarnos de que la pantalla se está viendo
+    contenedor.innerHTML = `
+      <div style="padding: 50px; text-align: center;">
+        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 50px; color: #1c4587;">sync</span>
+        <h3 style="color: #666; margin-top: 20px; font-family: sans-serif;">Cargando módulo externo...</h3>
+      </div>
+    `;
+    
+    // Llamamos al archivo Unidades.gs
+    google.script.run
+      .withSuccessHandler(function(html) {
+         // Cuando el servidor responde, metemos el código dentro de la caja
+         contenedor.innerHTML = html;
+      })
+      .withFailureHandler(function(err) {
+         // Si hay un error de conexión, se mostrará en rojo para no dejarte en blanco
+         contenedor.innerHTML = '<div style="color: red; padding: 30px;"><h2>Error de conexión</h2><p>' + err + '</p><button class="btn-azul" onclick="ir(\'portal\')" style="margin-top:20px;">VOLVER AL PORTAL</button></div>';
+      })
+      .obtenerVistaUnidades();
+  }
+</script>

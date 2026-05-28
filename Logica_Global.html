@@ -15,17 +15,12 @@
   var MAX_INTENTOS = 3;
   var docActivoParaGenerar = null;
 
-  // ==========================================================
-  // ARRANQUE INICIAL 
-  // ==========================================================
   window.onload = function() { 
-    google.script.run.withSuccessHandler(l).obtenerDisciplinas(); 
+    // Arranque inicial silencioso
+    google.script.run.obtenerDisciplinas(); 
     cargarUsuariosLogin(); 
   };
 
-  // ==========================================================
-  // INICIO DE SESIÓN Y REGISTRO 
-  // ==========================================================
   function cargarUsuariosLogin() {
     google.script.run.withSuccessHandler(function(usuarios) {
       var select = document.getElementById('login-email');
@@ -41,15 +36,12 @@
     var pass = document.getElementById('login-pass').value;
     var btn = document.getElementById('btn-login');
     
-    // Capturamos el nuevo cartel estético
     var cartelError = document.getElementById('cartel-error-login');
     var textoError = document.getElementById('texto-error-login');
     
-    // Ocultamos el cartel cada vez que el usuario vuelve a intentar
     if(cartelError) cartelError.style.display = 'none';
     
     if(!email || !pass) { 
-      // Usamos el cartel nuevo en vez del alert()
       if(cartelError && textoError) {
         textoError.innerText = "Por favor, complete ambos campos.";
         cartelError.style.display = 'flex';
@@ -74,15 +66,14 @@
           
           document.getElementById('saludo-usuario').innerText = "Hola, " + res.nombreCompleto;
           
-          // Llama a la IA para resumir la actividad en la caja principal (DESACTIVADO TEMPORALMENTE)
-          // cargarResumenActividad(res.nombreCompleto);
-          
           var cardAdmin = document.getElementById('card-administrador');
           if(cardAdmin) cardAdmin.style.display = usuarioPermisos.admin ? '' : 'none';
 
-          // Controlamos Proyectos
           var cardProy = document.querySelector('div[onclick="ir(\'proyectos\')"]');
           if(cardProy) cardProy.style.display = usuarioPermisos.proyectos ? '' : 'none';
+
+          var cardUnid = document.getElementById('card-unidades');
+          if(cardUnid) cardUnid.style.display = usuarioPermisos.unidades ? '' : 'none';
 
           var cardGen = document.querySelector('div[onclick="ir(\'generador\')"]');
           if(cardGen) cardGen.style.display = usuarioPermisos.memorias ? '' : 'none';
@@ -93,11 +84,11 @@
           var cardPla = document.querySelector('div[onclick="ir(\'plantillas\')"]');
           if(cardPla) cardPla.style.display = usuarioPermisos.plantillas ? '' : 'none';
 
-          document.getElementById('btn-asistente').style.display = 'flex';
+          var btnAsistente = document.getElementById('btn-asistente');
+          if (btnAsistente) btnAsistente.style.display = 'flex';
           
           ir('portal');
         } else { 
-          // AQUÍ MOSTRAMOS EL NUEVO CARTEL ESTÉTICO DE ERROR
           if(cartelError && textoError) {
             textoError.innerText = res.error;
             cartelError.style.display = 'flex';
@@ -117,15 +108,8 @@
     var pass2 = document.getElementById('reg-pass2').value;
     var btn = document.getElementById('btn-registro');
     
-    if(!nombre || !apellido || !email || !pass) { 
-      alert("Todos los campos son obligatorios."); 
-      return; 
-    }
-    
-    if(pass !== pass2) { 
-      alert("Las contraseñas no coinciden."); 
-      return; 
-    }
+    if(!nombre || !apellido || !email || !pass) { alert("Todos los campos son obligatorios."); return; }
+    if(pass !== pass2) { alert("Las contraseñas no coinciden."); return; }
     
     btn.disabled = true; 
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> CREANDO CUENTA...';
@@ -149,49 +133,15 @@
       .registrarUsuarioNuevo(email, pass, nombre, apellido);
   }
 
-  function enviarClave() {
-    var email = document.getElementById('rec-email').value;
-    var btn = document.getElementById('btn-enviar-clave');
-    
-    if(!email) { 
-      alert("Ingrese su correo."); 
-      return; 
-    }
-    
-    btn.disabled = true; 
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> ENVIANDO...';
-    
-    google.script.run
-      .withSuccessHandler(function(res) {
-        btn.disabled = false; 
-        btn.innerHTML = "ENVIAR CONTRASEÑA";
-        if(res.success) {
-          alert("Te hemos enviado un correo con tu contraseña. Revisa tu bandeja de entrada.");
-          cerrarModalRecuperar();
-        } else { 
-          alert(res.error); 
-        }
-      })
-      .recuperarClave(email);
-  }
-
-  // ==========================================================
-  // GESTIÓN DE PERFIL 
-  // ==========================================================
   function cargarPerfil() {
-    google.script.run
-      .withSuccessHandler(function(res) {
-        if(res.error) {
-          alert(res.error);
-          return;
-        }
+    google.script.run.withSuccessHandler(function(res) {
+        if(res.error) { alert(res.error); return; }
         document.getElementById('perf-nombre').value = res.nombre;
         document.getElementById('perf-apellido').value = res.apellido;
         document.getElementById('perf-email').value = usuarioActivoEmail;
         document.getElementById('perf-pass').value = res.password;
         document.getElementById('perf-pass2').value = res.password;
-      })
-      .obtenerDatosPerfil(usuarioActivoEmail);
+      }).obtenerDatosPerfil(usuarioActivoEmail);
   }
 
   function guardarPerfil() {
@@ -200,22 +150,14 @@
     var pass = document.getElementById('perf-pass').value;
     var pass2 = document.getElementById('perf-pass2').value;
     
-    if(!nombre || !apellido || !pass) {
-      alert("Todos los campos son obligatorios.");
-      return;
-    }
-    
-    if(pass !== pass2) { 
-      alert("Las contraseñas no coinciden."); 
-      return; 
-    }
+    if(!nombre || !apellido || !pass) { alert("Todos los campos son obligatorios."); return; }
+    if(pass !== pass2) { alert("Las contraseñas no coinciden."); return; }
     
     var btn = document.getElementById('btn-perf-guardar');
     btn.disabled = true; 
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> GUARDANDO CAMBIOS...';
 
-    google.script.run
-      .withSuccessHandler(function(res) {
+    google.script.run.withSuccessHandler(function(res) {
         btn.disabled = false; 
         btn.innerHTML = "GUARDAR CAMBIOS";
         if(res.success) {
@@ -226,46 +168,52 @@
         } else { 
           alert(res.error); 
         }
-      })
-      .actualizarPerfilUsuario(usuarioActivoEmail, nombre, apellido, pass);
+      }).actualizarPerfilUsuario(usuarioActivoEmail, nombre, apellido, pass);
   }
 
   // ==========================================================
   // CONTROL DE NAVEGACIÓN Y MENÚS GLOBALES
   // ==========================================================
   function ir(p) {
+    // 1. Ocultar todas las pantallas
     document.querySelectorAll('body > div').forEach(d => {
       d.style.display = 'none';
     });
     
+    // 2. Buscar la pantalla objetivo
     var pantalla = document.getElementById('pantalla-'+p);
+    
+    // 3. Mostrar pantalla segura (SIN EL TEXTO DE ERROR QUE ROMPÍA EL COMPILADOR)
     if(pantalla) {
-        pantalla.style.display = 'flex';
+        pantalla.style.display = 'flex'; 
     } else {
-        console.warn("La pantalla 'pantalla-" + p + "' no existe aún en el HTML.");
+        alert("Atención: Esta pantalla no se ha cargado correctamente.");
+        ir('portal'); 
+        return; 
     }
     
+    // --- GESTIÓN DE PANTALLAS ---
     if(p === 'perfil') cargarPerfil();
     if(p === 'plantillas' && !arbolPlantillas) recargarPlantillas();
     if(p === 'documentos') recargarDocumentos();
     if(p === 'mis-archivos') recargarMisArchivos();
+    if(p === 'admin') cargarUsuariosAdmin();
+    
     if(p === 'proyectos') {
       cargarDatosProyectos(); 
-      // NUEVO: Resetea forzadamente el submenú de proyectos
       if (typeof mostrarSubPantallaProyectos === 'function') {
         mostrarSubPantallaProyectos('menu');
       }
     }
     
-    // --- NUEVA RUTA DE LA PAPELERA ---
     if(p === 'proyectos-eliminados') {
       if (typeof cargarListaEliminados === 'function') cargarListaEliminados();
     }
-    // ---------------------------------
 
-    if(p === 'admin') cargarUsuariosAdmin();
+    if(p === 'unidades') {
+      if (typeof arrancarUnidadesAsistenciales === 'function') arrancarUnidadesAsistenciales();
+    }
     
-    // Ocultar cualquier error de login si volvemos a inicio
     if(p === 'inicio') {
         var cartelError = document.getElementById('cartel-error-login');
         if(cartelError) cartelError.style.display = 'none';
@@ -279,54 +227,45 @@
     usuarioEsAdmin = false;
     usuarioPermisos = {};
     
-    document.getElementById('btn-asistente').style.display = 'none';
-    document.getElementById('ventana-chat').style.display = 'none';
+    var btnAsistente = document.getElementById('btn-asistente');
+    if (btnAsistente) btnAsistente.style.display = 'none';
+    var ventanaChat = document.getElementById('ventana-chat');
+    if (ventanaChat) ventanaChat.style.display = 'none';
     
-    // Resetear el cartel de actividad para el próximo usuario
     var cajaActividad = document.getElementById('caja-resumen-actividad');
-    if (cajaActividad) {
-      cajaActividad.innerHTML = '(Módulo en construcción)';
-    }
-    
+    if (cajaActividad) { cajaActividad.innerHTML = '(Módulo en construcción)'; }
     ir('inicio'); 
   }
   
   function abrirModalRecuperar() { 
-    document.getElementById('modal-recuperar').style.display = 'flex'; 
+      var m = document.getElementById('modal-recuperar');
+      if(m) m.style.display = 'flex'; 
   }
-  
   function cerrarModalRecuperar() { 
-    document.getElementById('modal-recuperar').style.display = 'none'; 
-    document.getElementById('rec-email').value = ''; 
+      var m = document.getElementById('modal-recuperar');
+      if(m) m.style.display = 'none'; 
+      var e = document.getElementById('rec-email');
+      if(e) e.value = ''; 
   }
 
-  function abrirModalInfoApp() { 
-    document.getElementById('modal-info-app').style.display = 'flex'; 
+  function abrirModalInfoApp() {
+      var m = document.getElementById('modal-info-app');
+      if(m) m.style.display = 'flex';
   }
-  
-  function cerrarModalInfoApp() { 
-    document.getElementById('modal-info-app').style.display = 'none'; 
-  }
-  
-  function cerrarVistaPrevia() { 
-    document.getElementById('modal-preview').style.display = 'none'; 
+  function cerrarModalInfoApp() {
+      var m = document.getElementById('modal-info-app');
+      if(m) m.style.display = 'none';
   }
 
-  // ==========================================================
-  // LÓGICA DEL PANEL DE ADMINISTRADOR
-  // ==========================================================
   function cargarUsuariosAdmin() {
     var tbody = document.getElementById('tabla-body-admin');
     if(!tbody) return;
     
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px; color: #1c4587;">sync</span><br><br>Cargando usuarios...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px; color: #1c4587;">sync</span><br><br>Cargando usuarios...</td></tr>';
 
     google.script.run
       .withSuccessHandler(function(usuarios) {
-        if(usuarios.error) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding: 20px;">Error: ' + usuarios.error + '</td></tr>';
-          return;
-        }
+        if(usuarios.error) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding: 20px;">Error: ' + usuarios.error + '</td></tr>'; return; }
         renderizarTablaAdmin(usuarios);
       })
       .obtenerListaUsuariosAdmin();
@@ -335,15 +274,10 @@
   function renderizarTablaAdmin(usuarios) {
     var tbody = document.getElementById('tabla-body-admin');
     tbody.innerHTML = '';
-    
-    if(usuarios.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No hay usuarios registrados.</td></tr>';
-        return;
-    }
+    if(usuarios.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay usuarios registrados.</td></tr>'; return; }
 
     usuarios.forEach(function(u) {
       var tr = document.createElement('tr');
-
       var tdInfo = document.createElement('td');
       tdInfo.innerHTML = '<strong style="color: #333;">' + u.nombre + '</strong><br><span style="font-size:11px; color:#888;">' + u.email + '</span>';
       tr.appendChild(tdInfo);
@@ -351,16 +285,14 @@
       tr.appendChild(crearCeldaToggle(u.email, 'memorias', u.memorias));
       tr.appendChild(crearCeldaToggle(u.email, 'documentos', u.documentos));
       tr.appendChild(crearCeldaToggle(u.email, 'plantillas', u.plantillas));
-      
-      // La nueva celda para Gestión de Proyectos
       tr.appendChild(crearCeldaToggle(u.email, 'proyectos', u.proyectos));
+      tr.appendChild(crearCeldaToggle(u.email, 'unidades', u.unidades));
 
       var tdAdmin = crearCeldaToggle(u.email, 'admin', u.admin);
       if(u.esSuperAdmin) {
         tdAdmin.innerHTML = '<span style="font-size:11px; color:#188038; font-weight:bold;"><span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">verified_user</span> SUPER ADMIN</span>';
       }
       tr.appendChild(tdAdmin);
-
       tbody.appendChild(tr);
     });
   }
@@ -369,47 +301,24 @@
     var td = document.createElement('td');
     td.style.textAlign = 'center';
     var idCheck = 'chk_' + modulo + '_' + email.replace(/[@.]/g, ''); 
-
-    td.innerHTML = `
-      <label class="switch">
-        <input type="checkbox" id="${idCheck}" ${estado ? 'checked' : ''} onchange="cambiarPermiso(this, '${email}', '${modulo}')">
-        <span class="slider round"></span>
-      </label>
-    `;
+    td.innerHTML = `<label class="switch"><input type="checkbox" id="${idCheck}" ${estado ? 'checked' : ''} onchange="cambiarPermiso(this, '${email}', '${modulo}')"><span class="slider round"></span></label>`;
     return td;
   }
 
   function cambiarPermiso(checkbox, email, modulo) {
     checkbox.disabled = true;
     var estadoNuevo = checkbox.checked;
-
-    google.script.run
-      .withSuccessHandler(function(res) {
+    google.script.run.withSuccessHandler(function(res) {
         checkbox.disabled = false;
-        if(!res.success) {
-          alert("Error al guardar el permiso: " + res.error);
-          checkbox.checked = !estadoNuevo; 
-        }
-      })
-      .cambiarPermisoUsuario(email, modulo, estadoNuevo);
+        if(!res.success) { alert("Error al guardar el permiso: " + res.error); checkbox.checked = !estadoNuevo; }
+      }).cambiarPermisoUsuario(email, modulo, estadoNuevo);
   }
 
-  // ==========================================================
-  // NUEVO: CARGAR RESUMEN DE ACTIVIDAD EN EL PANEL
-  // ==========================================================
   function cargarResumenActividad(nombreUsuario) {
     var cajaActividad = document.getElementById('caja-resumen-actividad');
     if (!cajaActividad) return;
-
-    // Conectamos con el backend para buscar la información (Paso 2)
-    google.script.run
-      .withSuccessHandler(function(respuesta) {
-        cajaActividad.innerHTML = respuesta.html;
-      })
-      .withFailureHandler(function(error) {
-        // Si hay una falla grave de conexión, mostramos un error silencioso
-        cajaActividad.innerHTML = '<span style="color:#d32f2f;">No se pudo conectar con el registro de actividad.</span>';
-      })
+    google.script.run.withSuccessHandler(function(respuesta) { cajaActividad.innerHTML = respuesta.html; })
+      .withFailureHandler(function(error) { cajaActividad.innerHTML = '<span style="color:#d32f2f;">Error.</span>'; })
       .obtenerResumenActividad(nombreUsuario);
   }
 </script>
