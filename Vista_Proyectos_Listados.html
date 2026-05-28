@@ -694,8 +694,12 @@
       } else {
         if (titulo) titulo.style.display = '';
         if (subtitulo) subtitulo.style.display = '';
-        if (btnMenu) btnMenu.style.display = 'none'; 
-        if (btnPanel) btnPanel.style.display = 'flex';
+        
+        // --- CORRECCIÓN APLICADA AQUÍ ---
+        // Al regresar del detalle, debemos volver al "Listado", por lo que corresponde 
+        // habilitar el botón que te regresa a "Gestión", no el que te regresa al "Panel".
+        if (btnMenu) btnMenu.style.display = 'flex'; 
+        if (btnPanel) btnPanel.style.display = 'none'; 
         
         if (contenedorPadre) {
           contenedorPadre.style.background = '';
