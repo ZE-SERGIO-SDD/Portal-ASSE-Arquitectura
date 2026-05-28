@@ -39,7 +39,7 @@
         <div class="card-title">Proyectos Archivados</div>
       </div>
       
-      <div class="portal-card" id="card-proyectos-eliminados" onclick="ir('proyectos-eliminados')" style="display: none; background: #fce8e6; border-color: #fad2cf;">
+      <div class="portal-card" id="card-proyectos-eliminados" onclick="mostrarSubPantallaProyectos('eliminado')" style="display: none; background: #fce8e6; border-color: #fad2cf;">
         <span class="card-icon"><span class="material-symbols-outlined" style="font-size: 40px; color: #d93025;">delete</span></span>
         <div class="card-title" style="color: #d93025;">Papelera (Solo Admin)</div>
       </div>
@@ -281,6 +281,9 @@
     var archivadosSeccion = document.getElementById('proy-seccion-archivados');
     if(archivadosSeccion) archivadosSeccion.style.display = 'none';
     
+    var eliminadosSeccion = document.getElementById('proy-seccion-eliminados');
+    if(eliminadosSeccion) eliminadosSeccion.style.display = 'none';
+
     var titulo = document.getElementById('proy-titulo-principal');
     var subtitulo = document.getElementById('proy-subtitulo-principal');
     var btnVolverMenu = document.getElementById('btn-volver-menu-proy');
@@ -293,7 +296,7 @@
       btnVolverMenu.style.display = 'none'; 
       btnVolverPanel.style.display = 'flex'; 
 
-      // CONTROL DE SEGURIDAD: Muestra la papelera solo si es Administrador
+      // Muestra la papelera solo si es Administrador
       var cardPapelera = document.getElementById('card-proyectos-eliminados');
       if (cardPapelera) {
         cardPapelera.style.display = (typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin) ? 'flex' : 'none';
@@ -339,6 +342,13 @@
         subtitulo.innerText = "Archivo de proyectos finalizados o dados de baja.";
         
         if(typeof cargarListaArchivados === 'function') cargarListaArchivados();
+        
+      } else if (seccion === 'eliminado') {
+        vistaListadoActual = 'eliminado';
+        if(eliminadosSeccion) eliminadosSeccion.style.display = 'block';
+        titulo.innerText = "Papelera de Proyectos";
+        subtitulo.innerText = "Proyectos eliminados de la base de datos. Solo administradores pueden ver o restaurar registros.";
+        if(typeof cargarListaEliminados === 'function') cargarListaEliminados();
       }
     }
   }

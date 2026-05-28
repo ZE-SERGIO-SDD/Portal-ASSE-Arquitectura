@@ -10,7 +10,6 @@ var EMPRESAS_SHEET_ID = '11-kpuGqKCyOUFvUYEaTCMUec_5OQppTC8VFzzFyA-Io';
 function obtenerParametrosProyectos(forzar) {
   var cache = CacheService.getScriptCache();
   var cacheKeyPrefix = "cache_params_proy_chunk_";
-  
   if (!forzar) {
     try {
       var chunksStr = cache.get("cache_params_chunks_count");
@@ -32,7 +31,6 @@ function obtenerParametrosProyectos(forzar) {
 
   try {
     var ssConfig = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
-    
     var leerColumna = function(nombrePestaña) {
       var sheet = ssConfig.getSheetByName(nombrePestaña);
       if (!sheet) return [];
@@ -86,7 +84,7 @@ function obtenerParametrosProyectos(forzar) {
       listaEmpresas = ["Teyma Uruguay S.A.", "Saceem S.A.", "Stiler S.A."]; 
     }
     listaEmpresas = [...new Set(listaEmpresas)].sort();
-    
+
     var sheetTipos = ssConfig.getSheetByName('Tipo de Obra');
     var sheetEstados = ssConfig.getSheetByName('Estados');
     var listaTiposObra = [];
@@ -151,6 +149,7 @@ function obtenerParametrosProyectos(forzar) {
         }
       }
     };
+
     try {
       var resSheets = Sheets.Spreadsheets.Values.get(DEPARTAMENTOS_CENTROS_ID, 'A:AD');
       var rows = resSheets.values;
@@ -177,6 +176,7 @@ function obtenerParametrosProyectos(forzar) {
       infoCentros: infoCentros,
       empresas: listaEmpresas 
     };
+
     try {
       var resultStr = JSON.stringify(result);
       var chunkSize = 90000;
@@ -202,6 +202,7 @@ function guardarNuevoProyecto(datosProyecto) {
       "Tipo de Obra", "Estado", "Equipo", "Creado por",
       "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+
     if (sheet.getLastRow() === 0) {
       sheet.appendRow(columnasRequeridas);
     }
@@ -211,6 +212,7 @@ function guardarNuevoProyecto(datosProyecto) {
     var columnasFaltantes = [
       "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
       var colSinTilde = colBaja.replace(/[áéíóú]/g, function(match){
@@ -221,6 +223,7 @@ function guardarNuevoProyecto(datosProyecto) {
         headers.push(colBaja);
       }
     });
+
     var idUnico = "PRY-" + Date.now().toString(36).toUpperCase();
     
     var mapaDatos = {
@@ -276,7 +279,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado, usuarioNombre, coment
     var idxFecha = headers.indexOf("fecha");
     var idxEstado = headers.indexOf("estado");
     var idxId = headers.indexOf("id proyecto");
-    
+
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -285,6 +288,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado, usuarioNombre, coment
       if (filaNombre === nombre && filaFecha === fecha) {
         var estadoAnterior = data[i][idxEstado] ? data[i][idxEstado].toString() : "Sin estado previo";
         var idProyecto = idxId !== -1 ? (data[i][idxId] ? data[i][idxId].toString() : "") : "";
+
         if (!idProyecto) {
           idProyecto = "PRY-MIG-" + Date.now().toString(36).toUpperCase();
           if (idxId !== -1) {
@@ -293,6 +297,7 @@ function cambiarEstadoProyecto(nombre, fecha, nuevoEstado, usuarioNombre, coment
         }
         
         sheet.getRange(i + 1, idxEstado + 1).setValue(nuevoEstado);
+
         var detalleCambio = "Pasó de '" + estadoAnterior + "' a '" + nuevoEstado + "'";
         var fechaRegistro = new Date();
         if (fechaCambio) {
@@ -324,6 +329,7 @@ function editarDatosProyecto(datosEdicion) {
     var columnasFaltantes = [
       "ID Proyecto", "Nro Expediente", "Costo Obra", "Empresa", "Contacto Nombre", "Contacto Teléfono", "Ubicación Archivos", "Fechas Hitos", "M2"
     ];
+
     columnasFaltantes.forEach(function(col) {
       var colBaja = col.toLowerCase().trim();
       var colSinTilde = colBaja.replace(/[áéíóú]/g, function(match){
@@ -334,6 +340,7 @@ function editarDatosProyecto(datosEdicion) {
         headers.push(colBaja);
       }
     });
+
     data = sheet.getDataRange().getValues();
 
     var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
@@ -342,6 +349,7 @@ function editarDatosProyecto(datosEdicion) {
     
     var filaEncontrada = -1;
     var idProyecto = "";
+
     for (var i = 1; i < data.length; i++) {
       var filaNombre = data[i][idxNombre] ? data[i][idxNombre].toString() : "";
       var filaFechaRaw = data[i][idxFecha];
@@ -374,6 +382,7 @@ function editarDatosProyecto(datosEdicion) {
       "ubicacion archivos": datosEdicion.ubicacionArchivos,
       "m2": datosEdicion.m2
     };
+
     var usuario = datosEdicion.usuarioNombre || "Usuario Desconocido";
     var comentariosFront = datosEdicion.comentarios || {};
 
@@ -388,14 +397,17 @@ function editarDatosProyecto(datosEdicion) {
       if (colIndex !== -1 && columnasAEditar[key] !== undefined) {
         var valorViejo = data[filaEncontrada][colIndex] ? data[filaEncontrada][colIndex].toString().trim() : "";
         var valorNuevo = columnasAEditar[key] ? columnasAEditar[key].toString().trim() : "";
+
         if (valorViejo !== valorNuevo) {
           sheet.getRange(filaEncontrada + 1, colIndex + 1).setValue(valorNuevo);
+
           if (key !== "descripcion" && key !== "contacto telefono" && key !== "ubicacion archivos") {
              var categoria = "";
              var detalle = "";
              
              var txtV = valorViejo !== "" ? valorViejo : "vacío";
              var txtN = valorNuevo !== "" ? valorNuevo : "vacío";
+
              if (key === "descripción") {
                 categoria = "DESCRIPCIÓN";
                 detalle = "Cambió de:\n«" + txtV + "»\n\na:\n«" + txtN + "»";
@@ -425,6 +437,7 @@ function editarDatosProyecto(datosEdicion) {
         
         if (equipoViejoStr !== equipoNuevoStr) {
           sheet.getRange(filaEncontrada + 1, colEquipo + 1).setValue(equipoNuevoStr);
+
           var eqViejo = [];
           var eqNuevo = [];
           try { eqViejo = JSON.parse(equipoViejoStr); } catch(e){}
@@ -436,6 +449,7 @@ function editarDatosProyecto(datosEdicion) {
           eqNuevo.forEach(function(p){ mapN[p.participante] = p; });
           
           var logEquipo = [];
+
           for (var partV in mapV) {
             if (!mapN[partV]) {
               logEquipo.push(partV + " (que tenía el rol de '" + mapV[partV].rol + "') ya no participa en el proyecto");
@@ -444,6 +458,7 @@ function editarDatosProyecto(datosEdicion) {
               var n = mapN[partV];
               var subLog = [];
               if (v.rol !== n.rol) subLog.push("pasó al rol de '" + n.rol + "'");
+
               if (v.encargado !== n.encargado) {
                  if (n.encargado) subLog.push("ahora es encargado");
                  else subLog.push("dejó de ser encargado");
@@ -603,6 +618,7 @@ function archivarProyectoBackend(nombreOriginal, fechaOriginal, fechaArchivo, co
 
     var filaEncontrada = -1;
     var idProyecto = "";
+
     // 1. Ubicar el proyecto exacto en la BD principal
     for (var i = 1; i < dataBD.length; i++) {
       var filaNombre = dataBD[i][idxNombre] ? dataBD[i][idxNombre].toString() : "";
@@ -646,6 +662,7 @@ function archivarProyectoBackend(nombreOriginal, fechaOriginal, fechaArchivo, co
     var usuarioLimpio = usuarioNombre ? usuarioNombre.toString().trim() : "Sistema";
     var comentLimpio = comentario ? comentario.toString().trim() : "Sin justificación.";
     sheetHistArchivados.appendRow([idProyecto, fechaRegistro, usuarioLimpio, "ARCHIVADO", "El proyecto y todo su registro fueron transferidos al archivo histórico del portal.", comentLimpio]);
+    
     // Limpiamos la caché general para forzar la recarga de los listados
     CacheService.getScriptCache().remove("cache_lista_proy_chunks");
     return { success: true };
@@ -663,9 +680,11 @@ function reactivarProyectoBackend(nombreOriginal, fechaOriginal, fechaAccion, co
     // Hojas de origen
     var sheetBDArchivados = ss.getSheetByName("BD_Proyectos_Archivados");
     var sheetHistArchivados = ss.getSheetByName("BD_Historial_Archivados");
+    
     // Hojas de destino
     var sheetBDActivos = ss.getSheetByName("BD_Proyectos") || ss.insertSheet("BD_Proyectos");
     var sheetHistActivos = ss.getSheetByName("BD_Historial") || ss.insertSheet("BD_Historial");
+    
     if (!sheetBDArchivados) return { success: false, error: "No existe la base de datos de archivados." };
     
     var dataArch = sheetBDArchivados.getDataRange().getValues();
@@ -677,6 +696,7 @@ function reactivarProyectoBackend(nombreOriginal, fechaOriginal, fechaAccion, co
 
     var filaEncontrada = -1;
     var idProyecto = "";
+
     // 1. Ubicar el proyecto en Archivados
     for (var i = 1; i < dataArch.length; i++) {
       var filaNombre = dataArch[i][idxNombre] ? dataArch[i][idxNombre].toString() : "";
@@ -707,6 +727,7 @@ function reactivarProyectoBackend(nombreOriginal, fechaOriginal, fechaAccion, co
     // 2. Mover a Activos
     sheetBDActivos.appendRow(filaData);
     sheetBDArchivados.deleteRow(filaEncontrada);
+    
     // 3. Mover historial completo
     if (sheetHistArchivados && idProyecto) {
        var dataHist = sheetHistArchivados.getDataRange().getValues();
@@ -721,9 +742,11 @@ function reactivarProyectoBackend(nombreOriginal, fechaOriginal, fechaAccion, co
     
     // 4. Agregar hito final en la nueva base de Activos
     sheetHistActivos.appendRow([idProyecto, fechaRegistro, usuarioLimpio, "REACTIVADO", "El proyecto fue reactivado y transferido al listado de Proyectos en Curso.", comentLimpio]);
+    
     // Limpiar caché de ambos listados para que el Front-end se refresque instantáneamente
     CacheService.getScriptCache().remove("cache_lista_proy_chunks");
     CacheService.getScriptCache().remove("cache_lista_arch_chunks");
+    
     return { success: true };
   } catch (e) {
     return { success: false, error: e.message };
@@ -736,8 +759,6 @@ function reactivarProyectoBackend(nombreOriginal, fechaOriginal, fechaAccion, co
 function eliminarProyectoBackend(nombreOriginal, fechaOriginal, usuarioNombre) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
-    
-    // 1. Buscar en BD_Proyectos (Proyectos En Curso)
     var sheetActivos = ss.getSheetByName("BD_Proyectos");
     var filaEncontrada = -1;
     var origen = "";
@@ -745,6 +766,7 @@ function eliminarProyectoBackend(nombreOriginal, fechaOriginal, usuarioNombre) {
     var rowData = null;
     var idProyecto = "";
 
+    // 1. Buscar en BD_Proyectos (Proyectos En Curso)
     if (sheetActivos) {
       var dataActivos = sheetActivos.getDataRange().getValues();
       var headersActivos = dataActivos[0].map(function(h) { return h.toString().toLowerCase().trim(); });
@@ -802,20 +824,22 @@ function eliminarProyectoBackend(nombreOriginal, fechaOriginal, usuarioNombre) {
     // 3. Escribir en BD_Proyectos_Eliminados
     var sheetEliminados = ss.getSheetByName("BD_Proyectos_Eliminados");
     if (!sheetEliminados) {
-      return { success: false, error: "No existe la pestaña BD_Proyectos_Eliminados en la planilla." };
+      sheetEliminados = ss.insertSheet("BD_Proyectos_Eliminados");
+      var headersOrigen = sheetOrigen.getRange(1, 1, 1, sheetOrigen.getLastColumn()).getValues()[0].slice();
+      headersOrigen.push("Origen", "Fecha Eliminacion", "Eliminado Por");
+      sheetEliminados.appendRow(headersOrigen);
     }
 
     var fechaEliminacion = new Date();
     var user = usuarioNombre || "Usuario Desconocido";
 
-    // Preparamos la nueva fila con los datos exactos originales + las 3 columnas nuevas
-    var nuevaFila = rowData.slice(); 
+    var nuevaFila = rowData.slice();
     nuevaFila.push(origen);
     nuevaFila.push(fechaEliminacion);
     nuevaFila.push(user);
 
     sheetEliminados.appendRow(nuevaFila);
-
+    
     // 4. Eliminar de la hoja original
     sheetOrigen.deleteRow(filaEncontrada);
 
@@ -824,7 +848,7 @@ function eliminarProyectoBackend(nombreOriginal, fechaOriginal, usuarioNombre) {
       mudarHistorialEliminado(ss, idProyecto, origen);
     }
 
-    // 6. Limpiar Caché para que se actualicen las vistas al recargar
+    // 6. Limpiar Caché
     var cache = CacheService.getScriptCache();
     cache.remove("cache_lista_proy_chunks"); 
     cache.remove("cache_lista_arch_chunks");
@@ -837,14 +861,12 @@ function eliminarProyectoBackend(nombreOriginal, fechaOriginal, usuarioNombre) {
 
 // Función auxiliar para mudar la bitácora
 function mudarHistorialEliminado(ss, idProyecto, origen) {
-  // Usamos el historial de "Activos" o "Archivados" según de dónde vino
   var nombrePestañaHistorial = (origen === "Archivado") ? "BD_Historial_Archivados" : "BD_Historial";
   var sheetHistorial = ss.getSheetByName(nombrePestañaHistorial); 
   var sheetHistEliminados = ss.getSheetByName("BD_Historial_Eliminados") || ss.insertSheet("BD_Historial_Eliminados");
   
-  if (!sheetHistorial) return; 
-
-  // Si la hoja de eliminados está vacía, copiamos encabezados
+  if (!sheetHistorial) return;
+  
   if (sheetHistEliminados.getLastRow() === 0) {
     var headersHist = sheetHistorial.getRange(1, 1, 1, sheetHistorial.getLastColumn()).getValues()[0].slice();
     headersHist.push("Origen");
@@ -852,17 +874,22 @@ function mudarHistorialEliminado(ss, idProyecto, origen) {
   }
   
   var dataHist = sheetHistorial.getDataRange().getValues();
+  var filasAEliminar = [];
   
   // Recorremos de atrás hacia adelante
   for (var i = dataHist.length - 1; i >= 1; i--) { 
     var histId = dataHist[i][0] ? dataHist[i][0].toString() : "";
     
-    // Comparamos por ID (es mucho más seguro que por nombre/fecha en la bitácora)
     if (histId === idProyecto) {
       var filaHist = dataHist[i].slice();
-      filaHist.push(origen); // Guardamos de dónde vino por si hay que restaurar
+      filaHist.push(origen); // Guardamos de dónde vino
       sheetHistEliminados.appendRow(filaHist);
-      sheetHistorial.deleteRow(i + 1);
+      filasAEliminar.push(i + 1); // Anotamos qué fila borrar
     }
+  }
+
+  // Borramos las filas de la hoja original de forma segura
+  for (var k = 0; k < filasAEliminar.length; k++) {
+    sheetHistorial.deleteRow(filasAEliminar[k]);
   }
 }

@@ -2,53 +2,49 @@
 // BACKEND: GESTIÓN DE PAPELERA DE PROYECTOS (Solo Admins)
 // =====================================================================
 
-/**
- * Obtiene todos los proyectos que se encuentran en BD_Proyectos_Eliminados.
- */
 function obtenerProyectosEliminados() {
   try {
-    var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID); // Utiliza tu ID de configuración
+    var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheet = ss.getSheetByName("BD_Proyectos_Eliminados");
-    
     if (!sheet) {
       return { success: false, error: "No se encontró la pestaña 'BD_Proyectos_Eliminados'." };
     }
 
     var data = sheet.getDataRange().getValues();
-    var eliminados = [];
+    if (data.length <= 1) return { success: true, datos: [] }; // Está vacía
 
-    // Iteramos desde la fila 1 (saltando los encabezados)
+    var headers = data[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+    var idxFecha = headers.indexOf("fecha");
+    var idxDepto = headers.indexOf("departamento");
+    var idxCentro = headers.indexOf("centro");
+    var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
+    var idxOrigen = headers.indexOf("origen");
+    
+    // Identificamos las columnas finales (si no existen con ese nombre exacto, asumimos las últimas)
+    var idxFechaElim = headers.indexOf("fecha eliminacion") !== -1 ? headers.indexOf("fecha eliminacion") : (data[0].length - 2); 
+    var idxElimPor = headers.indexOf("eliminado por") !== -1 ? headers.indexOf("eliminado por") : (data[0].length - 1);
+    
+    var eliminados = [];
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
+      if (idxNombre === -1 || !row[idxNombre]) continue; // Fila vacía
       
-      // Verificación básica para no procesar filas vacías
-      if (!row[3]) continue; 
-
-      var fechaP = (row[0] instanceof Date) ? row[0].toISOString() : row[0].toString();
-      var fechaElim = (row[19] instanceof Date) ? row[19].toISOString().split('T')[0] : row[19].toString();
-
-      // Convertimos el JSON de equipo (Col H - índice 7) si existe
-      var equipoData = [];
-      try {
-        if (row[7]) equipoData = JSON.parse(row[7]);
-      } catch (e) {
-        equipoData = [];
-      }
+      var fechaP = (idxFecha !== -1 && row[idxFecha] instanceof Date) ? row[idxFecha].toISOString() : (row[idxFecha] || "");
+      var fechaElim = (row[idxFechaElim] instanceof Date) ? row[idxFechaElim].toISOString().split('T')[0] : (row[idxFechaElim] || "");
+      
+      var fOrigen = idxOrigen !== -1 && row[idxOrigen] ? row[idxOrigen].toString() : "En Curso";
+      var fDepto = idxDepto !== -1 && row[idxDepto] ? row[idxDepto].toString() : "";
+      var fCentro = idxCentro !== -1 && row[idxCentro] ? row[idxCentro].toString() : "";
+      var fElimPor = idxElimPor !== -1 && row[idxElimPor] ? row[idxElimPor].toString() : "";
 
       eliminados.push({
-        fecha: fechaP,                                // A: 0
-        departamento: row[1] ? row[1].toString() : "",// B: 1
-        centro: row[2] ? row[2].toString() : "",      // C: 2
-        nombre: row[3] ? row[3].toString() : "",      // D: 3
-        descripcion: row[4] ? row[4].toString() : "", // E: 4
-        tipoObra: row[5] ? row[5].toString() : "",    // F: 5
-        estado: row[6] ? row[6].toString() : "",      // G: 6
-        equipo: equipoData,                           // H: 7
-        creador: row[8] ? row[8].toString() : "",     // I: 8
-        // Nuevas columnas de la papelera:
-        origen: row[18] ? row[18].toString() : "En Curso", // S: 18
-        fechaEliminacion: fechaElim,                       // T: 19
-        eliminadoPor: row[20] ? row[20].toString() : ""    // U: 20
+        fecha: fechaP,
+        departamento: fDepto,
+        centro: fCentro,
+        nombre: row[idxNombre].toString(),  
+        origen: fOrigen,
+        fechaEliminacion: fechaElim,
+        eliminadoPor: fElimPor
       });
     }
 
@@ -58,31 +54,34 @@ function obtenerProyectosEliminados() {
   }
 }
 
-/**
- * Restaura un proyecto desde la Papelera hacia su hoja de Origen ("En Curso" o "Archivado")
- * y también restaura su bitácora.
- */
 function restaurarProyectoBackend(nombre, fecha) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheetEliminados = ss.getSheetByName("BD_Proyectos_Eliminados");
-    
     if (!sheetEliminados) return { success: false, error: "No existe la pestaña BD_Proyectos_Eliminados." };
 
     var dataEliminados = sheetEliminados.getDataRange().getValues();
+    var headers = dataEliminados[0].map(function(h) { return h.toString().toLowerCase().trim(); });
+    var idxFecha = headers.indexOf("fecha");
+    var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
+    var idxOrigen = headers.indexOf("origen");
+    var idxId = headers.indexOf("id proyecto");
+
     var filaEncontrada = -1;
     var rowData = null;
     var origenDestino = "";
+    var idProyecto = "";
 
-    // 1. Encontrar el proyecto en la Papelera
+    // Buscar en papelera asegurando lectura dinámica
     for (var i = 1; i < dataEliminados.length; i++) {
-      var rowFecha = (dataEliminados[i][0] instanceof Date) ? dataEliminados[i][0].toISOString() : dataEliminados[i][0].toString();
-      var rowNombre = dataEliminados[i][3] ? dataEliminados[i][3].toString() : "";
+      var rowFecha = (idxFecha !== -1 && dataEliminados[i][idxFecha] instanceof Date) ? dataEliminados[i][idxFecha].toISOString() : (dataEliminados[i][idxFecha] || "").toString();
+      var rowNombre = (idxNombre !== -1 && dataEliminados[i][idxNombre]) ? dataEliminados[i][idxNombre].toString() : "";
       
       if (rowNombre === nombre && rowFecha === fecha) {
         filaEncontrada = i + 1;
         rowData = dataEliminados[i];
-        origenDestino = dataEliminados[i][18] ? dataEliminados[i][18].toString() : "En Curso"; // Columna S
+        origenDestino = idxOrigen !== -1 && dataEliminados[i][idxOrigen] ? dataEliminados[i][idxOrigen].toString() : "En Curso";
+        idProyecto = idxId !== -1 && dataEliminados[i][idxId] ? dataEliminados[i][idxId].toString() : "";
         break;
       }
     }
@@ -91,28 +90,21 @@ function restaurarProyectoBackend(nombre, fecha) {
       return { success: false, error: "No se encontró el proyecto en la papelera." };
     }
 
-    // 2. Determinar a qué pestaña debe volver
     var nombrePestañaDestino = (origenDestino === "Archivado") ? "BD_Proyectos_Archivados" : "BD_Proyectos";
     var sheetDestino = ss.getSheetByName(nombrePestañaDestino);
-    
-    if (!sheetDestino) {
-      // Fallback: si por algo no existe la de archivados, lo mandamos a En Curso
-      sheetDestino = ss.getSheetByName("BD_Proyectos");
-    }
+    if (!sheetDestino) sheetDestino = ss.getSheetByName("BD_Proyectos");
 
-    // 3. Quitar las últimas 3 columnas (Origen, Fecha Elim, Usuario) para dejarlo en su estado original
+    // Quitar las últimas 3 columnas (Origen, Fecha Elim, Usuario) para dejarlo limpio en su BD original
     var filaOriginalRestaurada = rowData.slice(0, rowData.length - 3);
-
-    // 4. Escribir en la pestaña original
+    
     sheetDestino.appendRow(filaOriginalRestaurada);
-
-    // 5. Eliminar de la papelera
     sheetEliminados.deleteRow(filaEncontrada);
 
-    // 6. Restaurar el historial (Bitácora) si existe
-    restaurarHistorialEliminado(ss, nombre, fecha);
+    // Restaurar historial usando el ID exacto
+    if (idProyecto) {
+       restaurarHistorialEliminado(ss, idProyecto, origenDestino);
+    }
 
-    // 7. Limpiar Caché para forzar la recarga
     var cache = CacheService.getScriptCache();
     cache.remove("cache_lista_proy_chunks");
     cache.remove("cache_lista_arch_chunks");
@@ -123,29 +115,27 @@ function restaurarProyectoBackend(nombre, fecha) {
   }
 }
 
-// Función auxiliar para restaurar la bitácora
-function restaurarHistorialEliminado(ss, nombre, fecha) {
-  var sheetHistorial = ss.getSheetByName("BD_Historial");
+function restaurarHistorialEliminado(ss, idProyecto, origenDestino) {
+  var nombrePestañaDestino = (origenDestino === "Archivado") ? "BD_Historial_Archivados" : "BD_Historial";
+  var sheetHistorial = ss.getSheetByName(nombrePestañaDestino);
   var sheetHistEliminados = ss.getSheetByName("BD_Historial_Eliminados");
   
   if (!sheetHistorial || !sheetHistEliminados) return;
   
   var dataHistElim = sheetHistEliminados.getDataRange().getValues();
   var filasAEliminar = [];
-
+  
+  // Recorremos de atrás hacia adelante para no alterar índices al borrar luego
   for (var i = dataHistElim.length - 1; i >= 1; i--) {
-    var histNom = dataHistElim[i][0] ? dataHistElim[i][0].toString() : "";
-    var histFec = (dataHistElim[i][1] instanceof Date) ? dataHistElim[i][1].toISOString() : dataHistElim[i][1].toString();
-    
-    if (histNom === nombre && histFec === fecha) {
-      // Quitamos la última columna (origen) que le habíamos agregado al borrarlo
+    var histId = dataHistElim[i][0] ? dataHistElim[i][0].toString() : "";
+    if (histId === idProyecto) {
+      // Quitamos la última columna que era "Origen" agregada al eliminar
       var filaRestaurada = dataHistElim[i].slice(0, dataHistElim[i].length - 1);
       sheetHistorial.appendRow(filaRestaurada);
       filasAEliminar.push(i + 1);
     }
   }
 
-  // Borramos de la papelera de historial
   for (var k = 0; k < filasAEliminar.length; k++) {
     sheetHistEliminados.deleteRow(filasAEliminar[k]);
   }
