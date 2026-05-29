@@ -258,14 +258,24 @@
   }
 
   function cargarUsuariosAdmin() {
+    var loadingDiv = document.getElementById('loading-admin');
+    var contenidoDiv = document.getElementById('contenido-admin');
     var tbody = document.getElementById('tabla-body-admin');
-    if(!tbody) return;
     
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px; color: #1c4587;">sync</span><br><br>Cargando usuarios...</td></tr>';
+    // Mostramos la pantalla vacía de cargando y ocultamos la tabla de contenido
+    if(loadingDiv) loadingDiv.style.display = 'block';
+    if(contenidoDiv) contenidoDiv.style.display = 'none';
 
     google.script.run
       .withSuccessHandler(function(usuarios) {
-        if(usuarios.error) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding: 20px;">Error: ' + usuarios.error + '</td></tr>'; return; }
+        // Al terminar, quitamos el cargando y mostramos la tabla
+        if(loadingDiv) loadingDiv.style.display = 'none';
+        if(contenidoDiv) contenidoDiv.style.display = 'block';
+        
+        if(usuarios.error) { 
+          if(tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red; padding: 20px;">Error: ' + usuarios.error + '</td></tr>'; 
+          return; 
+        }
         renderizarTablaAdmin(usuarios);
       })
       .obtenerListaUsuariosAdmin();
