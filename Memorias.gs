@@ -10,16 +10,18 @@ function guardarBorradorEnDrive(usuarioEmail, disciplina, nombreBorrador, hashes
     sheet.appendRow([usuarioEmail, disciplina, nombreBorrador, JSON.stringify(hashes), new Date()]);
     
     var cache = CacheService.getScriptCache();
-    cache.remove('borradores_v1_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
+    cache.remove('borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
     
     return true;
-  } catch (e) { return false; }
+  } catch (e) { 
+    return false;
+  }
 }
 
 function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
   try {
     var cache = CacheService.getScriptCache();
-    var cacheKey = 'borradores_v1_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString();
+    var cacheKey = 'borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString();
     
     if (!forzarRecarga) {
       var cachedData = cache.get(cacheKey);
@@ -29,6 +31,7 @@ function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
     var ss = SpreadsheetApp.openById(BORRADORES_SHEET_ID);
     var data = ss.getSheets()[0].getDataRange().getValues();
     var misBorradores = {};
+    
     for (var i = 1; i < data.length; i++) { 
       if (data[i][0].toString().toLowerCase() === usuarioEmail.toString().toLowerCase() && data[i][1].toString() === disciplina.toString()) {
         misBorradores[data[i][2]] = {
@@ -40,7 +43,9 @@ function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
     
     cache.put(cacheKey, JSON.stringify(misBorradores), 21600); // 6 horas
     return misBorradores;
-  } catch (e) { return {}; }
+  } catch (e) { 
+    return {};
+  }
 }
 
 function eliminarBorradorEnDrive(usuarioEmail, disciplina, nombreBorrador) {
@@ -57,10 +62,12 @@ function eliminarBorradorEnDrive(usuarioEmail, disciplina, nombreBorrador) {
     }
     
     var cache = CacheService.getScriptCache();
-    cache.remove('borradores_v1_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
+    cache.remove('borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
     
     return true;
-  } catch (e) { return false; }
+  } catch (e) { 
+    return false;
+  }
 }
 
 function eliminarTodosBorradoresEnDrive(usuarioEmail, disciplina) {
@@ -82,17 +89,18 @@ function eliminarTodosBorradoresEnDrive(usuarioEmail, disciplina) {
     }
     
     var cache = CacheService.getScriptCache();
-    cache.remove('borradores_v1_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
-    
+    cache.remove('borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
     return true;
-  } catch (e) { return false; }
+  } catch (e) { 
+    return false; 
+  }
 }
 
 // --- GENERADOR DE MEMORIAS ---
 function obtenerDisciplinas(forzarRecarga) {
   try {
     var cache = CacheService.getScriptCache();
-    var cacheKey = 'listaDisciplinas_v1';
+    var cacheKey = 'listaDisciplinas_v2'; // Cache-Bust para limpiar errores antiguos
     
     if (!forzarRecarga) {
       var cachedData = cache.get(cacheKey);
@@ -100,19 +108,23 @@ function obtenerDisciplinas(forzarRecarga) {
     }
 
     var ss = SpreadsheetApp.openById(RUBROS_SHEET_ID);
-    var disciplinas = ss.getSheets().map(s => s.getName());
+    var hojas = ss.getSheets();
+    var disciplinas = [];
+    for (var i = 0; i < hojas.length; i++) {
+      disciplinas.push(hojas[i].getName());
+    }
     
     cache.put(cacheKey, JSON.stringify(disciplinas), 21600);
     return disciplinas;
   } catch (e) {
-    return ["⚠️ Error: Verifica el ID de la base de datos"];
+    return ["⚠️ Error acceso Excel: " + e.message];
   }
 }
 
 function obtenerRubros(nombreHoja, forzarRecarga) {
   try {
     var cache = CacheService.getScriptCache();
-    var cacheKey = 'rubros_v1_' + nombreHoja.toString();
+    var cacheKey = 'rubros_v2_' + nombreHoja.toString();
     
     if (!forzarRecarga) {
       var cachedData = cache.get(cacheKey);
@@ -120,9 +132,12 @@ function obtenerRubros(nombreHoja, forzarRecarga) {
     }
 
     var ss = SpreadsheetApp.openById(RUBROS_SHEET_ID);
-    var data = ss.getSheetByName(nombreHoja).getDataRange().getValues();
-    var rubros = [];
+    var sheet = ss.getSheetByName(nombreHoja);
     
+    if (!sheet) return []; // Si no existe la hoja
+    
+    var data = sheet.getDataRange().getValues();
+    var rubros = [];
     for (var i = 1; i < data.length; i++) {
       if (data[i][1] || data[i][2] || data[i][3] || data[i][4]) {
         rubros.push({ 
@@ -142,7 +157,6 @@ function obtenerRubros(nombreHoja, forzarRecarga) {
     } catch (errorCache) {}
     
     return rubros;
-    
   } catch (e) {
     return [];
   }
@@ -159,9 +173,8 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
   var body = doc.getBody();
   
   body.replaceText('\\(\\*\\*colocar disciplina\\*\\*\\)', datosFormulario.disciplina.toUpperCase());
-  
   var tag = body.findText('{{MEMORIA}}');
-  if (!tag) return { error: 'No se encontró {{MEMORIA}}' };
+  if (!tag) return { error: 'No se encontró {{MEMORIA}} en la plantilla' };
   
   var tagElement = tag.getElement().getParent();
   var insertIndex = body.getChildIndex(tagElement);
@@ -206,7 +219,7 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
     espacio.setHeading(DocumentApp.ParagraphHeading.NORMAL)
            .setLineSpacing(1).setSpacingBefore(0).setSpacingAfter(0);
   });
-
+  
   if (indice.length > 0) {
     body.insertPageBreak(insertIndex++);
     var tI = body.insertParagraph(insertIndex++, 'ÍNDICE');

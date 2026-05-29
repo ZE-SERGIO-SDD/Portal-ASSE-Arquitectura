@@ -168,33 +168,55 @@
   function l(n) { 
     var s = document.getElementById('disc'); 
     s.innerHTML = '<option value="">Seleccione Disciplina...</option>'; 
-    n.forEach(x => {
-      s.innerHTML += '<option value="'+x+'">'+x+'</option>';
-    }); 
+    if(n && Array.isArray(n)) {
+      n.forEach(x => {
+        s.innerHTML += '<option value="'+x+'">'+x+'</option>';
+      }); 
+    } else {
+      s.innerHTML += '<option value="">No se encontraron datos</option>';
+    }
   }
   
   function recargarPortal(forzar = false) { 
-    google.script.run.withSuccessHandler(l).obtenerDisciplinas(forzar); 
+    var sel = document.getElementById('disc');
+    sel.innerHTML = '<option value="">Cargando base de datos...</option>';
+    google.script.run
+      .withSuccessHandler(l)
+      .withFailureHandler(function(e) {
+          sel.innerHTML = '<option value="">⚠️ Error del sistema (Ver consola)</option>';
+          console.error("Error cargando disciplinas:", e);
+      })
+      .obtenerDisciplinas(forzar); 
   }
   
   function recargarGenerador() { 
     var btn = document.getElementById('btn-recargar-memorias');
+    var sel = document.getElementById('disc');
+    
     if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
-
-    var d = document.getElementById('disc').value; 
-    google.script.run.withSuccessHandler(function(n) {
-      l(n);
-      if (d) {
-        document.getElementById('disc').value = d;
-        cargar(true); 
-      }
-      setTimeout(() => { if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>'; }, 1000);
-    }).obtenerDisciplinas(true); 
+    sel.innerHTML = '<option value="">Sincronizando con Drive...</option>';
+    
+    var d = sel.value; 
+    google.script.run
+      .withSuccessHandler(function(n) {
+        l(n);
+        if (d && n.includes(d)) {
+          sel.value = d;
+          cargar(true); 
+        }
+        setTimeout(() => { if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>'; }, 1000);
+      })
+      .withFailureHandler(function(err) {
+        sel.innerHTML = '<option value="">⚠️ Error: ' + err.message + '</option>';
+        if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>';
+        alert("Fallo de sincronización: " + err.message);
+      })
+      .obtenerDisciplinas(true); 
   }
   
   function cargar(forzar = false) { 
     var d = document.getElementById('disc').value; 
-    if(!d) return; 
+    if(!d || d.includes("Error")) return; 
     
     let msg = forzar 
         ? '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Actualizando desde Drive...' 
@@ -204,6 +226,9 @@
     
     google.script.run
       .withSuccessHandler(mR)
+      .withFailureHandler(function(err) {
+         document.getElementById('rubros-container').innerHTML = `<p style="color:#d32f2f; text-align:center; padding: 20px;"><span class="material-symbols-outlined" style="vertical-align: middle;">error</span> Error al leer los rubros: ${err.message}</p>`;
+      })
       .obtenerRubros(d, forzar); 
   }
   
@@ -213,6 +238,11 @@
     c.innerHTML = ''; 
     document.getElementById('ctrls').style.display = 'flex'; 
     
+    if(!r || r.length === 0) {
+      c.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">Hoja vacía o sin permisos de lectura.</p>';
+      return;
+    }
+
     let bA = "", u1 = null, u2 = null;
     let titulosBloque = {};
     
@@ -357,8 +387,8 @@
 
   function abrirVistaPreviaMemoria() {
     var d = document.getElementById('disc').value; 
-    if(!d) { 
-      alert('Seleccione una disciplina primero.'); 
+    if(!d || d.includes("Error")) { 
+      alert('Seleccione una disciplina válida primero.'); 
       return; 
     }
     
@@ -444,10 +474,8 @@
         var nombre = document.getElementById('input-nombre-borrador').value.trim();
         if(!nombre) { alert("Debe ingresar un nombre para guardar."); return; }
         
-        // Cierra el modal de guardado
         modal.style.display = 'none';
 
-        // Muestra la evolución en el botón de confirmación de la vista previa
         btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">cloud_upload</span> 1/3 Guardando en la nube...';
         btnGenerar.style.backgroundColor = '#f29900';
         ejecutarGuardadoSilencioso(nombre, function() {
@@ -483,8 +511,8 @@
 
     google.script.run
       .withSuccessHandler(() => { callbackExitosa(); })
-      .withFailureHandler(() => {
-        alert("Atención: Hubo un error guardando el borrador, pero el documento se generará de todas formas.");
+      .withFailureHandler((err) => {
+        alert("Atención: Hubo un error guardando el borrador ("+err.message+"), pero el documento se generará de todas formas.");
         callbackExitosa();
       })
       .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
@@ -561,6 +589,10 @@
                 btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR'; 
             }, 2000);
           })
+          .withFailureHandler((err) => {
+            alert("No se pudo guardar el borrador: " + err.message);
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR';
+          })
           .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
     };
 
@@ -618,6 +650,9 @@
           </div>`;
         });
         window.cacheBorradores = db;
+      })
+      .withFailureHandler(err => {
+         lista.innerHTML = `<p style="color:red; text-align:center; padding: 20px;">Error leyendo borradores: ${err.message}</p>`;
       })
       .obtenerBorradoresDeDrive(usuarioActivoEmail, d, forzar);
   }
@@ -689,6 +724,10 @@
         .withSuccessHandler(() => {
           abrirModalBorradores(true); 
         })
+        .withFailureHandler((err) => {
+          alert('Error al eliminar: ' + err.message);
+          abrirModalBorradores(true);
+        })
         .eliminarBorradorEnDrive(usuarioActivoEmail, d, n);
     };
     
@@ -698,4 +737,15 @@
   function cerrarModalBorradores() { 
     document.getElementById('modal-borradores').style.display = 'none'; 
   }
+
+  // --- INICIALIZACIÓN AUTOMÁTICA ---
+  // Obliga a la aplicación a buscar las disciplinas apenas se carga este módulo
+  setTimeout(function() {
+    var selectDisciplinas = document.getElementById('disc');
+    // Solo recarga si el select está vacío (evita recargas dobles si ya se había cargado)
+    if (selectDisciplinas && selectDisciplinas.options.length <= 1) {
+      recargarPortal();
+    }
+  }, 150);
+
 </script>
