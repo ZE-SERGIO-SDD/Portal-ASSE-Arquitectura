@@ -8,7 +8,7 @@
   </head>
   <body>
 
-    <div id="pantalla-inicio">
+    <div id="pantalla-inicio" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; width: 100%;">
       <div class="caja-inicio">
         <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse">
         <div class="titulo-azul">Portal de Arquitectura</div>
@@ -27,19 +27,19 @@
         <button class="btn-azul" id="btn-login" onclick="iniciarSesion()">INGRESAR AL PORTAL</button>
         
         <div class="links-login" style="position: relative; z-index: 10; pointer-events: auto;">
-          <a href="javascript:void(0);" onclick="recuperarPasswordGlobal()" style="cursor: pointer;">Olvidé mi contraseña</a>
+          <a href="javascript:void(0);" onclick="mostrarPantallaLocal('pantalla-recuperar')" style="cursor: pointer;">Olvidé mi contraseña</a>
           <a href="javascript:void(0);" onclick="ir('registro')" style="cursor: pointer;">Crear cuenta nueva</a>
         </div>
 
         <div class="footer" style="position: relative; z-index: 10; pointer-events: auto;">
-          <button class="btn-info-app" onclick="mostrarInfoAppGlobal()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+          <button class="btn-info-app" onclick="mostrarPantallaLocal('pantalla-info-app')" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
             <span class="material-symbols-outlined" style="font-size: 16px;">info</span> Información de la aplicación
           </button>
         </div>
       </div>
     </div>
 
-    <div id="pantalla-registro">
+    <div id="pantalla-registro" style="display: none; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; width: 100%;">
       <div class="caja-inicio">
         <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse" style="max-width: 150px; margin-bottom: 15px;">
         <div class="titulo-azul" style="font-size: 20px;">Registro de Usuario</div>
@@ -75,7 +75,50 @@
       </div>
     </div>
 
-    <div id="pantalla-portal">
+    <div id="pantalla-recuperar" style="display: none; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; width: 100%;">
+      <div class="caja-inicio">
+        <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse" style="max-width: 150px; margin-bottom: 15px;">
+        <div class="titulo-azul" style="font-size: 20px;">Recuperar Contraseña</div>
+        <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Ingrese su correo institucional. Si se encuentra en nuestra base, recibirá instrucciones para restablecer su acceso.</p>
+        
+        <div id="recup-mensaje" style="display: none; background-color: #e6f4ea; border: 1px solid #ceead6; color: #137333; padding: 12px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; text-align: left; align-items: center; gap: 8px; line-height: 1.4;">
+          <span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">check_circle</span>
+          <span>Instrucciones enviadas exitosamente. Por favor, revise la bandeja de entrada de su correo electrónico.</span>
+        </div>
+
+        <div style="text-align: left; width: 100%;">
+          <label style="font-size: 13px; color: #444; font-weight: 700; margin-bottom: 5px; display: block;">Correo institucional</label>
+          <input type="email" id="recup-email" placeholder="ejemplo@asse.com.uy">
+        </div>
+        
+        <button class="btn-azul" id="btn-enviar-recup" onclick="enviarRecuperacionLocal()" style="margin-top: 10px;">ENVIAR INSTRUCCIONES</button>
+        
+        <button onclick="volverInicioDesdeLocal()" style="background:none; border:none; color:#666; margin-top:20px; font-size:13px; text-decoration:underline; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> Volver al Inicio
+        </button>
+      </div>
+    </div>
+
+    <div id="pantalla-info-app" style="display: none; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; width: 100%;">
+      <div class="caja-inicio">
+        <img src="https://drive.google.com/thumbnail?id=1G3xhiFU7R1qrV0EFEbplHXPUZNUgKsjM&sz=w800" class="logo-asse" style="max-width: 150px; margin-bottom: 15px;">
+        <div class="titulo-azul" style="font-size: 20px;">Información del Portal</div>
+        
+        <div style="text-align: left; width: 100%; background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #d1d9e0; margin-bottom: 20px; margin-top: 10px;">
+          <p style="font-size: 13px; color: #444; margin-top: 0; line-height: 1.6;">
+            <strong>Portal de Arquitectura e Infraestructura ASSE</strong><br><br>
+            Plataforma diseñada para la gestión integral de proyectos, documentación técnica, estandarización de procesos y seguimiento de obras de la división de Arquitectura.<br><br>
+            <span style="display: flex; align-items: center; gap: 6px; margin-top: 8px;"><span class="material-symbols-outlined" style="font-size: 16px; color: #1c4587;">person</span> <strong>Creado por:</strong> Arq. Sergio Dogliotti</span>
+          </p>
+        </div>
+        
+        <button onclick="volverInicioDesdeLocal()" style="background:none; border:none; color:#666; font-size:13px; text-decoration:underline; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> Volver al Inicio
+        </button>
+      </div>
+    </div>
+
+    <div id="pantalla-portal" style="display: none;">
       <div class="container" style="text-align: left;">
         <button class="btn-recargar" id="btn-recargar-portal" onclick="recargarPortal(true)" style="display: flex; align-items: center; justify-content: center; box-shadow: none;">
           <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
@@ -155,7 +198,7 @@
       </div>
     </div>
 
-    <div id="pantalla-perfil">
+    <div id="pantalla-perfil" style="display: none;">
       <div class="caja-inicio">
         <button class="btn-volver" onclick="ir('portal')" style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 4px;">
           <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER
@@ -178,7 +221,7 @@
       </div>
     </div>
 
-    <div id="pantalla-admin">
+    <div id="pantalla-admin" style="display: none;">
       <div class="caja-inicio" style="max-width: 1200px; width: 100%;">
         <button class="btn-volver" onclick="ir('portal')" style="position: absolute; top: 20px; left: 20px; display: flex; align-items: center; gap: 4px;">
           <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER
@@ -215,7 +258,6 @@
     </div>
 
     <?!= include('Vista_Unidades'); ?>
-
     <?!= include('Vista_Documentos'); ?>
     <?!= include('Vista_Plantillas'); ?>
     <?!= include('Vista_Memorias'); ?>
@@ -226,7 +268,7 @@
     <?!= include('Vista_Proyectos_Archivados'); ?>
     <?!= include('Vista_Proyectos_Eliminados'); ?>
 
-    <div id="pantalla-exito">
+    <div id="pantalla-exito" style="display: none;">
       <div class="caja-exito">
         <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
           <span class="material-symbols-outlined" style="font-size: 35px;">check_circle</span> ¡Documento Generado!
@@ -252,5 +294,51 @@
     <?!= include('Logica_Global'); ?>
     <?!= include('Vista_Asistente'); ?>
 
+    <script>
+      function mostrarPantallaLocal(idPantalla) {
+        // Ocultar todas las pantallas relacionadas al entorno de inicio
+        var pantallas = ['pantalla-inicio', 'pantalla-registro', 'pantalla-recuperar', 'pantalla-info-app'];
+        pantallas.forEach(function(p) {
+          var el = document.getElementById(p);
+          if (el) el.style.display = 'none';
+        });
+
+        // Limpiar el estado de la pantalla de recuperación si se navega a ella
+        if(idPantalla === 'pantalla-recuperar') {
+          document.getElementById('recup-email').value = '';
+          document.getElementById('recup-mensaje').style.display = 'none';
+          document.getElementById('btn-enviar-recup').disabled = false;
+          document.getElementById('btn-enviar-recup').innerHTML = 'ENVIAR INSTRUCCIONES';
+        }
+
+        // Mostrar la pantalla usando 'flex' para garantizar el centrado automático vertical y horizontal
+        var pantallaDestino = document.getElementById(idPantalla);
+        if (pantallaDestino) {
+          pantallaDestino.style.display = 'flex'; 
+        }
+      }
+
+      function volverInicioDesdeLocal() {
+        mostrarPantallaLocal('pantalla-inicio');
+      }
+
+      function enviarRecuperacionLocal() {
+        var emailInput = document.getElementById('recup-email').value.trim();
+        if (!emailInput) {
+          alert("Por favor, introduzca un correo institucional válido.");
+          return;
+        }
+
+        var btn = document.getElementById('btn-enviar-recup');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:16px; vertical-align:middle; margin-right:5px;">sync</span> ENVIANDO...';
+
+        // Simulación de envío fluido
+        setTimeout(function() {
+          document.getElementById('recup-mensaje').style.display = 'flex';
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:5px;">check</span> ENVIADO';
+        }, 1500);
+      }
+    </script>
   </body>
 </html>
