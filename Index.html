@@ -27,12 +27,12 @@
         <button class="btn-azul" id="btn-login" onclick="iniciarSesion()">INGRESAR AL PORTAL</button>
         
         <div class="links-login" style="position: relative; z-index: 10; pointer-events: auto;">
-          <a href="javascript:void(0);" onclick="abrirModalRecuperar()" style="cursor: pointer;">Olvidé mi contraseña</a>
+          <a href="javascript:void(0);" onclick="recuperarPasswordGlobal()" style="cursor: pointer;">Olvidé mi contraseña</a>
           <a href="javascript:void(0);" onclick="ir('registro')" style="cursor: pointer;">Crear cuenta nueva</a>
         </div>
 
         <div class="footer" style="position: relative; z-index: 10; pointer-events: auto;">
-          <button class="btn-info-app" onclick="abrirModalInfoApp()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
+          <button class="btn-info-app" onclick="mostrarInfoAppGlobal()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
             <span class="material-symbols-outlined" style="font-size: 16px;">info</span> Información de la aplicación
           </button>
         </div>
@@ -226,19 +226,6 @@
     <?!= include('Vista_Proyectos_Archivados'); ?>
     <?!= include('Vista_Proyectos_Eliminados'); ?>
 
-    <div id="modal-preview-doc" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center;">
-      <div class="modal-content" style="width: 800px; max-width: 95%;">
-        <div class="titulo-azul" id="titulo-preview-doc" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-          <span class="material-symbols-outlined">visibility</span> Vista Previa
-        </div>
-        <div id="contenido-preview-doc" style="max-height: 500px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px;"></div>
-        <div style="display: flex; gap: 15px;">
-          <button onclick="cerrarVistaPreviaDoc()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%; cursor: pointer;">VOLVER A EDITAR</button>
-          <button class="btn-azul" id="btn-confirmar-preview-doc" style="margin-top: 0; width: 50%;">CONFIRMAR Y GENERAR</button>
-        </div>
-      </div>
-    </div>
-
     <div id="pantalla-exito">
       <div class="caja-exito">
         <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
@@ -259,43 +246,6 @@
         <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
           <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
         </button>
-      </div>
-    </div>
-
-    <div id="modal-info-app" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center;">
-      <div class="modal-content" style="width: 500px; max-width: 95%;">
-        <div class="titulo-azul" style="font-size: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-          <span class="material-symbols-outlined">info</span> Información de la Aplicación
-        </div>
-        
-        <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-          <div class="info-seccion">
-            <div class="info-seccion-titulo">Autor y Versión</div>
-            <p class="info-seccion-texto">Desarrollado por: <strong>Arq. Sergio Dogliotti</strong><br>Última actualización: <?!= obtenerFechaActualizacion(); ?></p>
-          </div>
-          <div class="info-seccion">
-            <div class="info-seccion-titulo">Propósito</div>
-            <p class="info-seccion-texto">Plataforma diseñada para la estandarización, gestión centralizada y agilización en la generación de documentos oficiales de arquitectura.</p>
-          </div>
-          <div class="info-seccion">
-            <div class="info-seccion-titulo">Privacidad y Datos</div>
-            <p class="info-seccion-texto">El sistema registra la actividad de generación de documentos vinculada a cada usuario con el fin de proporcionar el historial personal en la sección "Mis Archivos (Historial)".</p>
-          </div>
-        </div>
-
-        <button onclick="cerrarModalInfoApp()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:10px 15px; width:100%; margin-top: 20px; cursor:pointer;">CERRAR</button>
-      </div>
-    </div>
-
-    <div id="modal-recuperar" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center;">
-      <div class="modal-content" style="width: 400px; text-align: center;">
-        <div class="titulo-azul" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span class="material-symbols-outlined">lock_reset</span> Recuperar Acceso
-        </div>
-        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Ingrese su correo institucional registrado.</p>
-        <input type="email" id="rec-email" placeholder="Correo electrónico institucional">
-        <button class="btn-azul" id="btn-enviar-clave" onclick="enviarClave()" style="margin-top: 10px;">ENVIAR CONTRASEÑA</button>
-        <button onclick="cerrarModalRecuperar()" style="background:none; border:none; color:#666; margin-top:15px; font-size:13px; text-decoration:underline; cursor: pointer;">Cancelar</button>
       </div>
     </div>
 

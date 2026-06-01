@@ -15,28 +15,17 @@
   var MAX_INTENTOS = 3;
   var docActivoParaGenerar = null;
 
-  // CORRECCIÓN DEFENSIVA: Usamos addEventListener para evitar que otros archivos
-  // sobrescriban el window.onload principal del sistema.
   window.addEventListener('load', function() {
     // 1. Asegurar un arranque limpio y ocultar capas residuales
     ir('inicio'); 
     
-    // 2. Mover los modales al elemento raíz del body para rescatarlos de posibles <div> mal cerrados
-    var modalRecuperar = document.getElementById('modal-recuperar');
-    var modalInfo = document.getElementById('modal-info-app');
-    var modalPreview = document.getElementById('modal-preview-doc'); // <-- FIX: Rescate de Vista Previa
-
-    if (modalRecuperar) document.body.appendChild(modalRecuperar);
-    if (modalInfo) document.body.appendChild(modalInfo);
-    if (modalPreview) document.body.appendChild(modalPreview); // <-- FIX: Rescate de Vista Previa
-
-    // 3. Ocultar componentes flotantes al inicio
+    // 2. Ocultar componentes flotantes al inicio
     var btnAsistente = document.getElementById('btn-asistente');
     if (btnAsistente) btnAsistente.style.display = 'none';
     var ventanaChat = document.getElementById('ventana-chat');
     if (ventanaChat) ventanaChat.style.display = 'none';
 
-    // 4. Cargar servicios del servidor de forma asíncrona
+    // 3. Cargar servicios del servidor de forma asíncrona
     google.script.run.obtenerDisciplinas(); 
     cargarUsuariosLogin(); 
   });
@@ -146,10 +135,8 @@
           document.getElementById('reg-pass').value = '';
           document.getElementById('reg-pass2').value = '';
           
-          // FIX: Refrescar el Select para que aparezca el usuario recién creado en la base de datos
           cargarUsuariosLogin();
           
-          // Damos 1 segundo para que la base de datos devuelva la lista nueva antes de seleccionarlo visualmente
           setTimeout(function() {
             var selectElement = document.getElementById('login-email');
             if(selectElement) selectElement.value = email; 
@@ -205,25 +192,20 @@
   // CONTROL DE NAVEGACIÓN Y MENÚS GLOBALES
   // ==========================================================
   function ir(p) {
-    // FIX: Ocultar estrictamente las PANTALLAS (Evita borrar modales o código nativo oculto de Google)
     document.querySelectorAll('div[id^="pantalla-"]').forEach(d => {
       d.style.display = 'none';
     });
     
-    // 2. Buscar la pantalla objetivo
     var pantalla = document.getElementById('pantalla-'+p);
     
-    // 3. Mostrar pantalla segura
     if(pantalla) {
         pantalla.style.display = 'flex'; 
     } else {
         console.error("Atención: La pantalla solicitada no existe.");
-        // Si no está logueado, mandarlo al inicio por seguridad
         if (!usuarioActivoEmail) { ir('inicio'); } else { ir('portal'); }
         return; 
     }
     
-    // --- GESTIÓN DE PANTALLAS ---
     if(p === 'perfil') cargarPerfil();
     if(p === 'plantillas' && !arbolPlantillas) recargarPlantillas();
     if(p === 'documentos') recargarDocumentos();
@@ -269,34 +251,31 @@
   }
   
   // ==========================================================
-  // MANEJO DE MODALES (INMUNES A BLOQUEOS)
+  // ALERTAS NATIVAS E INFORMACIÓN (SIN MODALES HTML)
   // ==========================================================
-  function abrirModalRecuperar() { 
-      var m = document.getElementById('modal-recuperar');
-      if(m) {
-        m.style.display = 'flex'; 
-        m.style.zIndex = '9999999';
+  
+  function recuperarPasswordGlobal() { 
+      var email = prompt("Recuperación de cuenta\n\nPor favor, ingrese su correo electrónico institucional registrado:");
+      
+      if(email !== null) {
+          email = email.trim();
+          if(email !== "") {
+              alert("Solicitud procesada.\n\nSi el correo '" + email + "' está en nuestra base de datos, un administrador gestionará la recuperación o recibirá un correo con instrucciones.");
+              // Si tienes la función en el código .gs, puedes activarla así:
+              // google.script.run.enviarRecuperacionBackend(email);
+          } else {
+              alert("Operación cancelada: Debe ingresar un correo válido.");
+          }
       }
   }
-  function cerrarModalRecuperar() { 
-      var m = document.getElementById('modal-recuperar');
-      if(m) m.style.display = 'none'; 
-      var e = document.getElementById('rec-email');
-      if(e) e.value = ''; 
+
+  function mostrarInfoAppGlobal() {
+      alert("Portal ASSE Arquitectura\n\nPlataforma oficial de estandarización BIM, gestión documental y administración de proyectos de la división de Arquitectura.\n\nPara soporte técnico, contacte al administrador del sistema.");
   }
 
-  function abrirModalInfoApp() {
-      var m = document.getElementById('modal-info-app');
-      if(m) {
-        m.style.display = 'flex';
-        m.style.zIndex = '9999999';
-      }
-  }
-  function cerrarModalInfoApp() {
-      var m = document.getElementById('modal-info-app');
-      if(m) m.style.display = 'none';
-  }
-
+  // ==========================================================
+  // PANEL DE ADMINISTRADOR Y PERMISOS
+  // ==========================================================
   function cargarUsuariosAdmin() {
     var loadingDiv = document.getElementById('loading-admin');
     var contenidoDiv = document.getElementById('contenido-admin');
