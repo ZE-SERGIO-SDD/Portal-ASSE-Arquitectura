@@ -3,51 +3,141 @@
 <style>
   /* Diseño del botón flotante */
   #btn-asistente {
-    position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
-    background-color: #1c4587; color: white; border-radius: 50%;
-    display: none; /* <--- Nace oculto para usuarios no logueados */
-    justify-content: center; align-items: center;
-    cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 10000; transition: transform 0.2s; border: none;
+    position: fixed; 
+    bottom: 30px; 
+    right: 30px; 
+    width: 60px; 
+    height: 60px;
+    background-color: #1c4587; 
+    color: white; 
+    border-radius: 50%;
+    display: none; /* Nace oculto, se muestra al iniciar sesión */
+    justify-content: center; 
+    align-items: center;
+    cursor: pointer; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 10000; 
+    transition: transform 0.2s; 
+    border: none;
   }
-  #btn-asistente:hover { transform: scale(1.1); }
+  
+  #btn-asistente:hover { 
+    transform: scale(1.1); 
+  }
 
-  /* Ventana de Chat */
+  /* Ventana de Chat Flotante */
   #ventana-chat {
-    position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px;
-    background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-    display: none; flex-direction: column; z-index: 10000; border: 1px solid #d1d9e0;
-    overflow: hidden; font-family: Calibri, sans-serif;
+    position: fixed; 
+    bottom: 100px; 
+    right: 30px; 
+    width: 350px; 
+    height: 500px;
+    background: white; 
+    border-radius: 12px; 
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    display: none; 
+    flex-direction: column; 
+    z-index: 10000; 
+    border: 1px solid #d1d9e0;
+    overflow: hidden; 
+    font-family: 'Inter', sans-serif;
   }
   
   .chat-header {
-    background: #1c4587; color: white; padding: 15px; font-weight: bold;
-    display: flex; justify-content: space-between; align-items: center;
+    background: #1c4587; 
+    color: white; 
+    padding: 15px; 
+    font-weight: bold;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
   }
+  
   .chat-header button {
-    background: none; border: none; color: white; cursor: pointer; 
-    display: flex; justify-content: center; align-items: center; padding: 0;
+    background: none; 
+    border: none; 
+    color: white; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 0;
   }
-  .chat-header button:hover { opacity: 0.8; }
+  
+  .chat-header button:hover { 
+    opacity: 0.8; 
+  }
   
   .chat-body {
-    flex-grow: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;
-    display: flex; flex-direction: column; gap: 10px;
+    flex-grow: 1; 
+    padding: 15px; 
+    overflow-y: auto; 
+    background: #f8f9fa;
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px;
   }
   
   /* Burbujas de mensajes */
-  .msg-ia, .msg-user { padding: 10px 14px; border-radius: 8px; font-size: 14px; line-height: 1.4; max-width: 85%; }
-  .msg-ia { background: white; border: 1px solid #e0e0e0; align-self: flex-start; border-bottom-left-radius: 0; }
-  .msg-user { background: #e3f2fd; color: #0d47a1; align-self: flex-end; border-bottom-right-radius: 0; text-align: right; }
-  
-  .chat-footer { display: flex; border-top: 1px solid #d1d9e0; background: white; padding: 10px; align-items: center; }
-  .chat-footer input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; outline: none; font-family: inherit; font-size: 14px; }
-  .chat-footer button { 
-    background: #1c4587; color: white; border: none; border-radius: 50%; 
-    width: 40px; height: 40px; margin-left: 10px; cursor: pointer; 
-    display: flex; justify-content: center; align-items: center; transition: 0.2s;
+  .msg-ia, .msg-user { 
+    padding: 10px 14px; 
+    border-radius: 8px; 
+    font-size: 14px; 
+    line-height: 1.4; 
+    max-width: 85%; 
   }
-  .chat-footer button:hover { background: #133263; }
+  
+  .msg-ia { 
+    background: white; 
+    border: 1px solid #e0e0e0; 
+    align-self: flex-start; 
+    border-bottom-left-radius: 0; 
+  }
+  
+  .msg-user { 
+    background: #e3f2fd; 
+    color: #0d47a1; 
+    align-self: flex-end; 
+    border-bottom-right-radius: 0; 
+    text-align: right; 
+  }
+  
+  .chat-footer { 
+    display: flex; 
+    border-top: 1px solid #d1d9e0; 
+    background: white; 
+    padding: 10px; 
+    align-items: center; 
+  }
+  
+  .chat-footer input { 
+    flex-grow: 1; 
+    border: 1px solid #ccc; 
+    border-radius: 20px; 
+    padding: 10px 15px; 
+    outline: none; 
+    font-family: inherit; 
+    font-size: 14px; 
+  }
+  
+  .chat-footer button { 
+    background: #1c4587; 
+    color: white; 
+    border: none; 
+    border-radius: 50%; 
+    width: 40px; 
+    height: 40px; 
+    margin-left: 10px; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    transition: 0.2s;
+  }
+  
+  .chat-footer button:hover { 
+    background: #133263; 
+  }
 </style>
 
 <button id="btn-asistente" onclick="toggleChat()" title="Hablar con Asistente IA">
@@ -78,7 +168,11 @@
   function toggleChat() {
     var v = document.getElementById('ventana-chat');
     v.style.display = (v.style.display === 'flex') ? 'none' : 'flex';
-    if(v.style.display === 'flex') document.getElementById('input-chat').focus();
+    if(v.style.display === 'flex') {
+        document.getElementById('input-chat').focus();
+        var historial = document.getElementById('chat-historial');
+        historial.scrollTop = historial.scrollHeight; // Auto-scroll al abrir
+    }
   }
 
   function enviarMensajeIA() {
@@ -86,10 +180,11 @@
     var texto = input.value.trim();
     if(!texto) return;
 
-    var emailUsuario = "";
-    var selectLogin = document.getElementById('login-email');
-    if (selectLogin && selectLogin.value) {
-        emailUsuario = selectLogin.value;
+    // Aseguramos que el usuario esté correctamente identificado
+    var emailAEnviar = typeof usuarioActivoEmail !== 'undefined' ? usuarioActivoEmail : "";
+    if (!emailAEnviar) {
+      var selectLogin = document.getElementById('login-email');
+      if (selectLogin && selectLogin.value) emailAEnviar = selectLogin.value;
     }
 
     var historial = document.getElementById('chat-historial');
@@ -105,19 +200,23 @@
 
     google.script.run
       .withSuccessHandler(function(respuesta) {
-        document.getElementById(idCarga).remove();
+        var elCarga = document.getElementById(idCarga);
+        if(elCarga) elCarga.remove();
+        
         var resFormateada = respuesta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
         historial.innerHTML += `<div class="msg-ia">${resFormateada}</div>`;
         historial.scrollTop = historial.scrollHeight;
       })
       .withFailureHandler(function(err) {
-        document.getElementById(idCarga).remove();
+        var elCarga = document.getElementById(idCarga);
+        if(elCarga) elCarga.remove();
+        
         historial.innerHTML += `
           <div class="msg-ia" style="color:#d32f2f; display: flex; align-items: center; gap: 6px;">
             <span class="material-symbols-outlined" style="font-size: 18px;">error</span> Error de conexión. Intenta de nuevo.
           </div>`;
         historial.scrollTop = historial.scrollHeight;
       })
-      .consultarAsistenteIA(texto, emailUsuario);
+      .consultarAsistenteIA(texto, emailAEnviar);
   }
 </script>

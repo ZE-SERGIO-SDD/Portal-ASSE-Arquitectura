@@ -4,7 +4,7 @@
   <div class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
-      <button onclick="abrirInfoPlantillas()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+      <button onclick="alternarInfoPlantillas()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
         <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
       </button>
       <button id="btn-recargar-plantillas" onclick="recargarPlantillas()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
@@ -16,6 +16,16 @@
       <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
     </button>
     
+    <div id="pla-info-inline" style="display: none; background: #e3f2fd; border-left: 4px solid #1c4587; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left;">
+      <? var ayuda = obtenerTextosAyuda(); ?>
+      <div style="font-weight: bold; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">info</span> <?= ayuda.plantillas.titulo ?>
+      </div>
+      <div style="color: #444; font-size: 13px; line-height: 1.5; max-height: 250px; overflow-y: auto;">
+        <?!= ayuda.plantillas.texto ?>
+      </div>
+    </div>
+
     <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
       <span class="material-symbols-outlined" style="font-size: 28px;">folder_open</span> Plantillas (Templates)
     </div>
@@ -28,29 +38,11 @@
   </div>
 </div>
 
-<div id="modal-info-plantillas" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <? var ayuda = obtenerTextosAyuda(); ?>
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">info</span> <?= ayuda.plantillas.titulo ?>
-    </div>
-    
-    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-      <?!= ayuda.plantillas.texto ?>
-    </div>
-
-    <button class="btn-azul" onclick="cerrarInfoPlantillas()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
-  </div>
-</div>
-
 <script>
-  // Funciones del Modal de Info
-  function abrirInfoPlantillas() {
-    document.getElementById('modal-info-plantillas').style.display = 'flex';
-  }
-
-  function cerrarInfoPlantillas() {
-    document.getElementById('modal-info-plantillas').style.display = 'none';
+  // Mostrar/Ocultar la ayuda sin usar modales
+  function alternarInfoPlantillas() {
+    var infoBox = document.getElementById('pla-info-inline');
+    infoBox.style.display = (infoBox.style.display === 'none') ? 'block' : 'none';
   }
 
   function recargarPlantillas() { 

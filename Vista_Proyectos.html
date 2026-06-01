@@ -5,7 +5,7 @@
   <div class="container" style="position: relative; max-width: 800px; width: 100%; padding: 15px 25px;">
     
     <div style="position: absolute; top: 15px; right: 15px; display: flex; gap: 8px;">
-      <button class="btn-info-seccion" onclick="abrirInfoProyectos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+      <button class="btn-info-seccion" onclick="alternarInfoProyectos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
         <span class="material-symbols-outlined" style="font-size: 18px;">help</span>
       </button>
       <button class="btn-recargar" id="btn-recargar-proy" onclick="recargarPantallaActual()" style="position: static; display: flex; align-items: center; justify-content: center; padding: 4px 8px; margin: 0; border: 1px solid #d1d9e0;">
@@ -20,6 +20,16 @@
       <button class="btn-volver" id="btn-volver-menu-proy" onclick="mostrarSubPantallaProyectos('menu')" style="display: none; align-items: center; gap: 3px; margin-bottom: 0; padding: 4px 10px; font-size: 11px;">
         <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> VOLVER A GESTIÓN
       </button>
+    </div>
+
+    <div id="proy-info-inline" style="display: none; background: #e3f2fd; border-left: 4px solid #1c4587; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left;">
+      <? var ayuda = obtenerTextosAyuda(); ?>
+      <div style="font-weight: bold; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">info</span> <?= ayuda.proyectos.titulo ?>
+      </div>
+      <div style="color: #444; font-size: 13px; line-height: 1.5; max-height: 250px; overflow-y: auto;">
+        <?!= ayuda.proyectos.texto ?>
+      </div>
     </div>
 
     <div class="titulo-azul" id="proy-titulo-principal" style="margin-bottom: 0px; margin-top: 5px; font-size: 20px;">Gestión de Proyectos</div>
@@ -194,40 +204,22 @@
       </div>
     </div>
 
-</div>
+    <div id="proy-seccion-preview" style="display: none; text-align: left; width: 100%;">
+      <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">visibility</span> Resumen del Nuevo Proyecto
+      </div>
+      <p style="font-size:13px; color:#666; margin-bottom:20px;">Revisa la información antes de crear el registro definitivo.</p>
 
-<div id="modal-info-proyectos" class="modal-overlay">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <? var ayuda = obtenerTextosAyuda(); ?>
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">info</span> <?= ayuda.proyectos.titulo ?>
+      <div id="proy-contenido-preview" style="color: #444; font-size: 13px; line-height: 1.6; margin-bottom: 20px; border: 1px solid #d1d9e0; padding: 20px; border-radius: 6px; background: white;"></div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button onclick="cerrarVistaPrevia()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER A EDITAR</button>
+        <button id="btn-confirmar-preview" onclick="confirmarRegistroProyecto()" class="btn-azul" style="flex: 1; margin-top: 0; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+          <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span> CONFIRMAR Y CREAR
+        </button>
+      </div>
     </div>
-    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px;"><?!= ayuda.proyectos.texto ?></div>
-    <button class="btn-azul" onclick="cerrarInfoProyectos()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
-  </div>
-</div>
 
-<div id="modal-alerta-proy" class="modal-overlay" style="display: none; z-index: 3000;">
-  <div class="modal-content" style="width: 350px; text-align: center;">
-    <div id="icono-alerta-proy" style="margin-bottom: 10px;"></div>
-    <div class="titulo-azul" id="titulo-alerta-proy" style="font-size: 20px; margin-bottom: 10px;">Atención</div>
-    <p style="color: #666; font-size: 15px; margin-bottom: 25px;" id="texto-alerta-proy">Mensaje</p>
-    <button class="btn-azul" onclick="cerrarAlertaProy()">ENTENDIDO</button>
-  </div>
-</div>
-
-<div id="modal-preview" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 500px; text-align: left;">
-    <div class="titulo-azul" id="titulo-preview" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">visibility</span> Resumen del Nuevo Proyecto
-    </div>
-    <div id="contenido-preview" style="color: #444; font-size: 13px; line-height: 1.6; margin-bottom: 20px; max-height: 400px; overflow-y: auto;"></div>
-    <div style="display: flex; gap: 10px;">
-      <button onclick="cerrarVistaPrevia()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
-      <button id="btn-confirmar-preview" class="btn-azul" style="flex: 1; margin-top: 0; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span> CONFIRMAR
-      </button>
-    </div>
   </div>
 </div>
 
@@ -239,23 +231,18 @@
   var todosLosProyectosCargados = [];
   var vistaListadoActual = 'curso';
 
-  function abrirInfoProyectos() { document.getElementById('modal-info-proyectos').style.display = 'flex'; }
-  function cerrarInfoProyectos() { document.getElementById('modal-info-proyectos').style.display = 'none'; }
-
-  function mostrarAlertaProy(titulo, texto, iconoAUsar, accionOpcional) {
-    document.getElementById('titulo-alerta-proy').innerText = titulo;
-    document.getElementById('texto-alerta-proy').innerText = texto;
-    var color = '#f29900'; 
-    if(iconoAUsar === 'error') color = '#d93025'; 
-    if(iconoAUsar === 'task_alt') color = '#188038'; 
-    document.getElementById('icono-alerta-proy').innerHTML = `<span class="material-symbols-outlined" style="font-size: 50px; color: ${color};">${iconoAUsar || 'warning'}</span>`;
-    accionAlertaPendiente = accionOpcional || null;
-    document.getElementById('modal-alerta-proy').style.display = 'flex';
+  // Mostrar/Ocultar la ayuda sin usar modales
+  function alternarInfoProyectos() { 
+    var infoBox = document.getElementById('proy-info-inline');
+    infoBox.style.display = (infoBox.style.display === 'none') ? 'block' : 'none';
   }
 
-  function cerrarAlertaProy() {
-    document.getElementById('modal-alerta-proy').style.display = 'none';
-    if (accionAlertaPendiente) { accionAlertaPendiente(); accionAlertaPendiente = null; }
+  // Sustitución de alerta visual modal por alertas nativas limpias
+  function mostrarAlertaProy(titulo, texto, iconoAUsar, accionOpcional) {
+    alert(titulo + ":\n\n" + texto);
+    if (accionOpcional) { 
+      accionOpcional(); 
+    }
   }
 
   function recargarPantallaActual() {
@@ -274,6 +261,7 @@
   function mostrarSubPantallaProyectos(seccion) {
     document.getElementById('proy-menu-principal').style.display = 'none';
     document.getElementById('proy-seccion-nuevo').style.display = 'none';
+    document.getElementById('proy-seccion-preview').style.display = 'none'; // Asegurar que la vista previa esté oculta
     
     var listadosSeccion = document.getElementById('proy-seccion-listados');
     if(listadosSeccion) listadosSeccion.style.display = 'none';
@@ -296,7 +284,6 @@
       btnVolverMenu.style.display = 'none'; 
       btnVolverPanel.style.display = 'flex'; 
 
-      // Muestra la papelera solo si es Administrador
       var cardPapelera = document.getElementById('card-proyectos-eliminados');
       if (cardPapelera) {
         cardPapelera.style.display = (typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin) ? 'flex' : 'none';
@@ -529,6 +516,7 @@
     container.appendChild(div);
   }
 
+  // Despliega la Vista Previa Interna
   function previsualizarProyecto() {
     var depto = document.getElementById('proy-depto').value;
     var centro = document.getElementById('proy-centro').value;
@@ -609,14 +597,20 @@
       </div>
     `;
 
-    document.getElementById('titulo-preview').innerText = "Resumen del Nuevo Proyecto";
-    document.getElementById('contenido-preview').innerHTML = htmlPrevia;
+    document.getElementById('proy-contenido-preview').innerHTML = htmlPrevia;
     
     var btnConfirmar = document.getElementById('btn-confirmar-preview');
     btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
-    btnConfirmar.onclick = confirmarRegistroProyecto;
+    btnConfirmar.disabled = false;
 
-    document.getElementById('modal-preview').style.display = 'flex';
+    // Cambiar vista
+    document.getElementById('proy-seccion-nuevo').style.display = 'none';
+    document.getElementById('proy-seccion-preview').style.display = 'block';
+  }
+
+  function cerrarVistaPrevia() {
+    document.getElementById('proy-seccion-preview').style.display = 'none';
+    document.getElementById('proy-seccion-nuevo').style.display = 'block';
   }
 
   function confirmarRegistroProyecto() {
@@ -628,14 +622,16 @@
     google.script.run.withSuccessHandler(function(res) {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> CONFIRMAR Y CREAR';
-      cerrarVistaPrevia();
+      
       if (res.success) {
         document.getElementById('proy-nombre').value = '';
         document.getElementById('proy-descripcion').value = '';
         document.getElementById('proy-tipo-obra').value = '';
         document.getElementById('proy-estado').value = '';
+        
         mostrarAlertaProy("¡Éxito!", "Proyecto creado con éxito.", "task_alt", function() {
-           mostrarSubPantallaProyectos('menu');
+            cerrarVistaPrevia();
+            mostrarSubPantallaProyectos('menu');
         });
       } else {
         mostrarAlertaProy("Error al guardar", res.error, "error");

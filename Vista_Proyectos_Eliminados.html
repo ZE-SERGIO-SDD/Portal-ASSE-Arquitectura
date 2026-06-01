@@ -5,25 +5,6 @@
   </div>
 </div>
 
-<div id="modal-restaurar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #188038;">
-      <span class="material-symbols-outlined" style="color: #188038;">restore</span> Restaurar Proyecto
-    </div>
-    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
-      ¿Estás seguro de que deseas restaurar este proyecto? <br><br>
-      Volverá a su estado original (<strong><span id="txt-origen-restaurar"></span></strong>) junto con todo su historial y bitácora.
-    </p>
-
-    <div style="display: flex; gap: 10px; margin-top: 25px;">
-      <button onclick="document.getElementById('modal-restaurar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
-      <button id="btn-confirmar-restaurar" onclick="ejecutarRestauracionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #188038; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;">
-        <span class="material-symbols-outlined" style="font-size: 18px;">restore</span> RESTAURAR
-      </button>
-    </div>
-  </div>
-</div>
-
 <script>
   var proyectoARestaurar = null;
 
@@ -107,25 +88,22 @@
 
   function prepararRestauracion(nombre, fecha, origen) {
     proyectoARestaurar = { nombre: nombre, fecha: fecha, origen: origen };
-    document.getElementById('txt-origen-restaurar').innerText = origen;
-    document.getElementById('modal-restaurar-proyecto').style.display = 'flex';
+    
+    if (confirm("¿Estás seguro de que deseas restaurar este proyecto?\n\nVolverá a su estado original (" + origen + ") junto con todo su historial y bitácora.")) {
+        ejecutarRestauracionBackend();
+    }
   }
 
   function ejecutarRestauracionBackend() {
     if (!proyectoARestaurar) return;
 
-    var btn = document.getElementById('btn-confirmar-restaurar');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> RESTAURANDO...';
+    // Alerta visual de carga
+    var contenedor = document.getElementById('contenedor-lista-eliminados');
+    contenedor.innerHTML = '<p style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px; color: #188038;">sync</span><br><br>Restaurando proyecto a su ubicación original...</p>';
 
     google.script.run
       .withSuccessHandler(function(res) {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> RESTAURAR';
-        
         if (res.success) {
-          document.getElementById('modal-restaurar-proyecto').style.display = 'none';
-          
           if(typeof mostrarAlertaProy === 'function') {
             mostrarAlertaProy("Restauración Exitosa", "El proyecto ha vuelto a su ubicación: " + proyectoARestaurar.origen, "task_alt", function(){
                cargarListaEliminados();
@@ -137,12 +115,12 @@
           
         } else {
           alert("Error al restaurar: " + res.error);
+          cargarListaEliminados();
         }
       })
       .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> RESTAURAR';
         alert("Error de conexión al restaurar: " + err);
+        cargarListaEliminados();
       })
       .restaurarProyectoBackend(proyectoARestaurar.nombre, proyectoARestaurar.fecha);
   }

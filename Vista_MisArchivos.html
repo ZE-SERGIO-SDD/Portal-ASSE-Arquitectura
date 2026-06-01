@@ -4,7 +4,7 @@
   <div class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
-      <button onclick="abrirInfoMisArchivos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+      <button onclick="alternarInfoMisArchivos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
         <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
       </button>
       <button onclick="recargarMisArchivos()" id="btn-recargar-misarchivos" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
@@ -15,6 +15,16 @@
     <button class="btn-volver" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px;">
       <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
     </button>
+
+    <div id="archivos-info-inline" style="display: none; background: #e3f2fd; border-left: 4px solid #1c4587; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left;">
+      <? var ayuda = obtenerTextosAyuda(); ?>
+      <div style="font-weight: bold; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">info</span> <?= ayuda.mis_archivos.titulo ?>
+      </div>
+      <div style="color: #444; font-size: 13px; line-height: 1.5; max-height: 250px; overflow-y: auto;">
+        <?!= ayuda.mis_archivos.texto ?>
+      </div>
+    </div>
     
     <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
       <span class="material-symbols-outlined" style="font-size: 28px;">history</span> Mis Archivos (Historial)
@@ -53,42 +63,14 @@
   </div>
 </div>
 
-<div id="modal-confirmacion" class="modal-overlay" style="z-index: 10000; display: none;">
-  <div class="modal-content" style="width: 400px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; color: #d32f2f; display: flex; align-items: center; gap: 8px;" id="titulo-modal-confirmacion">
-      <span class="material-symbols-outlined">warning</span> Atención
-    </div>
-    <p id="texto-modal-confirmacion" style="font-size:14px; color:#444; margin-bottom:20px; line-height: 1.5;"></p>
-    <div style="display:flex; gap:10px;">
-      <button class="btn-azul" id="btn-aceptar-confirmacion" style="flex:1; margin-top:0; background-color: #d32f2f;">ELIMINAR</button>
-      <button onclick="document.getElementById('modal-confirmacion').style.display='none'" style="flex:1; background:none; border:1px solid #d1d9e0; color:#666; border-radius:4px; cursor:pointer; font-weight:bold; padding: 10px;">CANCELAR</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-info-mis-archivos" class="modal-overlay" style="display: none;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <? var ayuda = obtenerTextosAyuda(); ?>
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">info</span> <?= ayuda.mis_archivos.titulo ?>
-    </div>
-    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
-      <?!= ayuda.mis_archivos.texto ?>
-    </div>
-    <button class="btn-azul" onclick="cerrarInfoMisArchivos()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
-  </div>
-</div>
-
 <script>
   var registrosCargadosIndex = 0;
   var TAMANIO_BLOQUE = 5;
 
-  function abrirInfoMisArchivos() {
-    document.getElementById('modal-info-mis-archivos').style.display = 'flex';
-  }
-
-  function cerrarInfoMisArchivos() {
-    document.getElementById('modal-info-mis-archivos').style.display = 'none';
+  // Mostrar/Ocultar la ayuda sin usar modales
+  function alternarInfoMisArchivos() {
+    var infoBox = document.getElementById('archivos-info-inline');
+    infoBox.style.display = (infoBox.style.display === 'none') ? 'block' : 'none';
   }
 
   function recargarMisArchivos() {
@@ -200,13 +182,9 @@
     document.getElementById('lista-mis-archivos-estado').style.display = 'block';
   }
 
+  // --- ELIMINAR ARCHIVO INDIVIDUAL (ALERTA NATIVA) ---
   function borrarMiArchivo(id, btnElement) {
-    var modal = document.getElementById('modal-confirmacion');
-    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle;">delete</span> Eliminar archivo';
-    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro de que deseas eliminar este archivo?';
-    
-    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
-      modal.style.display = 'none';
+    if (confirm("Atención:\n\n¿Estás seguro de que deseas eliminar este archivo?")) {
       var fila = btnElement.parentElement.parentElement;
       fila.style.opacity = '0.4'; 
       btnElement.disabled = true;
@@ -227,18 +205,12 @@
           btnElement.disabled = false;
         })
         .borrarArchivoGenerado(id);
-    };
-    
-    modal.style.display = 'flex';
+    }
   }
 
+  // --- ELIMINAR TODO EL HISTORIAL (ALERTA NATIVA) ---
   function borrarTodoMiHistorial() {
-    var modal = document.getElementById('modal-confirmacion');
-    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle;">warning</span> Borrar todo el historial';
-    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro de que deseas eliminar todos los archivos generados? Esta acción no se puede deshacer de los registros.';
-    
-    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
-      modal.style.display = 'none';
+    if (confirm("¡ATENCIÓN! BORRAR TODO EL HISTORIAL\n\n¿Estás seguro de que deseas eliminar TODOS tus archivos generados?\nEsta acción no se puede deshacer y borrará los registros de la base de datos.")) {
       var btn = document.getElementById('btn-borrar-todo');
       var wrapper = document.getElementById('wrapper-tabla-archivos');
       var estadoDiv = document.getElementById('lista-mis-archivos-estado');
@@ -273,7 +245,6 @@
           recargarMisArchivos();
         })
         .borrarTodoElHistorial(usuarioActivoEmail);
-    };
-    modal.style.display = 'flex';
+    }
   }
 </script>

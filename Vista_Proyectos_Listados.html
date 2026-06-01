@@ -138,7 +138,7 @@
           <span class="material-symbols-outlined" style="font-size: 16px;">settings</span> OPCIONES <span class="material-symbols-outlined" style="font-size: 16px;">arrow_drop_down</span>
         </button>
         <div id="dropdown-opciones-proyecto" class="dropdown-menu">
-          <a class="dropdown-item" onclick="abrirHistorialProyecto()">
+          <a class="dropdown-item" onclick="abrirHistorialProyecto('detalle')">
             <span class="material-symbols-outlined" style="font-size: 18px;">history</span> Ver Bitácora (historial)
           </a>
           <a class="dropdown-item" onclick="mostrarAlertaProy('Próximamente', 'La información del centro estará disponible en futuras actualizaciones.', 'info')">
@@ -255,17 +255,15 @@
     </div>
 
   </div>
-</div>
 
-<div id="modal-confirmar-edicion" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 500px; text-align: left;">
+  <div id="proy-seccion-edicion-cambios" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 10px;">
     <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
       <span class="material-symbols-outlined" style="color: #1c4587;">draw</span> Justificación de Modificaciones
     </div>
     <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">Para guardar los cambios en la bitácora, es necesario añadir un breve motivo y confirmar la fecha del evento.</p>
     
     <div style="margin-bottom: 15px; background: #e8f0fe; padding: 10px; border-radius: 6px; border: 1px solid #c2d7f5; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-      <label style="font-size: 13px; font-weight: bold; color: #1c4587; margin: 0;">Fecha de cambio de etapa:</label>
+      <label style="font-size: 13px; font-weight: bold; color: #1c4587; margin: 0;">Fecha de cambio o actualización:</label>
       <input type="date" id="fecha-cambio-modal" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; font-family: inherit; font-weight: bold;">
     </div>
 
@@ -273,16 +271,14 @@
       </div>
 
     <div style="display: flex; gap: 10px;">
-      <button onclick="document.getElementById('modal-confirmar-edicion').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button onclick="cancelarEdicionCambios()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
       <button id="btn-confirmar-guardado-final" onclick="ejecutarGuardadoBackend()" class="btn-azul" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px;">
         <span class="material-symbols-outlined" style="font-size: 18px;">check</span> ACEPTAR Y GUARDAR
       </button>
     </div>
   </div>
-</div>
 
-<div id="modal-archivar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
+  <div id="proy-seccion-archivar" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 20px;">
     <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
       <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Archivar Proyecto
     </div>
@@ -301,34 +297,14 @@
     </div>
 
     <div style="display: flex; gap: 10px;">
-      <button onclick="document.getElementById('modal-archivar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button onclick="cancelarArchivado()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
       <button id="btn-confirmar-archivo" onclick="ejecutarArchivadoBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
         <span class="material-symbols-outlined" style="font-size: 18px;">archive</span> CONFIRMAR ARCHIVO
       </button>
     </div>
   </div>
-</div>
 
-<div id="modal-eliminar-proyecto" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
-      <span class="material-symbols-outlined" style="color: #d93025;">warning</span> Eliminar Proyecto a la Papelera
-    </div>
-    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
-      <strong>ATENCIÓN:</strong> ¿Estás seguro de que deseas eliminar este proyecto? Se enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.
-    </p>
-
-    <div style="display: flex; gap: 10px; margin-top: 25px;">
-      <button onclick="document.getElementById('modal-eliminar-proyecto').style.display='none'" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
-      <button id="btn-confirmar-eliminar" onclick="ejecutarEliminacionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
-        <span class="material-symbols-outlined" style="font-size: 18px;">delete</span> ELIMINAR PROYECTO
-      </button>
-    </div>
-  </div>
-</div>
-<div id="modal-ver-historial" class="modal-overlay" style="display: none; z-index: 4000;">
-  <div class="modal-content" style="width: 600px; text-align: left; max-height: 85vh; display: flex; flex-direction: column;">
-    
+  <div id="proy-seccion-historial" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 10px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
       <div class="titulo-azul" style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
         <span class="material-symbols-outlined">history</span> Bitácora del Proyecto
@@ -341,12 +317,15 @@
       </div>
     </div>
     
-    <div id="contenido-historial" style="flex: 1; overflow-y: auto; padding-right: 10px; margin-bottom: 15px;"></div>
+    <div id="contenido-historial" style="min-height: 200px; margin-bottom: 20px;"></div>
 
-    <div style="text-align: right; padding-top: 10px; border-top: 1px solid #eee;">
-      <button onclick="cerrarHistorialProyecto()" class="btn-azul" style="padding: 8px 20px; margin: 0;">CERRAR</button>
+    <div style="text-align: left; padding-top: 10px; border-top: 1px solid #eee;">
+      <button onclick="cerrarHistorialProyecto()" class="btn-azul" style="padding: 8px 20px; margin: 0; display: inline-flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER
+      </button>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -362,6 +341,10 @@
   var datosAEnviar = null;
   var requiereGuardarEstado = false;
   var requiereGuardarDatos = false;
+
+  // Variables para saber a qué vista volver al cancelar o cerrar
+  var vistaAnteriorEdicion = 'detalle'; 
+  var vistaAnteriorHistorial = 'listado';
 
   function toggleMenuOpciones(event) {
     event.stopPropagation();
@@ -778,12 +761,18 @@
     renderizarEquipoDetalle(p.equipo || []);
 
     document.getElementById('listado-proyectos-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
+    document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('proy-seccion-historial').style.display = 'none';
     document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
   }
 
   function volverListadoProyectos() {
     gestionarEncabezadoMolesto(false);
     document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
+    document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('proy-seccion-historial').style.display = 'none';
     document.getElementById('listado-proyectos-wrapper').style.display = 'block';
     proyectoActivoEditando = null;
   }
@@ -832,7 +821,9 @@
       document.getElementById('fecha-cambio-modal').value = localISOTime;
   }
 
+  // --- PREPARACIÓN DE CAMBIOS RÁPIDOS DESDE LISTADO ---
   function prepararGuardadoRapidoEstado(indexGlobal, nEstado) {
+      vistaAnteriorEdicion = 'listado';
       proyectoActivoEditando = todosLosProyectosCargados[indexGlobal];
       var p = proyectoActivoEditando;
       
@@ -867,11 +858,14 @@
       `;
 
       document.getElementById('lista-cambios-detectados').innerHTML = htmlFormularioCambios;
-      
       setFechaModalHoy();
-      document.getElementById('modal-confirmar-edicion').style.display = 'flex';
+      
+      gestionarEncabezadoMolesto(true);
+      document.getElementById('listado-proyectos-wrapper').style.display = 'none';
+      document.getElementById('proy-seccion-edicion-cambios').style.display = 'block';
   }
 
+  // --- PREPARACIÓN DE CAMBIOS DESDE FICHA DETALLE ---
   function prepararGuardadoProyecto() {
     if (!proyectoActivoEditando) return;
     var p = proyectoActivoEditando;
@@ -984,9 +978,21 @@
     });
 
     document.getElementById('lista-cambios-detectados').innerHTML = htmlFormularioCambios;
-    
     setFechaModalHoy();
-    document.getElementById('modal-confirmar-edicion').style.display = 'flex';
+    
+    vistaAnteriorEdicion = 'detalle';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-edicion-cambios').style.display = 'block';
+  }
+
+  function cancelarEdicionCambios() {
+    document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
+    if (vistaAnteriorEdicion === 'listado') {
+        document.getElementById('listado-proyectos-wrapper').style.display = 'block';
+        gestionarEncabezadoMolesto(false);
+    } else {
+        document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
+    }
   }
 
   function ejecutarGuardadoBackend() {
@@ -1035,7 +1041,8 @@
     Promise.all(promesas).then(res => {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
-      document.getElementById('modal-confirmar-edicion').style.display = 'none';
+      
+      document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
       
       if(typeof mostrarAlertaProy === 'function') {
         mostrarAlertaProy("¡Éxito!", "Los cambios se guardaron y se registraron en la bitácora junto con sus justificaciones.", "task_alt", function(){
@@ -1054,6 +1061,7 @@
     });
   }
 
+  // --- ARCHIVAR PROYECTO ---
   function prepararArchivadoProyecto() {
     if (!proyectoActivoEditando) return;
     
@@ -1062,7 +1070,14 @@
     
     document.getElementById('fecha-archivo-modal').value = localISOTime;
     document.getElementById('comentario-archivo-modal').value = "";
-    document.getElementById('modal-archivar-proyecto').style.display = 'flex';
+    
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-archivar').style.display = 'block';
+  }
+
+  function cancelarArchivado() {
+    document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
   }
 
   function ejecutarArchivadoBackend() {
@@ -1091,7 +1106,7 @@
         btn.innerHTML = '<span class="material-symbols-outlined">archive</span> CONFIRMAR ARCHIVO';
         
         if (res.success) {
-          document.getElementById('modal-archivar-proyecto').style.display = 'none';
+          document.getElementById('proy-seccion-archivar').style.display = 'none';
           
           if(typeof mostrarAlertaProy === 'function') {
             mostrarAlertaProy("Proyecto Archivado", "El proyecto y su bitácora han sido movidos exitosamente al archivo histórico.", "archive", function(){
@@ -1115,29 +1130,25 @@
       .archivarProyectoBackend(p.nombre, p.fecha, fechaArchivo, comentarioArchivo, usuarioNombreAEnviar);
   }
 
-  // --- FUNCIÓN ACTUALIZADA EN EL PASO 2 ---
+  // --- ELIMINAR PROYECTO (ALERTA NATIVA) ---
   function prepararEliminacionProyecto() {
     if (!proyectoActivoEditando) return;
-    document.getElementById('modal-eliminar-proyecto').style.display = 'flex';
+    
+    if (confirm("ATENCIÓN: ¿Estás seguro de que deseas eliminar este proyecto?\n\nSe enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.")) {
+        ejecutarEliminacionBackend();
+    }
   }
 
   function ejecutarEliminacionBackend() {
-    var btn = document.getElementById('btn-confirmar-eliminar');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> ELIMINANDO...';
-
     var p = proyectoActivoEditando;
-    // Capturamos el nombre del usuario logueado para guardarlo en la papelera
     var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
+
+    // Alerta temporal de carga ya que quitamos el modal
+    document.getElementById('detalle-proyecto-wrapper').innerHTML = '<p style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px;">sync</span><br>Eliminando proyecto...</p>';
 
     google.script.run
       .withSuccessHandler(function(res) {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">delete</span> ELIMINAR PROYECTO';
-        
         if (res.success) {
-          document.getElementById('modal-eliminar-proyecto').style.display = 'none';
-          
           if(typeof mostrarAlertaProy === 'function') {
             mostrarAlertaProy("Proyecto Eliminado", "El proyecto y su bitácora han sido movidos a la Papelera de Reciclaje.", "delete", function(){
                volverListadoProyectos();
@@ -1150,34 +1161,40 @@
           }
         } else {
           alert("Error al eliminar el proyecto: " + res.error);
+          volverListadoProyectos();
         }
       })
       .withFailureHandler(function(err) {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">delete</span> ELIMINAR PROYECTO';
         alert("Error de conexión al intentar eliminar: " + err);
+        volverListadoProyectos();
       })
-      .eliminarProyectoBackend(p.nombre, p.fecha, usuarioNombreAEnviar); // Ahora pasamos el usuario
+      .eliminarProyectoBackend(p.nombre, p.fecha, usuarioNombreAEnviar);
   }
 
   // ---- FUNCIONES DE HISTORIAL ----
   function abrirHistorialDesdeListado(index) {
+    vistaAnteriorHistorial = 'listado';
     proyectoActivoEditando = todosLosProyectosCargados[index];
-    abrirHistorialProyecto();
+    abrirHistorialProyecto('listado');
   }
 
-  function abrirHistorialProyecto() {
+  function abrirHistorialProyecto(origen) {
     if (!proyectoActivoEditando) return;
+    vistaAnteriorHistorial = origen || 'detalle';
     var p = proyectoActivoEditando;
     
-    var modal = document.getElementById('modal-ver-historial');
     var contenedor = document.getElementById('contenido-historial');
     var selectFiltro = document.getElementById('filtro-historial');
     
     contenedor.innerHTML = '<p style="text-align:center; color: black; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; vertical-align: middle; font-size: 30px;">sync</span><br><br>Buscando bitácora en la base de datos...</p>';
     selectFiltro.innerHTML = '<option value="ALL">Todos los cambios</option>';
     selectFiltro.disabled = true;
-    modal.style.display = 'flex';
+
+    // Cambiar vista
+    gestionarEncabezadoMolesto(true);
+    document.getElementById('listado-proyectos-wrapper').style.display = 'none';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-historial').style.display = 'block';
 
     google.script.run
       .withSuccessHandler(function(res) {
@@ -1249,6 +1266,12 @@
   }
 
   function cerrarHistorialProyecto() {
-    document.getElementById('modal-ver-historial').style.display = 'none';
+    document.getElementById('proy-seccion-historial').style.display = 'none';
+    if(vistaAnteriorHistorial === 'listado') {
+        document.getElementById('listado-proyectos-wrapper').style.display = 'block';
+        gestionarEncabezadoMolesto(false);
+    } else {
+        document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
+    }
   }
 </script>
