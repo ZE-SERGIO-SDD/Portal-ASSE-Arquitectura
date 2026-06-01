@@ -1,10 +1,11 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <div id="pantalla-generador">
-  <div class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+  
+  <div id="mem-vista-principal" class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
-      <button onclick="abrirInfoMemorias()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+      <button onclick="alternarInfoMemorias()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
         <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
       </button>
       <button id="btn-recargar-memorias" onclick="recargarGenerador()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
@@ -16,6 +17,16 @@
       <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
     </button>
     
+    <div id="mem-info-inline" style="display: none; background: #e3f2fd; border-left: 4px solid #1c4587; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left;">
+      <? var ayuda = obtenerTextosAyuda(); ?>
+      <div style="font-weight: bold; color: #1c4587; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">info</span> <?= ayuda.memorias.titulo ?>
+      </div>
+      <div style="color: #444; font-size: 13px; line-height: 1.5; max-height: 250px; overflow-y: auto;">
+        <?!= ayuda.memorias.texto ?>
+      </div>
+    </div>
+
     <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
       <span class="material-symbols-outlined" style="font-size: 28px;">article</span> Generador de Memorias
     </div>
@@ -35,7 +46,7 @@
       <button class="btn-mini" id="btn-guardar" onclick="guardarBorrador()" style="font-weight:bold; display: inline-flex; align-items: center; gap: 4px;">
         <span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR
       </button>
-      <button class="btn-mini" onclick="abrirModalBorradores()" style="font-weight:bold; display: inline-flex; align-items: center; gap: 4px;">
+      <button class="btn-mini" onclick="abrirVistaBorradores()" style="font-weight:bold; display: inline-flex; align-items: center; gap: 4px;">
         <span class="material-symbols-outlined" style="font-size: 16px;">folder_open</span> CARGAR
       </button>
     </div>
@@ -45,23 +56,52 @@
       <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span> PREVISUALIZAR MEMORIA
     </button>
   </div>
-</div>
 
-<div id="modal-preview-mem" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99999; justify-content: center; align-items: center;">
-  <div class="modal-content" style="width: 800px; max-width: 95%;">
+  <div id="mem-vista-previa" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     <div class="titulo-azul" id="titulo-preview-mem" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
       <span class="material-symbols-outlined">visibility</span> Vista Previa
     </div>
-    <div id="contenido-preview-mem" style="max-height: 500px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px;"></div>
+    <p style="font-size:13px; color:#666; margin-bottom:20px;">Revisa la selección antes de generar el documento definitivo.</p>
+
+    <div id="contenido-preview-mem" style="max-height: 450px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px; border-radius: 4px;"></div>
+    
     <div style="display: flex; gap: 15px;">
-      <button onclick="cerrarVistaPreviaMemoria()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%;">VOLVER A EDITAR</button>
-      <button class="btn-azul" id="btn-confirmar-preview-mem" style="margin-top: 0; width: 50%;">CONFIRMAR Y GENERAR</button>
+      <button onclick="cerrarVistaPreviaMemoria()" style="background:white; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;">VOLVER A EDITAR</button>
+      <button class="btn-azul" id="btn-confirmar-preview-mem" style="margin-top: 0; width: 50%; display: flex; align-items: center; justify-content: center; gap: 8px;">CONFIRMAR Y GENERAR</button>
     </div>
   </div>
-</div>
 
-<div id="pantalla-exito-mem" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: #f0f4f8; z-index: 99999; justify-content: center; align-items: center;">
-  <div class="caja-exito" style="background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; max-width: 500px; width: 90%;">
+  <div id="mem-vista-guardar" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    <div class="titulo-azul" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;" id="titulo-vista-guardar">
+      <span class="material-symbols-outlined" id="icono-vista-guardar">security</span> <span id="texto-titulo-guardar">Autoguardado de Seguridad</span>
+    </div>
+    <p id="texto-vista-guardar" style="font-size:14px; color:#444; margin-bottom:20px; line-height: 1.5;"></p>
+    
+    <input type="text" id="input-nombre-borrador" placeholder="Coloca un nombre (Ej: Propuesta Variante A)" style="width:100%; box-sizing:border-box; padding:15px; margin-bottom:25px; border:1px solid #ccc; border-radius:4px; font-family: inherit; font-size: 15px;">
+    
+    <div style="display:flex; gap:15px; width:100%;">
+      <button id="btn-cancelar-guardado" style="flex:1; padding: 15px; background: white; border: 1px solid #d1d9e0; color: #666; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase;">CANCELAR</button>
+      <button id="btn-omitir-guardado" style="flex:1; padding: 15px; background: white; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase;">GENERAR SIN GUARDAR</button>
+      <button class="btn-azul" id="btn-confirmar-guardado" style="flex:1; margin-top: 0; padding: 15px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">GUARDAR BORRADOR</button>
+    </div>
+  </div>
+
+  <div id="mem-vista-borradores" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+      <div class="titulo-azul" style="font-size: 20px; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">folder_open</span> Versiones Guardadas
+      </div>
+      <button id="btn-borrar-todos-borradores" onclick="eliminarTodosBorradoresNube()" style="display:none; background:none; border:1px solid #d32f2f; color:#d32f2f; padding:6px 12px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; align-items: center; gap: 4px; justify-content: center;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO
+      </button>
+    </div>
+    
+    <div class="lista-guardados" id="contenedor-lista-guardados" style="max-height: 400px; overflow-y: auto; border: 1px solid #d1d9e0; margin: 10px 0 20px 0; border-radius: 4px; background: white;"></div>
+    
+    <button onclick="cerrarVistaBorradores()" style="background:white; border:1px solid #d1d9e0; color:#666; padding:15px; width:100%; font-weight: bold; border-radius: 4px; cursor: pointer;">VOLVER A EDICIÓN</button>
+  </div>
+
+  <div id="mem-vista-exito" class="container" style="display: none; position: relative; max-width: 600px; padding: 40px; width: 100%; box-sizing: border-box; text-align: center;">
     <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
       <span class="material-symbols-outlined" style="font-size: 35px;">check_circle</span> ¡Memoria Generada!
     </div>
@@ -71,77 +111,20 @@
       <span class="material-symbols-outlined">open_in_new</span> ABRIR DOCUMENTO
     </a>
     
-    <div class="aviso-borrado" style="text-align: left;">
+    <div class="aviso-borrado" style="text-align: left; background: #fff4e5; border-left: 4px solid #ffa117; color: #663c00; padding: 20px; font-size: 14px; margin-bottom: 25px;">
       <strong><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: text-bottom;">warning</span> IMPORTANTE:</strong><br>
       Este archivo es temporal y <strong>se eliminará automáticamente al día siguiente</strong> de la base de datos de Drive.<br><br>
       Por favor, ábralo y <strong>descárguelo en su formato preferido (PDF o Word)</strong> para asegurar su conservación definitiva en su expediente.
     </div>
     
-    <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
-      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    <button onclick="volverAEdicionDesdeExito()" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">article</span> CREAR OTRA MEMORIA
+    </button>
+    <button onclick="ir('portal')" style="background:none; border:none; color:#666; font-weight:700; font-size:14px; margin-top: 20px; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
+      VOLVER AL PANEL PRINCIPAL
     </button>
   </div>
-</div>
 
-<div id="modal-guardar-borrador" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100000; justify-content: center; align-items: center;">
-  <div class="modal-content" style="width: 450px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;" id="titulo-modal-guardar">
-      <span class="material-symbols-outlined" id="icono-modal-guardar">security</span> <span id="texto-titulo-guardar">Autoguardado de Seguridad</span>
-    </div>
-    <p id="texto-modal-guardar" style="font-size:14px; color:#444; margin-bottom:15px; line-height: 1.4;"></p>
-    
-    <input type="text" id="input-nombre-borrador" placeholder="Coloca un nombre" style="width:100%; box-sizing:border-box; padding:10px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px; font-family: inherit;">
-    
-    <div style="display:flex; gap:10px; width:100%;">
-      <button id="btn-confirmar-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">GUARDAR</button>
-      <button id="btn-omitir-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">GENERAR MEMORIA</button>
-      <button id="btn-cancelar-guardado" style="flex:1; padding: 12px 5px; background: #ffffff; border: 1px solid #1c4587; color: #1c4587; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px; text-transform: uppercase; text-align: center;">CANCELAR</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-confirmacion" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100001; justify-content: center; align-items: center;">
-  <div class="modal-content" style="width: 400px; text-align: left;">
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; color: #d32f2f; display: flex; align-items: center; gap: 8px;" id="titulo-modal-confirmacion">
-      <span class="material-symbols-outlined">warning</span> Atención
-    </div>
-    <p id="texto-modal-confirmacion" style="font-size:14px; color:#444; margin-bottom:20px; line-height: 1.5;"></p>
-    
-    <div style="display:flex; gap:10px;">
-      <button class="btn-azul" id="btn-aceptar-confirmacion" style="flex:1; margin-top:0; background-color: #d32f2f;">ELIMINAR</button>
-      <button onclick="document.getElementById('modal-confirmacion').style.display='none'" style="flex:1; background:none; border:1px solid #d1d9e0; color:#666; border-radius:4px; cursor:pointer; font-weight:bold; padding: 10px;">CANCELAR</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-borradores" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100000; justify-content: center; align-items: center;">
-  <div class="modal-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-      <div class="titulo-azul" style="font-size: 20px; margin: 0; display: flex; align-items: center; gap: 8px;">
-        <span class="material-symbols-outlined">folder_open</span> Versiones Guardadas
-      </div>
-      <button id="btn-borrar-todos-borradores" onclick="eliminarTodosBorradoresNube()" style="display:none; background:none; border:1px solid #d32f2f; color:#d32f2f; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; transition: 0.2s; align-items: center; gap: 4px; justify-content: center;">
-        <span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO
-      </button>
-    </div>
-    <div class="lista-guardados" id="contenedor-lista-guardados" style="max-height: 300px; overflow-y: auto; border: 1px solid #d1d9e0; margin: 10px 0 20px 0; border-radius: 4px;"></div>
-    <button onclick="cerrarModalBorradores()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:8px 15px; width:100%;">CERRAR</button>
-  </div>
-</div>
-
-<div id="modal-info-memorias" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100000; justify-content: center; align-items: center;">
-  <div class="modal-content" style="width: 500px; text-align: left;">
-    <? var ayuda = obtenerTextosAyuda(); ?>
-    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-      <span class="material-symbols-outlined">info</span> <?= ayuda.memorias.titulo ?>
-    </div>
-    
-    <div style="color: #444; font-size: 14px; line-height: 1.6; margin-bottom: 20px; max-height: 400px; overflow-y: auto; padding-right: 10px;">
-      <?!= ayuda.memorias.texto ?>
-    </div>
-
-    <button class="btn-azul" onclick="cerrarInfoMemorias()" style="margin-top: 0; padding: 10px; font-size: 14px;">ENTENDIDO</button>
-  </div>
 </div>
 
 <script>
@@ -157,14 +140,26 @@
     return dia + '/' + mes + '/' + anio + ' - ' + hora + ':' + min;
   }
 
-  function abrirInfoMemorias() {
-    document.getElementById('modal-info-memorias').style.display = 'flex';
+  // --- NAVEGACIÓN Y AYUDA INLINE ---
+  function alternarInfoMemorias() {
+    var infoBox = document.getElementById('mem-info-inline');
+    infoBox.style.display = (infoBox.style.display === 'none') ? 'block' : 'none';
   }
 
-  function cerrarInfoMemorias() {
-    document.getElementById('modal-info-memorias').style.display = 'none';
+  function ocultarTodasLasVistasMemoria() {
+    document.getElementById('mem-vista-principal').style.display = 'none';
+    document.getElementById('mem-vista-previa').style.display = 'none';
+    document.getElementById('mem-vista-guardar').style.display = 'none';
+    document.getElementById('mem-vista-borradores').style.display = 'none';
+    document.getElementById('mem-vista-exito').style.display = 'none';
   }
 
+  function volverAEdicionDesdeExito() {
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-principal').style.display = 'block';
+  }
+
+  // --- CARGA DE DATOS ---
   function l(n) { 
     var s = document.getElementById('disc'); 
     s.innerHTML = '<option value="">Seleccione Disciplina...</option>'; 
@@ -254,32 +249,10 @@
 
     r.forEach((x, i) => {
       x.hijos = false; 
-      
-      if(x.bloque !== bA) { 
-        bA = x.bloque; 
-        x.t = "B"; 
-        x.idP = "B_" + bA; 
-        x.pId = null; 
-      }
-      
-      if(x.principal) { 
-        x.t = "L1"; 
-        x.idP = "L1_" + i; 
-        x.pId = "B_" + bA; 
-        u1 = i; 
-        u2 = null; 
-      } else if(x.secundario) { 
-        x.t = "L2"; 
-        x.idP = "L2_" + i; 
-        x.pId = "L1_" + u1; 
-        u2 = i; 
-        r[u1].hijos = true; 
-      } else if(x.terciario) { 
-        x.t = "L3"; 
-        x.idP = "L3_" + i; 
-        x.pId = "L2_" + (u2 || u1); 
-        if(u2 !== null) r[u2].hijos = true; 
-      }
+      if(x.bloque !== bA) { bA = x.bloque; x.t = "B"; x.idP = "B_" + bA; x.pId = null; }
+      if(x.principal) { x.t = "L1"; x.idP = "L1_" + i; x.pId = "B_" + bA; u1 = i; u2 = null; } 
+      else if(x.secundario) { x.t = "L2"; x.idP = "L2_" + i; x.pId = "L1_" + u1; u2 = i; r[u1].hijos = true; } 
+      else if(x.terciario) { x.t = "L3"; x.idP = "L3_" + i; x.pId = "L2_" + (u2 || u1); if(u2 !== null) r[u2].hijos = true; }
     });
 
     let bE = "";
@@ -287,7 +260,6 @@
       if(x.bloque !== bE) { 
         bE = x.bloque; 
         let tituloStr = titulosBloque[bE] ? `: ${titulosBloque[bE]}` : "";
-        
         c.innerHTML += `<div class="nivel-0" onclick="tgl('B_${bE}')" style="display:flex; align-items:center; cursor:pointer;">
           <button class="btn-toggle" id="btn_B_${bE}" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; width: 20px; height: 20px; line-height: 16px; margin-right: 10px; font-weight: bold; padding: 0; pointer-events: none;">+</button>
           <span>BLOQUE ${bE}${tituloStr}</span>
@@ -311,9 +283,7 @@
     let btn = document.getElementById('btn_'+idP); 
     let hijos = document.querySelectorAll(`[data-p="${idP}"]`); 
     let exp = btn ? btn.innerText === '+' : true; 
-    
     if(btn) btn.innerText = exp ? '-' : '+'; 
-    
     hijos.forEach(h => { 
       h.style.display = exp ? 'flex' : 'none'; 
       if(!exp) { 
@@ -326,105 +296,50 @@
   
   function vinc(i) { 
     let chk = document.getElementById('chk_'+i); 
-    
     if(chk.checked) { 
       let p = datos[i].pId; 
       while(p) { 
         let idx = datos.findIndex(x => x.idP === p); 
-        if(idx !== -1) { 
-          document.getElementById('chk_'+idx).checked = true; 
-          p = datos[idx].pId; 
-        } else {
-          p = null;
-        }
+        if(idx !== -1) { document.getElementById('chk_'+idx).checked = true; p = datos[idx].pId; } else { p = null; }
       } 
     } else { 
       function d(pI) { 
         datos.forEach((x, idx) => { 
-          if(x.pId === pI) { 
-            document.getElementById('chk_'+idx).checked = false; 
-            d(x.idP); 
-          } 
+          if(x.pId === pI) { document.getElementById('chk_'+idx).checked = false; d(x.idP); } 
         }); 
       } 
       d(datos[i].idP); 
     } 
   }
   
-  function tInfo(i) { 
-    let d = document.getElementById('info_'+i); 
-    d.style.display = d.style.display === 'block' ? 'none' : 'block'; 
-  }
-  
-  function exp(v) { 
-    document.querySelectorAll('[id^="cont_L"]').forEach(d => {
-      d.style.display = v ? 'flex' : 'none';
-    }); 
-    document.querySelectorAll('.btn-toggle').forEach(b => {
-      b.innerText = v ? '-' : '+';
-    }); 
-  }
-  
-  function sel(v) { 
-    document.querySelectorAll('input[type="checkbox"]').forEach(c => { 
-      if(!c.disabled) {
-        c.checked = v;
-      }
-    }); 
-  }
-  
-  function expInfo() { 
-    document.querySelectorAll('.texto-memoria').forEach(d => {
-      d.style.display = 'block';
-    }); 
-  }
-  
-  function colInfo() { 
-    document.querySelectorAll('.texto-memoria').forEach(d => {
-      d.style.display = 'none';
-    }); 
-  }
+  function tInfo(i) { let d = document.getElementById('info_'+i); d.style.display = d.style.display === 'block' ? 'none' : 'block'; }
+  function exp(v) { document.querySelectorAll('[id^="cont_L"]').forEach(d => { d.style.display = v ? 'flex' : 'none'; }); document.querySelectorAll('.btn-toggle').forEach(b => { b.innerText = v ? '-' : '+'; }); }
+  function sel(v) { document.querySelectorAll('input[type="checkbox"]').forEach(c => { if(!c.disabled) { c.checked = v; } }); }
+  function expInfo() { document.querySelectorAll('.texto-memoria').forEach(d => { d.style.display = 'block'; }); }
+  function colInfo() { document.querySelectorAll('.texto-memoria').forEach(d => { d.style.display = 'none'; }); }
 
+  // --- VISTA PREVIA ---
   function abrirVistaPreviaMemoria() {
     var d = document.getElementById('disc').value; 
-    if(!d || d.includes("Error")) { 
-      alert('Seleccione una disciplina válida primero.'); 
-      return; 
-    }
+    if(!d || d.includes("Error")) { alert('Seleccione una disciplina válida primero.'); return; }
     
     var s = []; 
-    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
-      s.push(datos[c.id.split('_')[1]]);
-    });
-    
-    if(s.length === 0) { 
-      alert('Seleccione al menos un rubro para previsualizar.'); 
-      return; 
-    }
-
-    document.getElementById('titulo-preview-mem').innerHTML = '<span class="material-symbols-outlined">visibility</span> Vista Previa de la Memoria';
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => { s.push(datos[c.id.split('_')[1]]); });
+    if(s.length === 0) { alert('Seleccione al menos un rubro para previsualizar.'); return; }
 
     var html = '<div style="font-family: Calibri, sans-serif; line-height: 1.2;">';
     var numP = -1, numS = 0, numT = 0, bA = "";
     
     s.forEach(item => {
       var lB = item.bloque.toUpperCase();
-      if (lB !== bA) { 
-        bA = lB; 
-        numP = -1; 
-        numS = 0; 
-        numT = 0; 
-      }
+      if (lB !== bA) { bA = lB; numP = -1; numS = 0; numT = 0; }
       
       if (item.principal) {
-        numP++; 
-        numS = 0; 
-        numT = 0;
+        numP++; numS = 0; numT = 0;
         var tP = bA + "." + numP + " - " + item.principal;
         html += `<p style="font-size:17px; font-weight:bold; color:#1c4587; margin:0 0 10px 0;">${tP}</p>`;
       } else if (item.secundario) {
-        numS++; 
-        numT = 0;
+        numS++; numT = 0;
         var tS = bA + "." + (numP === -1 ? 0 : numP) + "." + numS + " - " + item.secundario;
         html += `<p style="font-size:15px; font-weight:bold; color:#000; margin:0 0 10px 0;">${tS}</p>`;
       } else if (item.terciario) {
@@ -444,59 +359,70 @@
     document.getElementById('contenido-preview-mem').innerHTML = html;
     
     var btnConfirmar = document.getElementById('btn-confirmar-preview-mem');
-    btnConfirmar.onclick = function() { 
-      iniciarProcesoDeGeneracion(); 
-    };
+    btnConfirmar.onclick = function() { iniciarProcesoDeGeneracion(); };
     btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR';
-    btnConfirmar.disabled = false;
-    btnConfirmar.style.backgroundColor = '#1c4587';
 
-    document.getElementById('modal-preview-mem').style.display = 'flex';
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-previa').style.display = 'block';
   }
 
   function cerrarVistaPreviaMemoria() {
-    document.getElementById('modal-preview-mem').style.display = 'none';
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-principal').style.display = 'block';
   }
 
+  // --- PROCESO GENERACIÓN Y AUTOGUARDADO ---
   function iniciarProcesoDeGeneracion() {
-    var btnGenerar = document.getElementById('btn-confirmar-preview-mem');
-    btnGenerar.disabled = true;
-    
-    var modal = document.getElementById('modal-guardar-borrador');
-    document.getElementById('icono-modal-guardar').innerText = 'security';
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-guardar').style.display = 'block';
+
+    document.getElementById('icono-vista-guardar').innerText = 'security';
     document.getElementById('texto-titulo-guardar').innerText = 'Autoguardado de Seguridad';
-    document.getElementById('texto-modal-guardar').innerText = 'Antes de generar el documento final, ¿Deseas guardar un borrador de esta selección en la nube para no perderla?';
+    document.getElementById('texto-vista-guardar').innerText = 'Antes de generar el documento final, ¿Deseas guardar un borrador de esta selección en la nube para no perderla?';
     document.getElementById('input-nombre-borrador').value = '';
     
     document.getElementById('btn-omitir-guardado').style.display = 'block';
 
-    document.getElementById('btn-confirmar-guardado').onclick = function() {
+    var btnConfirmar = document.getElementById('btn-confirmar-guardado');
+    var btnOmitir = document.getElementById('btn-omitir-guardado');
+    var btnCancelar = document.getElementById('btn-cancelar-guardado');
+
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">save</span> GUARDAR BORRADOR';
+    btnOmitir.innerHTML = 'GENERAR SIN GUARDAR';
+
+    // Acción: Guardar y Generar
+    btnConfirmar.onclick = function() {
         var nombre = document.getElementById('input-nombre-borrador').value.trim();
         if(!nombre) { alert("Debe ingresar un nombre para guardar."); return; }
         
-        modal.style.display = 'none';
+        btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">cloud_upload</span> 1/3 GUARDANDO...';
+        btnConfirmar.disabled = true;
+        btnOmitir.disabled = true;
+        btnCancelar.disabled = true;
 
-        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">cloud_upload</span> 1/3 Guardando en la nube...';
-        btnGenerar.style.backgroundColor = '#f29900';
         ejecutarGuardadoSilencioso(nombre, function() {
-            ejecutarGeneracionMemoria();
+            ejecutarGeneracionMemoria(btnConfirmar);
         });
     };
 
-    document.getElementById('btn-omitir-guardado').onclick = function() {
-        modal.style.display = 'none';
-        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">hourglass_empty</span> 1/3 Ensamblando memoria...';
-        btnGenerar.style.backgroundColor = '#f29900';
-        ejecutarGeneracionMemoria();
+    // Acción: Solo Generar
+    btnOmitir.onclick = function() {
+        btnOmitir.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">hourglass_empty</span> 1/3 ENSAMBLANDO...';
+        btnConfirmar.disabled = true;
+        btnOmitir.disabled = true;
+        btnCancelar.disabled = true;
+        ejecutarGeneracionMemoria(btnOmitir);
     };
 
-    document.getElementById('btn-cancelar-guardado').onclick = function() {
-        modal.style.display = 'none';
-        btnGenerar.disabled = false;
-        btnGenerar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR';
+    // Acción: Cancelar
+    btnCancelar.onclick = function() {
+        btnConfirmar.disabled = false;
+        btnOmitir.disabled = false;
+        btnCancelar.disabled = false;
+        ocultarTodasLasVistasMemoria();
+        document.getElementById('mem-vista-previa').style.display = 'block';
     };
 
-    modal.style.display = 'flex';
     document.getElementById('input-nombre-borrador').focus();
   }
 
@@ -518,62 +444,73 @@
       .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
   }
 
-  function ejecutarGeneracionMemoria() {
-    var btn = document.getElementById('btn-confirmar-preview-mem');
-    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> 2/3 Creando documento...';
+  function ejecutarGeneracionMemoria(btnActivo) {
+    btnActivo.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> 2/3 CREANDO DOCUMENTO...';
     
     var d = document.getElementById('disc').value; 
     var s = []; 
-    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
-      s.push(datos[c.id.split('_')[1]]);
-    });
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => { s.push(datos[c.id.split('_')[1]]); });
     
     setTimeout(() => { 
-        if(btn.disabled) btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> 3/3 Registrando historial...'; 
+        if(btnActivo.disabled) btnActivo.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">check_circle</span> 3/3 REGISTRANDO HISTORIAL...'; 
     }, 4000);
 
     google.script.run
       .withSuccessHandler(res => { 
+        // Restaurar estado de botones por si el usuario vuelve
+        var b1 = document.getElementById('btn-confirmar-guardado'); b1.disabled = false; b1.innerHTML = 'GUARDAR BORRADOR';
+        var b2 = document.getElementById('btn-omitir-guardado'); b2.disabled = false; b2.innerHTML = 'GENERAR SIN GUARDAR';
+        var b3 = document.getElementById('btn-cancelar-guardado'); b3.disabled = false;
+        
         if(res.error) {
           alert("Error en el servidor: " + res.error);
-          btn.disabled = false; 
-          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR'; 
-          btn.style.backgroundColor = '';
+          ocultarTodasLasVistasMemoria();
+          document.getElementById('mem-vista-previa').style.display = 'block';
           return;
         }
         
         document.getElementById('link-mem').href = res.url; 
-        cerrarVistaPreviaMemoria();
-        ir('exito-mem'); 
+        ocultarTodasLasVistasMemoria();
+        document.getElementById('mem-vista-exito').style.display = 'block'; 
       })
       .withFailureHandler(err => {
         alert("Fallo crítico de conexión: " + err.message);
-        btn.disabled = false; 
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR'; 
-        btn.style.backgroundColor = '';
+        document.getElementById('btn-confirmar-guardado').disabled = false;
+        document.getElementById('btn-omitir-guardado').disabled = false;
+        document.getElementById('btn-cancelar-guardado').disabled = false;
+        ocultarTodasLasVistasMemoria();
+        document.getElementById('mem-vista-previa').style.display = 'block';
       })
       .generarMemoriaWeb({ disciplina:d, seleccionados:s }, usuarioActivoEmail);
   }
 
+  // --- GUARDADO DIRECTO DESDE LISTADO PRINCIPAL ---
   function guardarBorrador() { 
     var d = document.getElementById('disc').value; 
     if(!d) return; 
 
-    var modal = document.getElementById('modal-guardar-borrador');
-    document.getElementById('icono-modal-guardar').innerText = 'save';
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-guardar').style.display = 'block';
+
+    document.getElementById('icono-vista-guardar').innerText = 'save';
     document.getElementById('texto-titulo-guardar').innerText = 'Guardar Borrador';
-    document.getElementById('texto-modal-guardar').innerText = 'Ingrese un nombre para identificar esta versión en la nube:';
+    document.getElementById('texto-vista-guardar').innerText = 'Ingrese un nombre para identificar esta versión en la nube:';
     document.getElementById('input-nombre-borrador').value = '';
     
-    document.getElementById('btn-omitir-guardado').style.display = 'none';
+    document.getElementById('btn-omitir-guardado').style.display = 'none'; // No se necesita aquí
 
-    document.getElementById('btn-confirmar-guardado').onclick = function() {
+    var btnConfirmar = document.getElementById('btn-confirmar-guardado');
+    var btnCancelar = document.getElementById('btn-cancelar-guardado');
+
+    btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">save</span> GUARDAR VERSIÓN';
+
+    btnConfirmar.onclick = function() {
         var nombre = document.getElementById('input-nombre-borrador').value.trim();
         if(!nombre) { alert("Debe ingresar un nombre para guardar."); return; }
-        modal.style.display = 'none';
 
-        var btn = document.getElementById('btn-guardar');
-        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
+        btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; animation: spin 2s linear infinite;">sync</span> GUARDANDO...';
+        btnConfirmar.disabled = true;
+        btnCancelar.disabled = true;
 
         var selHashes = []; 
         document.querySelectorAll('input[type="checkbox"]:checked').forEach(c => {
@@ -584,29 +521,38 @@
 
         google.script.run
           .withSuccessHandler(() => {
-            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">cloud_done</span> EN DRIVE';
+            btnConfirmar.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">cloud_done</span> ¡GUARDADO!';
             setTimeout(() => { 
-                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR'; 
-            }, 2000);
+                btnConfirmar.disabled = false;
+                btnCancelar.disabled = false;
+                ocultarTodasLasVistasMemoria();
+                document.getElementById('mem-vista-principal').style.display = 'block';
+            }, 1200);
           })
           .withFailureHandler((err) => {
             alert("No se pudo guardar el borrador: " + err.message);
-            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">save</span> GUARDAR';
+            btnConfirmar.innerHTML = 'REINTENTAR';
+            btnConfirmar.disabled = false;
+            btnCancelar.disabled = false;
           })
           .guardarBorradorEnDrive(usuarioActivoEmail, d, nombre, selHashes);
     };
 
-    document.getElementById('btn-cancelar-guardado').onclick = function() {
-        modal.style.display = 'none';
+    btnCancelar.onclick = function() {
+        ocultarTodasLasVistasMemoria();
+        document.getElementById('mem-vista-principal').style.display = 'block';
     };
 
-    modal.style.display = 'flex';
     document.getElementById('input-nombre-borrador').focus();
   }
 
-  function abrirModalBorradores(forzar = false) {
+  // --- GESTIÓN DE BORRADORES EN NUBE ---
+  function abrirVistaBorradores(forzar = false) {
     var d = document.getElementById('disc').value; 
     if(!d) return; 
+    
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-borradores').style.display = 'block';
     
     var lista = document.getElementById('contenedor-lista-guardados');
     var btnBorrarTodos = document.getElementById('btn-borrar-todos-borradores');
@@ -614,19 +560,14 @@
     let msg = forzar ? '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Actualizando nube...' : '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Leyendo guardados...';
     lista.innerHTML = `<p style="text-align:center; padding:15px; display:flex; justify-content:center; align-items:center; gap:8px; color:#666;">${msg}</p>`;
     btnBorrarTodos.style.display = 'none';
-    
-    document.getElementById('modal-borradores').style.display = 'flex';
 
     google.script.run
       .withSuccessHandler(db => {
         var nombres = Object.keys(db);
-        
         nombres.sort(function(a, b) {
           var fechaA = new Date(db[a].fecha).getTime();
           var fechaB = new Date(db[b].fecha).getTime();
-          if (isNaN(fechaA)) fechaA = 0;
-          if (isNaN(fechaB)) fechaB = 0;
-          return fechaB - fechaA; 
+          return (isNaN(fechaB) ? 0 : fechaB) - (isNaN(fechaA) ? 0 : fechaA); 
         });
 
         if(nombres.length === 0) { 
@@ -641,12 +582,12 @@
           var safeName = n.replace(/'/g, "\\'");
           var fechaGuardado = formatearFecha(db[n].fecha);
 
-          lista.innerHTML += `<div class="borrador-item" style="display:flex; align-items:center; padding: 10px; border-bottom: 1px solid #f0f0f0;">
+          lista.innerHTML += `<div class="borrador-item" style="display:flex; align-items:center; padding: 15px; border-bottom: 1px solid #f0f0f0; transition: 0.2s;">
             <div style="flex-grow:1; display:flex; flex-direction:column;" onclick="cargarBorradorNube('${safeName}')">
-              <span class="borrador-nombre" style="cursor:pointer; color:#1c4587; font-weight:600; font-size:14px; display:flex; align-items:center; gap:5px;"><span class="material-symbols-outlined" style="font-size: 16px;">description</span> ${n}</span>
-              <span style="font-size:11px; color:#888; margin-top:5px; display:flex; align-items:center; gap:4px;"><span class="material-symbols-outlined" style="font-size: 12px;">calendar_today</span> Guardado: ${fechaGuardado} &nbsp;|&nbsp; <span class="material-symbols-outlined" style="font-size: 12px;">label</span> Disciplina: <strong>${d}</strong></span>
+              <span class="borrador-nombre" style="cursor:pointer; color:#1c4587; font-weight:600; font-size:14px; display:flex; align-items:center; gap:5px;"><span class="material-symbols-outlined" style="font-size: 18px;">description</span> ${n}</span>
+              <span style="font-size:12px; color:#888; margin-top:5px; display:flex; align-items:center; gap:4px;"><span class="material-symbols-outlined" style="font-size: 14px;">calendar_today</span> Guardado: ${fechaGuardado} &nbsp;|&nbsp; <span class="material-symbols-outlined" style="font-size: 14px;">label</span> Disciplina: <strong>${d}</strong></span>
             </div>
-            <button class="btn-eliminar-borrador" onclick="eliminarBorradorNube('${safeName}')" title="Borrar versión" style="background:none; border:none; color:#d32f2f; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-outlined" style="font-size: 22px;">delete</span></button>
+            <button class="btn-eliminar-borrador" onclick="eliminarBorradorNube('${safeName}')" title="Borrar versión" style="background:none; border:none; color:#d32f2f; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-outlined" style="font-size: 24px;">delete</span></button>
           </div>`;
         });
         window.cacheBorradores = db;
@@ -658,36 +599,29 @@
   }
 
   function eliminarTodosBorradoresNube() {
-    var modal = document.getElementById('modal-confirmacion');
-    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined">warning</span> Borrar todos los borradores';
-    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro/a que deseas eliminar TODOS los borradores guardados para esta disciplina? Esta acción no se puede deshacer.';
-    
-    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
-      modal.style.display = 'none';
+    if(confirm('¿Estás seguro/a que deseas eliminar TODOS los borradores guardados para esta disciplina?\n\nEsta acción no se puede deshacer.')) {
       var d = document.getElementById('disc').value;
       var btn = document.getElementById('btn-borrar-todos-borradores');
       var lista = document.getElementById('contenedor-lista-guardados');
       
       btn.disabled = true;
       btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; animation: spin 2s linear infinite;">hourglass_empty</span> BORRANDO...';
-      lista.innerHTML = '<p style="text-align:center; padding:15px; color:#d32f2f; display:flex; justify-content:center; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Eliminando todos los borradores de esta disciplina...</p>';
+      lista.innerHTML = '<p style="text-align:center; padding:15px; color:#d32f2f; display:flex; justify-content:center; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Eliminando todos los borradores...</p>';
       
       google.script.run
         .withSuccessHandler(() => {
           btn.disabled = false;
           btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO';
-          abrirModalBorradores(true); 
+          abrirVistaBorradores(true); 
         })
         .withFailureHandler((err) => {
           alert('Error al borrar: ' + err.message);
           btn.disabled = false;
           btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">delete_forever</span> BORRAR TODO';
-          abrirModalBorradores();
+          abrirVistaBorradores();
         })
         .eliminarTodosBorradoresEnDrive(usuarioActivoEmail, d);
-    };
-    
-    modal.style.display = 'flex';
+    }
   }
 
   function cargarBorradorNube(nombre) {
@@ -700,49 +634,34 @@
       var found = datos.findIndex(r => (r.bloque + "|" + (r.principal || r.secundario || r.terciario) + "|" + r.texto.substring(0, 100)) === h);
       if(found !== -1) { 
         var chk = document.getElementById('chk_' + found); 
-        if(chk && !chk.disabled) {
-          chk.checked = true; 
-        }
+        if(chk && !chk.disabled) chk.checked = true; 
       }
     }); 
     
-    cerrarModalBorradores();
+    cerrarVistaBorradores();
   }
 
   function eliminarBorradorNube(n) {
-    var modal = document.getElementById('modal-confirmacion');
-    document.getElementById('titulo-modal-confirmacion').innerHTML = '<span class="material-symbols-outlined">delete</span> Eliminar versión';
-    document.getElementById('texto-modal-confirmacion').innerText = '¿Estás seguro de que deseas borrar la versión "' + n + '" de la nube?';
-    
-    document.getElementById('btn-aceptar-confirmacion').onclick = function() {
-      modal.style.display = 'none';
+    if(confirm('¿Estás seguro de que deseas borrar la versión "' + n + '" de la nube?')) {
       var d = document.getElementById('disc').value;
       var lista = document.getElementById('contenedor-lista-guardados');
       lista.innerHTML = '<p style="text-align:center; padding:15px; color:#d32f2f; display:flex; justify-content:center; align-items:center; gap:8px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Borrando de la nube...</p>';
       
       google.script.run
-        .withSuccessHandler(() => {
-          abrirModalBorradores(true); 
-        })
-        .withFailureHandler((err) => {
-          alert('Error al eliminar: ' + err.message);
-          abrirModalBorradores(true);
-        })
+        .withSuccessHandler(() => { abrirVistaBorradores(true); })
+        .withFailureHandler((err) => { alert('Error al eliminar: ' + err.message); abrirVistaBorradores(true); })
         .eliminarBorradorEnDrive(usuarioActivoEmail, d, n);
-    };
-    
-    modal.style.display = 'flex';
+    }
   }
 
-  function cerrarModalBorradores() { 
-    document.getElementById('modal-borradores').style.display = 'none'; 
+  function cerrarVistaBorradores() { 
+    ocultarTodasLasVistasMemoria();
+    document.getElementById('mem-vista-principal').style.display = 'block';
   }
 
   // --- INICIALIZACIÓN AUTOMÁTICA ---
-  // Obliga a la aplicación a buscar las disciplinas apenas se carga este módulo
   setTimeout(function() {
     var selectDisciplinas = document.getElementById('disc');
-    // Solo recarga si el select está vacío (evita recargas dobles si ya se había cargado)
     if (selectDisciplinas && selectDisciplinas.options.length <= 1) {
       recargarPortal();
     }
