@@ -26,13 +26,13 @@
 
         <button class="btn-azul" id="btn-login" onclick="iniciarSesion()">INGRESAR AL PORTAL</button>
         
-        <div class="links-login">
-          <a onclick="abrirModalRecuperar()">Olvidé mi contraseña</a>
-          <a onclick="ir('registro')">Crear cuenta nueva</a>
+        <div class="links-login" style="position: relative; z-index: 10; pointer-events: auto;">
+          <a href="javascript:void(0);" onclick="abrirModalRecuperar()" style="cursor: pointer;">Olvidé mi contraseña</a>
+          <a href="javascript:void(0);" onclick="ir('registro')" style="cursor: pointer;">Crear cuenta nueva</a>
         </div>
 
-        <div class="footer">
-          <button class="btn-info-app" onclick="abrirModalInfoApp()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+        <div class="footer" style="position: relative; z-index: 10; pointer-events: auto;">
+          <button class="btn-info-app" onclick="abrirModalInfoApp()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
             <span class="material-symbols-outlined" style="font-size: 16px;">info</span> Información de la aplicación
           </button>
         </div>
@@ -69,7 +69,7 @@
         
         <button class="btn-azul" id="btn-registro" onclick="registrarUsuario()" style="margin-top: 10px;">CREAR CUENTA</button>
         
-        <button onclick="ir('inicio')" style="background:none; border:none; color:#666; margin-top:20px; font-size:13px; text-decoration:underline; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px;">
+        <button onclick="ir('inicio')" style="background:none; border:none; color:#666; margin-top:20px; font-size:13px; text-decoration:underline; width: 100%; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;">
           <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span> Volver al Inicio
         </button>
       </div>
@@ -233,7 +233,7 @@
         </div>
         <div id="contenido-preview-doc" style="max-height: 500px; overflow-y: auto; border: 1px solid #d1d9e0; padding: 25px; background: white; text-align: left; margin-bottom: 20px;"></div>
         <div style="display: flex; gap: 15px;">
-          <button onclick="cerrarVistaPreviaDoc()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%;">VOLVER A EDITAR</button>
+          <button onclick="cerrarVistaPreviaDoc()" style="background:none; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%; cursor: pointer;">VOLVER A EDITAR</button>
           <button class="btn-azul" id="btn-confirmar-preview-doc" style="margin-top: 0; width: 50%;">CONFIRMAR Y GENERAR</button>
         </div>
       </div>
@@ -256,7 +256,7 @@
           Por favor, ábralo y <strong>descárguelo en su formato preferido (PDF o Word)</strong> para asegurar su conservación definitiva en su expediente.
         </div>
         
-        <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px;">
+        <button onclick="ir('portal')" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
           <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
         </button>
       </div>
@@ -295,7 +295,7 @@
         <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Ingrese su correo institucional registrado.</p>
         <input type="email" id="rec-email" placeholder="Correo electrónico institucional">
         <button class="btn-azul" id="btn-enviar-clave" onclick="enviarClave()" style="margin-top: 10px;">ENVIAR CONTRASEÑA</button>
-        <button onclick="cerrarModalRecuperar()" style="background:none; border:none; color:#666; margin-top:15px; font-size:13px; text-decoration:underline;">Cancelar</button>
+        <button onclick="cerrarModalRecuperar()" style="background:none; border:none; color:#666; margin-top:15px; font-size:13px; text-decoration:underline; cursor: pointer;">Cancelar</button>
       </div>
     </div>
 

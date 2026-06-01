@@ -15,15 +15,36 @@
   var MAX_INTENTOS = 3;
   var docActivoParaGenerar = null;
 
-  window.onload = function() { 
-    // Arranque inicial silencioso
+  // CORRECCIÓN DEFENSIVA: Usamos addEventListener para evitar que otros archivos
+  // sobrescriban el window.onload principal del sistema.
+  window.addEventListener('load', function() {
+    // 1. Asegurar un arranque limpio y ocultar capas residuales
+    ir('inicio'); 
+    
+    // 2. Mover los modales al elemento raíz del body para rescatarlos de posibles <div> mal cerrados
+    var modalRecuperar = document.getElementById('modal-recuperar');
+    var modalInfo = document.getElementById('modal-info-app');
+    var modalPreview = document.getElementById('modal-preview-doc'); // <-- FIX: Rescate de Vista Previa
+
+    if (modalRecuperar) document.body.appendChild(modalRecuperar);
+    if (modalInfo) document.body.appendChild(modalInfo);
+    if (modalPreview) document.body.appendChild(modalPreview); // <-- FIX: Rescate de Vista Previa
+
+    // 3. Ocultar componentes flotantes al inicio
+    var btnAsistente = document.getElementById('btn-asistente');
+    if (btnAsistente) btnAsistente.style.display = 'none';
+    var ventanaChat = document.getElementById('ventana-chat');
+    if (ventanaChat) ventanaChat.style.display = 'none';
+
+    // 4. Cargar servicios del servidor de forma asíncrona
     google.script.run.obtenerDisciplinas(); 
     cargarUsuariosLogin(); 
-  };
+  });
 
   function cargarUsuariosLogin() {
     google.script.run.withSuccessHandler(function(usuarios) {
       var select = document.getElementById('login-email');
+      if (!select) return;
       select.innerHTML = '<option value="">Seleccione su usuario...</option>';
       usuarios.forEach(function(u) {
         select.innerHTML += '<option value="' + u.email + '">' + u.nombre + '</option>';
@@ -124,7 +145,16 @@
           document.getElementById('reg-apellido').value = '';
           document.getElementById('reg-pass').value = '';
           document.getElementById('reg-pass2').value = '';
-          document.getElementById('login-email').value = email; 
+          
+          // FIX: Refrescar el Select para que aparezca el usuario recién creado en la base de datos
+          cargarUsuariosLogin();
+          
+          // Damos 1 segundo para que la base de datos devuelva la lista nueva antes de seleccionarlo visualmente
+          setTimeout(function() {
+            var selectElement = document.getElementById('login-email');
+            if(selectElement) selectElement.value = email; 
+          }, 1500);
+
           ir('inicio');
         } else { 
           alert(res.error); 
@@ -175,20 +205,21 @@
   // CONTROL DE NAVEGACIÓN Y MENÚS GLOBALES
   // ==========================================================
   function ir(p) {
-    // 1. Ocultar todas las pantallas
-    document.querySelectorAll('body > div').forEach(d => {
+    // FIX: Ocultar estrictamente las PANTALLAS (Evita borrar modales o código nativo oculto de Google)
+    document.querySelectorAll('div[id^="pantalla-"]').forEach(d => {
       d.style.display = 'none';
     });
     
     // 2. Buscar la pantalla objetivo
     var pantalla = document.getElementById('pantalla-'+p);
     
-    // 3. Mostrar pantalla segura (SIN EL TEXTO DE ERROR QUE ROMPÍA EL COMPILADOR)
+    // 3. Mostrar pantalla segura
     if(pantalla) {
         pantalla.style.display = 'flex'; 
     } else {
-        alert("Atención: Esta pantalla no se ha cargado correctamente.");
-        ir('portal'); 
+        console.error("Atención: La pantalla solicitada no existe.");
+        // Si no está logueado, mandarlo al inicio por seguridad
+        if (!usuarioActivoEmail) { ir('inicio'); } else { ir('portal'); }
         return; 
     }
     
@@ -237,9 +268,15 @@
     ir('inicio'); 
   }
   
+  // ==========================================================
+  // MANEJO DE MODALES (INMUNES A BLOQUEOS)
+  // ==========================================================
   function abrirModalRecuperar() { 
       var m = document.getElementById('modal-recuperar');
-      if(m) m.style.display = 'flex'; 
+      if(m) {
+        m.style.display = 'flex'; 
+        m.style.zIndex = '9999999';
+      }
   }
   function cerrarModalRecuperar() { 
       var m = document.getElementById('modal-recuperar');
@@ -250,7 +287,10 @@
 
   function abrirModalInfoApp() {
       var m = document.getElementById('modal-info-app');
-      if(m) m.style.display = 'flex';
+      if(m) {
+        m.style.display = 'flex';
+        m.style.zIndex = '9999999';
+      }
   }
   function cerrarModalInfoApp() {
       var m = document.getElementById('modal-info-app');
@@ -262,13 +302,11 @@
     var contenidoDiv = document.getElementById('contenido-admin');
     var tbody = document.getElementById('tabla-body-admin');
     
-    // Mostramos la pantalla vacía de cargando y ocultamos la tabla de contenido
     if(loadingDiv) loadingDiv.style.display = 'block';
     if(contenidoDiv) contenidoDiv.style.display = 'none';
 
     google.script.run
       .withSuccessHandler(function(usuarios) {
-        // Al terminar, quitamos el cargando y mostramos la tabla
         if(loadingDiv) loadingDiv.style.display = 'none';
         if(contenidoDiv) contenidoDiv.style.display = 'block';
         
