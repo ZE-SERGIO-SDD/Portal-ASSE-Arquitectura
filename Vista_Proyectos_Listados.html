@@ -304,6 +304,21 @@
     </div>
   </div>
 
+  <div id="proy-seccion-eliminar" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 20px;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
+      <span class="material-symbols-outlined" style="color: #d93025;">delete_forever</span> Eliminar Proyecto
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      ¿Estás seguro de que deseas eliminar este proyecto? Se enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.
+    </p>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="cancelarEliminacion()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-eliminar" onclick="ejecutarEliminacionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> SÍ, ELIMINAR PROYECTO
+      </button>
+    </div>
+  </div>
+
   <div id="proy-seccion-historial" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 10px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
       <div class="titulo-azul" style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -387,6 +402,15 @@
   }
 
   function cargarListaDeProyectos(forzar = false) {
+    // RESETEO DE VISTAS INTERNAS PARA EVITAR "EFECTO FANTASMA"
+    document.getElementById('listado-proyectos-wrapper').style.display = 'block';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
+    document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar').style.display = 'none';
+    document.getElementById('proy-seccion-historial').style.display = 'none';
+    gestionarEncabezadoMolesto(false); // Asegura que el título principal vuelva a verse
+
     document.getElementById('contenedor-lista-proyectos').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Preparando filtros...</p>';
     document.getElementById('contenedor-btn-cargar-mas').style.display = 'none';
 
@@ -763,6 +787,7 @@
     document.getElementById('listado-proyectos-wrapper').style.display = 'none';
     document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
     document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar').style.display = 'none';
     document.getElementById('proy-seccion-historial').style.display = 'none';
     document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
   }
@@ -772,6 +797,7 @@
     document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
     document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
     document.getElementById('proy-seccion-archivar').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar').style.display = 'none';
     document.getElementById('proy-seccion-historial').style.display = 'none';
     document.getElementById('listado-proyectos-wrapper').style.display = 'block';
     proyectoActivoEditando = null;
@@ -1044,16 +1070,14 @@
       
       document.getElementById('proy-seccion-edicion-cambios').style.display = 'none';
       
-      if(typeof mostrarAlertaProy === 'function') {
-        mostrarAlertaProy("¡Éxito!", "Los cambios se guardaron y se registraron en la bitácora junto con sus justificaciones.", "task_alt", function(){
-           volverListadoProyectos();
-           ejecutarBusquedaProyectos();
-        });
-      } else {
-        alert("Cambios guardados con éxito.");
-        volverListadoProyectos();
-        ejecutarBusquedaProyectos();
-      }
+      // Integración con pantalla de éxito global en lugar de alert()
+      document.getElementById('proy-exito-titulo').innerText = "¡Cambios Guardados!";
+      document.getElementById('proy-exito-texto').innerText = "Las modificaciones se han guardado exitosamente y registrado en la bitácora del proyecto.";
+      document.getElementById('btn-proy-exito-volver').onclick = function() {
+          mostrarSubPantallaProyectos('curso');
+      };
+      mostrarSubPantallaProyectos('exito');
+
     }).catch(err => {
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check</span> ACEPTAR Y GUARDAR';
@@ -1108,16 +1132,14 @@
         if (res.success) {
           document.getElementById('proy-seccion-archivar').style.display = 'none';
           
-          if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Proyecto Archivado", "El proyecto y su bitácora han sido movidos exitosamente al archivo histórico.", "archive", function(){
-               volverListadoProyectos();
-               ejecutarBusquedaProyectos(); 
-            });
-          } else {
-            alert("Proyecto archivado exitosamente.");
-            volverListadoProyectos();
-            ejecutarBusquedaProyectos();
-          }
+          // Integración con pantalla de éxito global
+          document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Archivado!";
+          document.getElementById('proy-exito-texto').innerText = "El proyecto y su bitácora han sido movidos exitosamente al archivo histórico.";
+          document.getElementById('btn-proy-exito-volver').onclick = function() {
+              mostrarSubPantallaProyectos('curso');
+          };
+          mostrarSubPantallaProyectos('exito');
+
         } else {
           alert("Error al archivar el proyecto: " + res.error);
         }
@@ -1130,41 +1152,50 @@
       .archivarProyectoBackend(p.nombre, p.fecha, fechaArchivo, comentarioArchivo, usuarioNombreAEnviar);
   }
 
-  // --- ELIMINAR PROYECTO (ALERTA NATIVA) ---
+  // --- ELIMINAR PROYECTO (AHORA CON VISTA INTERNA EN LUGAR DE CONFIRM NATIVO) ---
   function prepararEliminacionProyecto() {
     if (!proyectoActivoEditando) return;
-    
-    if (confirm("ATENCIÓN: ¿Estás seguro de que deseas eliminar este proyecto?\n\nSe enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.")) {
-        ejecutarEliminacionBackend();
-    }
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar').style.display = 'block';
+  }
+
+  function cancelarEliminacion() {
+    document.getElementById('proy-seccion-eliminar').style.display = 'none';
+    document.getElementById('detalle-proyecto-wrapper').style.display = 'block';
   }
 
   function ejecutarEliminacionBackend() {
     var p = proyectoActivoEditando;
     var usuarioNombreAEnviar = typeof usuarioActivoNombre !== 'undefined' ? usuarioActivoNombre : "Usuario Web";
 
-    // Alerta temporal de carga ya que quitamos el modal
-    document.getElementById('detalle-proyecto-wrapper').innerHTML = '<p style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px;">sync</span><br>Eliminando proyecto...</p>';
+    var btn = document.getElementById('btn-confirmar-eliminar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> PROCESANDO...';
 
     google.script.run
       .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> SÍ, ELIMINAR PROYECTO';
+        
         if (res.success) {
-          if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y su bitácora han sido movidos a la Papelera de Reciclaje.", "delete", function(){
-               volverListadoProyectos();
-               ejecutarBusquedaProyectos();
-            });
-          } else {
-            alert("Proyecto movido a la papelera exitosamente.");
-            volverListadoProyectos();
-            ejecutarBusquedaProyectos();
-          }
+          document.getElementById('proy-seccion-eliminar').style.display = 'none';
+          
+          // Integración con pantalla de éxito global
+          document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Eliminado!";
+          document.getElementById('proy-exito-texto').innerText = "El proyecto y todo su historial han sido movidos a la Papelera de Reciclaje.";
+          document.getElementById('btn-proy-exito-volver').onclick = function() {
+              mostrarSubPantallaProyectos('curso');
+          };
+          mostrarSubPantallaProyectos('exito');
+
         } else {
           alert("Error al eliminar el proyecto: " + res.error);
           volverListadoProyectos();
         }
       })
       .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> SÍ, ELIMINAR PROYECTO';
         alert("Error de conexión al intentar eliminar: " + err);
         volverListadoProyectos();
       })

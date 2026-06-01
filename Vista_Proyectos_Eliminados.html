@@ -1,14 +1,41 @@
 <div id="proy-seccion-eliminados" style="display: none; width: 100%;">
-  <div style="width: 100%; text-align: left;">
+  
+  <div id="listado-eliminados-wrapper" style="width: 75%; margin: 0 auto; text-align: left;">
     <div id="contenedor-lista-eliminados" style="display: flex; flex-direction: column; gap: 0px; width: 100%;">
     </div>
   </div>
+
+  <div id="proy-seccion-restaurar-elim" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 20px;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #188038;">
+      <span class="material-symbols-outlined" style="color: #188038;">restore</span> Restaurar Proyecto
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      ¿Estás seguro de que deseas restaurar este proyecto? Volverá a su estado original junto con todo su historial y bitácora, y desaparecerá de la papelera.
+    </p>
+    
+    <div style="background: #e6f4ea; border: 1px solid #ceead6; color: #137333; padding: 10px 15px; border-radius: 4px; font-size: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">info</span>
+      <span><strong>Ubicación de destino tras restaurar:</strong> <span id="destino-restauracion-texto" style="text-transform: uppercase;"></span></span>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="cancelarRestauracion()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="btn-confirmar-restaurar" onclick="ejecutarRestauracionBackend()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #188038; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#13602a'" onmouseout="this.style.background='#188038'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">restore</span> SÍ, RESTAURAR PROYECTO
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <script>
   var proyectoARestaurar = null;
 
   function cargarListaEliminados() {
+    // Reseteo maestro de vistas internas
+    document.getElementById('listado-eliminados-wrapper').style.display = 'block';
+    document.getElementById('proy-seccion-restaurar-elim').style.display = 'none';
+    
     var contenedor = document.getElementById('contenedor-lista-eliminados');
     if(!contenedor) return;
     
@@ -88,39 +115,53 @@
 
   function prepararRestauracion(nombre, fecha, origen) {
     proyectoARestaurar = { nombre: nombre, fecha: fecha, origen: origen };
+    document.getElementById('destino-restauracion-texto').innerText = origen;
     
-    if (confirm("¿Estás seguro de que deseas restaurar este proyecto?\n\nVolverá a su estado original (" + origen + ") junto con todo su historial y bitácora.")) {
-        ejecutarRestauracionBackend();
-    }
+    // Ocultar lista y mostrar confirmación interna
+    document.getElementById('listado-eliminados-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-restaurar-elim').style.display = 'block';
+  }
+
+  function cancelarRestauracion() {
+    document.getElementById('proy-seccion-restaurar-elim').style.display = 'none';
+    document.getElementById('listado-eliminados-wrapper').style.display = 'block';
+    proyectoARestaurar = null;
   }
 
   function ejecutarRestauracionBackend() {
     if (!proyectoARestaurar) return;
 
-    // Alerta visual de carga
-    var contenedor = document.getElementById('contenedor-lista-eliminados');
-    contenedor.innerHTML = '<p style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px; color: #188038;">sync</span><br><br>Restaurando proyecto a su ubicación original...</p>';
+    var btn = document.getElementById('btn-confirmar-restaurar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> RESTAURANDO...';
 
     google.script.run
       .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> SÍ, RESTAURAR PROYECTO';
+        
         if (res.success) {
-          if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Restauración Exitosa", "El proyecto ha vuelto a su ubicación: " + proyectoARestaurar.origen, "task_alt", function(){
-               cargarListaEliminados();
-            });
-          } else {
-             alert("El proyecto ha sido restaurado exitosamente a su ubicación: " + proyectoARestaurar.origen);
-             cargarListaEliminados();
-          }
+          // Ocultar vista de restauración
+          document.getElementById('proy-seccion-restaurar-elim').style.display = 'none';
+          
+          // Saltar a la pantalla de éxito global
+          document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Restaurado!";
+          document.getElementById('proy-exito-texto').innerText = "El proyecto y su bitácora han regresado exitosamente a la sección de " + proyectoARestaurar.origen + ".";
+          document.getElementById('btn-proy-exito-volver').onclick = function() {
+              mostrarSubPantallaProyectos('eliminado');
+          };
+          mostrarSubPantallaProyectos('exito');
           
         } else {
           alert("Error al restaurar: " + res.error);
-          cargarListaEliminados();
+          cancelarRestauracion();
         }
       })
       .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">restore</span> SÍ, RESTAURAR PROYECTO';
         alert("Error de conexión al restaurar: " + err);
-        cargarListaEliminados();
+        cancelarRestauracion();
       })
       .restaurarProyectoBackend(proyectoARestaurar.nombre, proyectoARestaurar.fecha);
   }

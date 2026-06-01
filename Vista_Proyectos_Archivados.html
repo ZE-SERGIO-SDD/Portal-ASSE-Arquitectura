@@ -282,6 +282,21 @@
     </div>
   </div>
 
+  <div id="proy-seccion-eliminar-arch" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 20px;">
+    <div class="titulo-azul" style="font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; color: #d93025;">
+      <span class="material-symbols-outlined" style="color: #d93025;">delete_forever</span> Eliminar Proyecto Archivado
+    </div>
+    <p style="color: #444; font-size: 13px; margin-bottom: 15px; line-height: 1.4;">
+      ¿Estás seguro de que deseas eliminar este proyecto archivado? Se enviará a la Papelera de Reciclaje junto con todo su historial. Solo un administrador podrá restaurarlo.
+    </p>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="cancelarEliminacionArch()" style="flex: 1; padding: 10px; background: white; border: 1px solid #ccc; color: #444; font-weight: bold; border-radius: 4px; cursor: pointer;">CANCELAR</button>
+      <button id="arch-btn-confirmar-eliminar" onclick="ejecutarEliminacionBackendArch()" style="flex: 1; margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 5px; background: #d93025; color: white; border: none; font-weight: bold; border-radius: 4px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#b3261e'" onmouseout="this.style.background='#d93025'">
+        <span class="material-symbols-outlined" style="font-size: 18px;">delete_forever</span> SÍ, ELIMINAR PROYECTO
+      </button>
+    </div>
+  </div>
+
   <div id="proy-seccion-historial-arch" style="display: none; width: 75%; margin: 0 auto; text-align: left; padding-top: 10px;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1c4587; padding-bottom: 10px; margin-bottom: 15px;">
       <div class="titulo-azul" style="font-size: 18px; margin: 0; display: flex; align-items: center; gap: 8px;">
@@ -393,6 +408,14 @@
   }
 
   function cargarListaArchivados(forzar = false) {
+    // RESETEO DE VISTAS INTERNAS PARA EVITAR "EFECTO FANTASMA"
+    document.getElementById('listado-archivados-wrapper').style.display = 'block';
+    document.getElementById('arch-detalle-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-reactivar-arch').style.display = 'none';
+    document.getElementById('proy-seccion-historial-arch').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar-arch').style.display = 'none';
+    gestionarEncabezadoMolestoArch(false); // Asegura que el título principal vuelva a verse
+
     document.getElementById('arch-contenedor-lista').innerHTML = '<p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 10px; color: black;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Preparando filtros...</p>';
     document.getElementById('arch-contenedor-btn-mas').style.display = 'none';
 
@@ -668,6 +691,7 @@
     document.getElementById('listado-archivados-wrapper').style.display = 'none';
     document.getElementById('proy-seccion-reactivar-arch').style.display = 'none';
     document.getElementById('proy-seccion-historial-arch').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar-arch').style.display = 'none';
     document.getElementById('arch-detalle-wrapper').style.display = 'block';
   }
 
@@ -676,6 +700,7 @@
     document.getElementById('arch-detalle-wrapper').style.display = 'none';
     document.getElementById('proy-seccion-reactivar-arch').style.display = 'none';
     document.getElementById('proy-seccion-historial-arch').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar-arch').style.display = 'none';
     document.getElementById('listado-archivados-wrapper').style.display = 'block';
     archProyectoActivoEditando = null;
   }
@@ -746,16 +771,14 @@
         if (res.success) {
           document.getElementById('proy-seccion-reactivar-arch').style.display = 'none';
           
-          if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Proyecto Reactivado", "El proyecto y su bitácora han sido restaurados al listado activo.", "unarchive", function(){
-               volverListadoArchivados();
-               ejecutarBusquedaArchivados(); // Se refresca la lista para que desaparezca
-            });
-          } else {
-            alert("Proyecto reactivado exitosamente.");
-            volverListadoArchivados();
-            ejecutarBusquedaArchivados();
-          }
+          // Integración con pantalla de éxito global en lugar de alert
+          document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Reactivado!";
+          document.getElementById('proy-exito-texto').innerText = "El proyecto y su bitácora han sido restaurados exitosamente al listado activo (En Curso).";
+          document.getElementById('btn-proy-exito-volver').onclick = function() {
+              mostrarSubPantallaProyectos('archivado');
+          };
+          mostrarSubPantallaProyectos('exito');
+
         } else {
           alert("Error al reactivar el proyecto: " + res.error);
         }
@@ -768,40 +791,49 @@
       .reactivarProyectoBackend(p.nombre, p.fecha, fechaReactivacion, comentarioReactivacion, usuarioNombreAEnviar);
   }
 
-  // ---- FUNCIONES DE ELIMINACIÓN (ALERTA NATIVA) ----
+  // ---- FUNCIONES DE ELIMINACIÓN (CON VISTA INTERNA EN LUGAR DE ALERT NATIVA) ----
   function prepararEliminacionProyectoArch() {
     if (!archProyectoActivoEditando) return;
+    document.getElementById('arch-detalle-wrapper').style.display = 'none';
+    document.getElementById('proy-seccion-eliminar-arch').style.display = 'block';
+  }
 
-    if (confirm("¡ATENCIÓN! ¿Estás seguro de que deseas eliminar este proyecto?\n\nEsta acción es irreversible y borrará todo registro del mismo, inclusive todo el historial en la bitácora.")) {
-        ejecutarEliminacionBackendArch();
-    }
+  function cancelarEliminacionArch() {
+    document.getElementById('proy-seccion-eliminar-arch').style.display = 'none';
+    document.getElementById('arch-detalle-wrapper').style.display = 'block';
   }
 
   function ejecutarEliminacionBackendArch() {
     var p = archProyectoActivoEditando;
     
-    // Mostramos un mensaje de carga temporal mientras procesa
-    document.getElementById('arch-detalle-wrapper').innerHTML = '<p style="text-align:center; padding: 40px;"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size: 30px;">sync</span><br>Eliminando proyecto definitivamente...</p>';
+    var btn = document.getElementById('arch-btn-confirmar-eliminar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> PROCESANDO...';
 
     google.script.run
       .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> SÍ, ELIMINAR PROYECTO';
+        
         if (res.success) {
-          if(typeof mostrarAlertaProy === 'function') {
-            mostrarAlertaProy("Proyecto Eliminado", "El proyecto y todo su historial han sido eliminados de forma definitiva.", "delete", function(){
-               volverListadoArchivados();
-               ejecutarBusquedaArchivados();
-            });
-          } else {
-            alert("Proyecto eliminado exitosamente.");
-            volverListadoArchivados();
-            ejecutarBusquedaArchivados();
-          }
+          document.getElementById('proy-seccion-eliminar-arch').style.display = 'none';
+          
+          // Integración con pantalla de éxito global
+          document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Eliminado!";
+          document.getElementById('proy-exito-texto').innerText = "El proyecto archivado y su historial han sido enviados a la Papelera de Reciclaje.";
+          document.getElementById('btn-proy-exito-volver').onclick = function() {
+              mostrarSubPantallaProyectos('archivado');
+          };
+          mostrarSubPantallaProyectos('exito');
+          
         } else {
           alert("Error al eliminar el proyecto: " + res.error);
           volverListadoArchivados();
         }
       })
       .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">delete_forever</span> SÍ, ELIMINAR PROYECTO';
         alert("Error de conexión al intentar eliminar: " + err);
         volverListadoArchivados();
       })

@@ -220,6 +220,17 @@
       </div>
     </div>
 
+    <div id="proy-seccion-exito" style="display: none; text-align: center; padding: 30px 10px;">
+      <div style="font-size: 50px; color: #188038; margin-bottom: 15px;">
+        <span class="material-symbols-outlined" style="font-size: 60px; vertical-align: middle;">check_circle</span>
+      </div>
+      <div class="titulo-azul" id="proy-exito-titulo" style="font-size: 24px; color: #188038; margin-bottom: 10px;">¡Operación Exitosa!</div>
+      <p id="proy-exito-texto" style="color: #555; margin-top: 0; margin-bottom: 30px; font-size: 15px; line-height: 1.5;">La acción solicitada ha sido procesada correctamente.</p>
+      <button id="btn-proy-exito-volver" class="btn-azul" style="width: auto; padding: 12px 40px; display: inline-flex; align-items: center; gap: 8px; font-size: 15px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER A GESTIÓN
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -259,18 +270,49 @@
   }
 
   function mostrarSubPantallaProyectos(seccion) {
-    document.getElementById('proy-menu-principal').style.display = 'none';
-    document.getElementById('proy-seccion-nuevo').style.display = 'none';
-    document.getElementById('proy-seccion-preview').style.display = 'none'; // Asegurar que la vista previa esté oculta
+    var pantalla = document.getElementById('pantalla-proyectos');
+    var container = document.querySelector('#pantalla-proyectos .container');
     
     var listadosSeccion = document.getElementById('proy-seccion-listados');
-    if(listadosSeccion) listadosSeccion.style.display = 'none';
-    
     var archivadosSeccion = document.getElementById('proy-seccion-archivados');
-    if(archivadosSeccion) archivadosSeccion.style.display = 'none';
-    
     var eliminadosSeccion = document.getElementById('proy-seccion-eliminados');
+    var exitoSeccion = document.getElementById('proy-seccion-exito');
+
+    // --- FIX DE LAYOUT: Ajuste de posición y limpieza de espacios ---
+    if(container) {
+        if(listadosSeccion && listadosSeccion.parentElement !== container) {
+            container.appendChild(listadosSeccion);
+            listadosSeccion.querySelectorAll('[style*="width: 75%"]').forEach(function(el) { el.style.width = '100%'; });
+        }
+        if(archivadosSeccion && archivadosSeccion.parentElement !== container) {
+            container.appendChild(archivadosSeccion);
+            archivadosSeccion.querySelectorAll('[style*="width: 75%"]').forEach(function(el) { el.style.width = '100%'; });
+        }
+        if(eliminadosSeccion && eliminadosSeccion.parentElement !== container) {
+            container.appendChild(eliminadosSeccion);
+            eliminadosSeccion.querySelectorAll('[style*="width: 75%"]').forEach(function(el) { el.style.width = '100%'; });
+        }
+        if(exitoSeccion && exitoSeccion.parentElement !== container) {
+            container.appendChild(exitoSeccion);
+        }
+    }
+
+    if (seccion === 'menu' || seccion === 'nuevo' || seccion === 'preview' || seccion === 'exito') {
+       pantalla.style.justifyContent = 'center';
+       pantalla.style.paddingTop = '10px';
+    } else {
+       pantalla.style.justifyContent = 'flex-start';
+       pantalla.style.paddingTop = '30px'; 
+    }
+
+    document.getElementById('proy-menu-principal').style.display = 'none';
+    document.getElementById('proy-seccion-nuevo').style.display = 'none';
+    document.getElementById('proy-seccion-preview').style.display = 'none';
+    
+    if(listadosSeccion) listadosSeccion.style.display = 'none';
+    if(archivadosSeccion) archivadosSeccion.style.display = 'none';
     if(eliminadosSeccion) eliminadosSeccion.style.display = 'none';
+    if(exitoSeccion) exitoSeccion.style.display = 'none';
 
     var titulo = document.getElementById('proy-titulo-principal');
     var subtitulo = document.getElementById('proy-subtitulo-principal');
@@ -279,6 +321,8 @@
 
     if (seccion === 'menu') {
       document.getElementById('proy-menu-principal').style.display = 'grid';
+      titulo.style.display = '';
+      subtitulo.style.display = '';
       titulo.innerText = "Gestión de Proyectos";
       subtitulo.innerText = "Aplicación para registro, seguimiento e historial de proyectos vinculados a Arquitectura e Infraestructura de ASSE.";
       btnVolverMenu.style.display = 'none'; 
@@ -289,7 +333,16 @@
         cardPapelera.style.display = (typeof usuarioEsAdmin !== 'undefined' && usuarioEsAdmin) ? 'flex' : 'none';
       }
 
+    } else if (seccion === 'exito') {
+      if(exitoSeccion) exitoSeccion.style.display = 'block';
+      titulo.style.display = 'none';
+      subtitulo.style.display = 'none';
+      btnVolverPanel.style.display = 'none';
+      btnVolverMenu.style.display = 'none';
+      
     } else {
+      titulo.style.display = '';
+      subtitulo.style.display = '';
       btnVolverPanel.style.display = 'none'; 
       btnVolverMenu.style.display = 'flex'; 
       
@@ -629,10 +682,13 @@
         document.getElementById('proy-tipo-obra').value = '';
         document.getElementById('proy-estado').value = '';
         
-        mostrarAlertaProy("¡Éxito!", "Proyecto creado con éxito.", "task_alt", function() {
-            cerrarVistaPrevia();
+        // Configurar y saltar a la pantalla de éxito interna integrada
+        document.getElementById('proy-exito-titulo').innerText = "¡Proyecto Creado!";
+        document.getElementById('proy-exito-texto').innerText = "El nuevo proyecto ha sido registrado con éxito en el sistema de seguimiento de infraestructura.";
+        document.getElementById('btn-proy-exito-volver').onclick = function() {
             mostrarSubPantallaProyectos('menu');
-        });
+        };
+        mostrarSubPantallaProyectos('exito');
       } else {
         mostrarAlertaProy("Error al guardar", res.error, "error");
       }
