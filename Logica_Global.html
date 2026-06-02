@@ -110,6 +110,43 @@
       .validarCredenciales(email, pass);
   }
 
+  // --- FUNCIÓN HELPER: Mensajes internos para Registro ---
+  function mostrarMensajeRegistro(mensaje, esExito) {
+    var container = document.querySelector('#pantalla-registro .caja-inicio');
+    var msgDiv = document.getElementById('msg-registro-alerta');
+    
+    if (!msgDiv) {
+      msgDiv = document.createElement('div');
+      msgDiv.id = 'msg-registro-alerta';
+      msgDiv.style.padding = '12px';
+      msgDiv.style.borderRadius = '4px';
+      msgDiv.style.fontSize = '13px';
+      msgDiv.style.marginBottom = '15px';
+      msgDiv.style.display = 'flex';
+      msgDiv.style.alignItems = 'center';
+      msgDiv.style.gap = '8px';
+      msgDiv.style.fontWeight = '500';
+      msgDiv.style.textAlign = 'left';
+      msgDiv.style.lineHeight = '1.4';
+      
+      var btnRegistro = document.getElementById('btn-registro');
+      container.insertBefore(msgDiv, btnRegistro);
+    }
+    
+    if (esExito) {
+      msgDiv.style.backgroundColor = '#e6f4ea';
+      msgDiv.style.border = '1px solid #ceead6';
+      msgDiv.style.color = '#137333';
+      msgDiv.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">check_circle</span> <span>' + mensaje + '</span>';
+    } else {
+      msgDiv.style.backgroundColor = '#fce8e6';
+      msgDiv.style.border = '1px solid #fad2cf';
+      msgDiv.style.color = '#c5221f';
+      msgDiv.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">error</span> <span>' + mensaje + '</span>';
+    }
+    msgDiv.style.display = 'flex';
+  }
+
   function registrarUsuario() {
     var nombre = document.getElementById('reg-nombre').value;
     var apellido = document.getElementById('reg-apellido').value;
@@ -118,9 +155,12 @@
     var pass2 = document.getElementById('reg-pass2').value;
     var btn = document.getElementById('btn-registro');
     
-    if(!nombre || !apellido || !email || !pass) { alert("Todos los campos son obligatorios."); return; }
-    if(pass !== pass2) { alert("Las contraseñas no coinciden."); return; }
+    if(!nombre || !apellido || !email || !pass) { mostrarMensajeRegistro("Todos los campos son obligatorios.", false); return; }
+    if(pass !== pass2) { mostrarMensajeRegistro("Las contraseñas no coinciden.", false); return; }
     
+    var msgDiv = document.getElementById('msg-registro-alerta');
+    if(msgDiv) msgDiv.style.display = 'none';
+
     btn.disabled = true; 
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> CREANDO CUENTA...';
     
@@ -129,7 +169,7 @@
         btn.disabled = false; 
         btn.innerHTML = "CREAR CUENTA";
         if(res.success) {
-          alert("Cuenta creada con éxito. Ahora puede iniciar sesión.");
+          mostrarMensajeRegistro("Cuenta creada con éxito. Redirigiendo...", true);
           document.getElementById('reg-nombre').value = '';
           document.getElementById('reg-apellido').value = '';
           document.getElementById('reg-pass').value = '';
@@ -140,19 +180,61 @@
           setTimeout(function() {
             var selectElement = document.getElementById('login-email');
             if(selectElement) selectElement.value = email; 
-          }, 1500);
+            ir('inicio');
+            if(msgDiv) msgDiv.style.display = 'none';
+          }, 2000);
 
-          ir('inicio');
         } else { 
-          alert(res.error); 
+          mostrarMensajeRegistro(res.error, false); 
         }
       })
       .registrarUsuarioNuevo(email, pass, nombre, apellido);
   }
 
+  // --- FUNCIÓN HELPER: Mensajes internos para Perfil ---
+  function mostrarMensajePerfil(mensaje, esExito) {
+    var container = document.querySelector('#pantalla-perfil .caja-inicio');
+    var msgDiv = document.getElementById('msg-perfil-alerta');
+    
+    if (!msgDiv) {
+      msgDiv = document.createElement('div');
+      msgDiv.id = 'msg-perfil-alerta';
+      msgDiv.style.padding = '12px';
+      msgDiv.style.borderRadius = '4px';
+      msgDiv.style.fontSize = '13px';
+      msgDiv.style.marginBottom = '15px';
+      msgDiv.style.display = 'flex';
+      msgDiv.style.alignItems = 'center';
+      msgDiv.style.gap = '8px';
+      msgDiv.style.fontWeight = '500';
+      msgDiv.style.textAlign = 'left';
+      msgDiv.style.lineHeight = '1.4';
+      
+      var btnGuardar = document.getElementById('btn-perf-guardar');
+      container.insertBefore(msgDiv, btnGuardar);
+    }
+    
+    if (esExito) {
+      msgDiv.style.backgroundColor = '#e6f4ea';
+      msgDiv.style.border = '1px solid #ceead6';
+      msgDiv.style.color = '#137333';
+      msgDiv.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">check_circle</span> <span>' + mensaje + '</span>';
+    } else {
+      msgDiv.style.backgroundColor = '#fce8e6';
+      msgDiv.style.border = '1px solid #fad2cf';
+      msgDiv.style.color = '#c5221f';
+      msgDiv.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">error</span> <span>' + mensaje + '</span>';
+    }
+    msgDiv.style.display = 'flex';
+  }
+
   function cargarPerfil() {
+    // Si quedó un mensaje de antes, lo ocultamos al entrar
+    var msgDiv = document.getElementById('msg-perfil-alerta');
+    if(msgDiv) msgDiv.style.display = 'none';
+
     google.script.run.withSuccessHandler(function(res) {
-        if(res.error) { alert(res.error); return; }
+        if(res.error) { mostrarMensajePerfil(res.error, false); return; }
         document.getElementById('perf-nombre').value = res.nombre;
         document.getElementById('perf-apellido').value = res.apellido;
         document.getElementById('perf-email').value = usuarioActivoEmail;
@@ -167,9 +249,12 @@
     var pass = document.getElementById('perf-pass').value;
     var pass2 = document.getElementById('perf-pass2').value;
     
-    if(!nombre || !apellido || !pass) { alert("Todos los campos son obligatorios."); return; }
-    if(pass !== pass2) { alert("Las contraseñas no coinciden."); return; }
+    if(!nombre || !apellido || !pass) { mostrarMensajePerfil("Todos los campos son obligatorios.", false); return; }
+    if(pass !== pass2) { mostrarMensajePerfil("Las contraseñas no coinciden.", false); return; }
     
+    var msgDiv = document.getElementById('msg-perfil-alerta');
+    if(msgDiv) msgDiv.style.display = 'none';
+
     var btn = document.getElementById('btn-perf-guardar');
     btn.disabled = true; 
     btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; animation: spin 2s linear infinite;">sync</span> GUARDANDO CAMBIOS...';
@@ -178,12 +263,17 @@
         btn.disabled = false; 
         btn.innerHTML = "GUARDAR CAMBIOS";
         if(res.success) {
-          alert("Perfil actualizado correctamente.");
+          mostrarMensajePerfil("Perfil actualizado correctamente.", true);
           usuarioActivoNombre = res.nuevoNombre;
           document.getElementById('saludo-usuario').innerText = "Hola, " + res.nuevoNombre;
-          ir('portal');
+          
+          // Esperar 2 segundos para que el usuario pueda leer el cartel de éxito
+          setTimeout(function() {
+            ir('portal');
+            if(msgDiv) msgDiv.style.display = 'none';
+          }, 2000);
         } else { 
-          alert(res.error); 
+          mostrarMensajePerfil(res.error, false); 
         }
       }).actualizarPerfilUsuario(usuarioActivoEmail, nombre, apellido, pass);
   }
@@ -250,29 +340,6 @@
     ir('inicio'); 
   }
   
-  // ==========================================================
-  // ALERTAS NATIVAS E INFORMACIÓN (SIN MODALES HTML)
-  // ==========================================================
-  
-  function recuperarPasswordGlobal() { 
-      var email = prompt("Recuperación de cuenta\n\nPor favor, ingrese su correo electrónico institucional registrado:");
-      
-      if(email !== null) {
-          email = email.trim();
-          if(email !== "") {
-              alert("Solicitud procesada.\n\nSi el correo '" + email + "' está en nuestra base de datos, un administrador gestionará la recuperación o recibirá un correo con instrucciones.");
-              // Si tienes la función en el código .gs, puedes activarla así:
-              // google.script.run.enviarRecuperacionBackend(email);
-          } else {
-              alert("Operación cancelada: Debe ingresar un correo válido.");
-          }
-      }
-  }
-
-  function mostrarInfoAppGlobal() {
-      alert("Portal ASSE Arquitectura\n\nPlataforma oficial de estandarización BIM, gestión documental y administración de proyectos de la división de Arquitectura.\n\nPara soporte técnico, contacte al administrador del sistema.");
-  }
-
   // ==========================================================
   // PANEL DE ADMINISTRADOR Y PERMISOS
   // ==========================================================
