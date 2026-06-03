@@ -20,7 +20,7 @@ function obtenerProyectosEliminados() {
     var idxNombre = headers.indexOf("nombre proyecto") !== -1 ? headers.indexOf("nombre proyecto") : headers.indexOf("nombre");
     var idxOrigen = headers.indexOf("origen");
     
-    // Identificamos las columnas finales (si no existen con ese nombre exacto, asumimos las últimas)
+    // Identificamos las columnas finales
     var idxFechaElim = headers.indexOf("fecha eliminacion") !== -1 ? headers.indexOf("fecha eliminacion") : (data[0].length - 2); 
     var idxElimPor = headers.indexOf("eliminado por") !== -1 ? headers.indexOf("eliminado por") : (data[0].length - 1);
     
@@ -31,12 +31,11 @@ function obtenerProyectosEliminados() {
       
       var fechaP = (idxFecha !== -1 && row[idxFecha] instanceof Date) ? row[idxFecha].toISOString() : (row[idxFecha] || "");
       var fechaElim = (row[idxFechaElim] instanceof Date) ? row[idxFechaElim].toISOString().split('T')[0] : (row[idxFechaElim] || "");
-      
       var fOrigen = idxOrigen !== -1 && row[idxOrigen] ? row[idxOrigen].toString() : "En Curso";
       var fDepto = idxDepto !== -1 && row[idxDepto] ? row[idxDepto].toString() : "";
       var fCentro = idxCentro !== -1 && row[idxCentro] ? row[idxCentro].toString() : "";
       var fElimPor = idxElimPor !== -1 && row[idxElimPor] ? row[idxElimPor].toString() : "";
-
+      
       eliminados.push({
         fecha: fechaP,
         departamento: fDepto,
@@ -54,7 +53,8 @@ function obtenerProyectosEliminados() {
   }
 }
 
-function restaurarProyectoBackend(nombre, fecha) {
+// MODIFICACIÓN: Ahora recibe 'usuarioNombre' como tercer parámetro
+function restaurarProyectoBackend(nombre, fecha, usuarioNombre) {
   try {
     var ss = SpreadsheetApp.openById(PROYECTOS_CONFIG_ID);
     var sheetEliminados = ss.getSheetByName("BD_Proyectos_Eliminados");
@@ -96,13 +96,25 @@ function restaurarProyectoBackend(nombre, fecha) {
 
     // Quitar las últimas 3 columnas (Origen, Fecha Elim, Usuario) para dejarlo limpio en su BD original
     var filaOriginalRestaurada = rowData.slice(0, rowData.length - 3);
-    
     sheetDestino.appendRow(filaOriginalRestaurada);
     sheetEliminados.deleteRow(filaEncontrada);
 
     // Restaurar historial usando el ID exacto
     if (idProyecto) {
        restaurarHistorialEliminado(ss, idProyecto, origenDestino);
+       
+       // NUEVO: Registrar el hito de restauración con FECHA/HORA exacta y USUARIO real
+       var fechaRestauracion = new Date();
+       
+       // Aprovechamos resolverNombreUsuario de Proyectos.gs para formatear perfecto Nombre y Apellido
+       var user = typeof resolverNombreUsuario === "function" ? resolverNombreUsuario(usuarioNombre) : (usuarioNombre || "Sistema");
+       
+       var nombrePestañaHistorial = (origenDestino === "Archivado") ? "BD_Historial_Archivados" : "BD_Historial";
+       var sheetHistorialDestino = ss.getSheetByName(nombrePestañaHistorial);
+       
+       if (sheetHistorialDestino) {
+         sheetHistorialDestino.appendRow([idProyecto, fechaRestauracion, user, "RESTAURADO", "El proyecto fue recuperado desde la papelera.", ""]);
+       }
     }
 
     var cache = CacheService.getScriptCache();
@@ -124,7 +136,6 @@ function restaurarHistorialEliminado(ss, idProyecto, origenDestino) {
   
   var dataHistElim = sheetHistEliminados.getDataRange().getValues();
   var filasAEliminar = [];
-  
   // Recorremos de atrás hacia adelante para no alterar índices al borrar luego
   for (var i = dataHistElim.length - 1; i >= 1; i--) {
     var histId = dataHistElim[i][0] ? dataHistElim[i][0].toString() : "";

@@ -22,7 +22,6 @@ function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
   try {
     var cache = CacheService.getScriptCache();
     var cacheKey = 'borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString();
-    
     if (!forzarRecarga) {
       var cachedData = cache.get(cacheKey);
       if (cachedData) return JSON.parse(cachedData);
@@ -31,7 +30,6 @@ function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
     var ss = SpreadsheetApp.openById(BORRADORES_SHEET_ID);
     var data = ss.getSheets()[0].getDataRange().getValues();
     var misBorradores = {};
-    
     for (var i = 1; i < data.length; i++) { 
       if (data[i][0].toString().toLowerCase() === usuarioEmail.toString().toLowerCase() && data[i][1].toString() === disciplina.toString()) {
         misBorradores[data[i][2]] = {
@@ -41,7 +39,8 @@ function obtenerBorradoresDeDrive(usuarioEmail, disciplina, forzarRecarga) {
       }
     }
     
-    cache.put(cacheKey, JSON.stringify(misBorradores), 21600); // 6 horas
+    cache.put(cacheKey, JSON.stringify(misBorradores), 21600);
+    // 6 horas
     return misBorradores;
   } catch (e) { 
     return {};
@@ -92,7 +91,7 @@ function eliminarTodosBorradoresEnDrive(usuarioEmail, disciplina) {
     cache.remove('borradores_v2_' + usuarioEmail.toString().toLowerCase() + '_' + disciplina.toString());
     return true;
   } catch (e) { 
-    return false; 
+    return false;
   }
 }
 
@@ -115,6 +114,15 @@ function obtenerDisciplinas(forzarRecarga) {
     }
     
     cache.put(cacheKey, JSON.stringify(disciplinas), 21600);
+    
+    // CORRECCIÓN: Si el usuario presiona el botón de recargar, 
+    // eliminamos proactivamente el caché de rubros de TODAS las disciplinas.
+    if (forzarRecarga) {
+      disciplinas.forEach(function(d) {
+         cache.remove('rubros_v2_' + d.toString());
+      });
+    }
+    
     return disciplinas;
   } catch (e) {
     return ["⚠️ Error acceso Excel: " + e.message];
@@ -125,7 +133,6 @@ function obtenerRubros(nombreHoja, forzarRecarga) {
   try {
     var cache = CacheService.getScriptCache();
     var cacheKey = 'rubros_v2_' + nombreHoja.toString();
-    
     if (!forzarRecarga) {
       var cachedData = cache.get(cacheKey);
       if (cachedData) return JSON.parse(cachedData);
@@ -134,7 +141,8 @@ function obtenerRubros(nombreHoja, forzarRecarga) {
     var ss = SpreadsheetApp.openById(RUBROS_SHEET_ID);
     var sheet = ss.getSheetByName(nombreHoja);
     
-    if (!sheet) return []; // Si no existe la hoja
+    if (!sheet) return [];
+    // Si no existe la hoja
     
     var data = sheet.getDataRange().getValues();
     var rubros = [];
@@ -175,11 +183,9 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
   body.replaceText('\\(\\*\\*colocar disciplina\\*\\*\\)', datosFormulario.disciplina.toUpperCase());
   var tag = body.findText('{{MEMORIA}}');
   if (!tag) return { error: 'No se encontró {{MEMORIA}} en la plantilla' };
-  
   var tagElement = tag.getElement().getParent();
   var insertIndex = body.getChildIndex(tagElement);
   var numP = -1, numS = 0, numT = 0, bA = "", indice = [];
-  
   datosFormulario.seleccionados.forEach(item => {
     var lB = item.bloque.toUpperCase();
     if (lB !== bA) { bA = lB; numP = -1; numS = 0; numT = 0; }
@@ -190,6 +196,7 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
       indice.push({texto: tP, nivel: 1});
       
       var p = body.insertParagraph(insertIndex++, tP);
+    
       p.setHeading(numP === 0 ? DocumentApp.ParagraphHeading.HEADING1 : DocumentApp.ParagraphHeading.HEADING2)
        .setLineSpacing(1).setSpacingBefore(0).setSpacingAfter(0);
        
@@ -200,7 +207,7 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
       var p = body.insertParagraph(insertIndex++, tS);
       p.setHeading(DocumentApp.ParagraphHeading.HEADING3)
        .setLineSpacing(1).setSpacingBefore(0).setSpacingAfter(0);
-       
+   
     } else if (item.terciario) {
       numT++;
       var tT = bA + "." + (numP === -1 ? 0 : numP) + "." + (numS === 0 ? 1 : numS) + "." + numT + " - " + item.terciario;
@@ -219,14 +226,12 @@ function generarMemoriaWeb(datosFormulario, usuarioEmail) {
     espacio.setHeading(DocumentApp.ParagraphHeading.NORMAL)
            .setLineSpacing(1).setSpacingBefore(0).setSpacingAfter(0);
   });
-  
   if (indice.length > 0) {
     body.insertPageBreak(insertIndex++);
     var tI = body.insertParagraph(insertIndex++, 'ÍNDICE');
     tI.setHeading(DocumentApp.ParagraphHeading.HEADING1);
     tI.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
     tI.setSpacingAfter(10);
-    
     indice.forEach(function(i) {
       var p = body.insertParagraph(insertIndex++, i.texto);
       p.setHeading(DocumentApp.ParagraphHeading.NORMAL)
