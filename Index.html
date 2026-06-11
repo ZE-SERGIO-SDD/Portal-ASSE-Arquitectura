@@ -82,8 +82,8 @@
         <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Ingrese su correo institucional. Si se encuentra en nuestra base, recibirá instrucciones para restablecer su acceso.</p>
         
         <div id="recup-mensaje" style="display: none; background-color: #e6f4ea; border: 1px solid #ceead6; color: #137333; padding: 12px; border-radius: 4px; font-size: 12px; margin-bottom: 15px; text-align: left; align-items: center; gap: 8px; line-height: 1.4;">
-          <span class="material-symbols-outlined" style="font-size: 20px; flex-shrink: 0;">check_circle</span>
-          <span>Instrucciones enviadas exitosamente. Por favor, revise la bandeja de entrada de su correo electrónico.</span>
+          <span class="material-symbols-outlined" id="recup-icono" style="font-size: 20px; flex-shrink: 0;">check_circle</span>
+          <span id="recup-texto">Instrucciones enviadas exitosamente. Por favor, revise la bandeja de entrada de su correo electrónico.</span>
         </div>
 
         <div style="text-align: left; width: 100%;">
@@ -296,14 +296,12 @@
 
     <script>
       function mostrarPantallaLocal(idPantalla) {
-        // Ocultar todas las pantallas relacionadas al entorno de inicio
         var pantallas = ['pantalla-inicio', 'pantalla-registro', 'pantalla-recuperar', 'pantalla-info-app'];
         pantallas.forEach(function(p) {
           var el = document.getElementById(p);
           if (el) el.style.display = 'none';
         });
 
-        // Limpiar el estado de la pantalla de recuperación si se navega a ella
         if(idPantalla === 'pantalla-recuperar') {
           document.getElementById('recup-email').value = '';
           document.getElementById('recup-mensaje').style.display = 'none';
@@ -311,7 +309,6 @@
           document.getElementById('btn-enviar-recup').innerHTML = 'ENVIAR INSTRUCCIONES';
         }
 
-        // Mostrar la pantalla usando 'flex' para garantizar el centrado automático vertical y horizontal
         var pantallaDestino = document.getElementById(idPantalla);
         if (pantallaDestino) {
           pantallaDestino.style.display = 'flex'; 
@@ -330,14 +327,46 @@
         }
 
         var btn = document.getElementById('btn-enviar-recup');
+        var msjDiv = document.getElementById('recup-mensaje');
+        var msjIcono = document.getElementById('recup-icono');
+        var msjTexto = document.getElementById('recup-texto');
+
         btn.disabled = true;
         btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:16px; vertical-align:middle; margin-right:5px;">sync</span> ENVIANDO...';
+        msjDiv.style.display = 'none';
 
-        // Simulación de envío fluido
-        setTimeout(function() {
-          document.getElementById('recup-mensaje').style.display = 'flex';
-          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:5px;">check</span> ENVIADO';
-        }, 1500);
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if(res.success) {
+              msjDiv.style.backgroundColor = '#e6f4ea';
+              msjDiv.style.borderColor = '#ceead6';
+              msjDiv.style.color = '#137333';
+              msjIcono.innerText = 'check_circle';
+              msjTexto.innerText = 'Instrucciones enviadas exitosamente. Por favor, revise la bandeja de entrada de su correo electrónico.';
+              msjDiv.style.display = 'flex';
+              btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:5px;">check</span> ENVIADO';
+            } else {
+              msjDiv.style.backgroundColor = '#fce8e6';
+              msjDiv.style.borderColor = '#fad2cf';
+              msjDiv.style.color = '#c5221f';
+              msjIcono.innerText = 'error';
+              msjTexto.innerText = res.error || 'Ocurrió un error. Verifique el correo.';
+              msjDiv.style.display = 'flex';
+              btn.disabled = false;
+              btn.innerHTML = 'ENVIAR INSTRUCCIONES';
+            }
+          })
+          .withFailureHandler(function(err) {
+            msjDiv.style.backgroundColor = '#fce8e6';
+            msjDiv.style.borderColor = '#fad2cf';
+            msjDiv.style.color = '#c5221f';
+            msjIcono.innerText = 'error';
+            msjTexto.innerText = 'Error de conexión con el servidor.';
+            msjDiv.style.display = 'flex';
+            btn.disabled = false;
+            btn.innerHTML = 'ENVIAR INSTRUCCIONES';
+          })
+          .recuperarClave(emailInput);
       }
     </script>
   </body>
