@@ -1,19 +1,49 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
 <div id="pantalla-documentos">
-  <div id="docs-vista-principal" class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+  
+  <div id="docs-vista-opciones" class="container" style="position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    
+    <button class="btn-volver" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px; margin-bottom: 20px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    </button>
+
+    <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px;">
+      <span class="material-symbols-outlined" style="font-size: 28px;">folder_open</span> Biblioteca de Documentos
+    </div>
+    <p style="font-size:14px; color:#666; margin-bottom:30px;">Seleccione el tipo de documento que necesita tramitar o descargar.</p>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+      
+      <div onclick="mostrarVistaEditables()" style="flex: 1; min-width: 300px; border: 1px solid #d1d9e0; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; background: white;" onmouseover="this.style.boxShadow='0 8px 16px rgba(28,69,135,0.1)'; this.style.borderColor='#1c4587'" onmouseout="this.style.boxShadow='none'; this.style.borderColor='#d1d9e0'">
+        <span class="material-symbols-outlined" style="font-size: 50px; color: #1c4587; margin-bottom: 10px;">edit_document</span>
+        <h3 style="color: #1c4587; margin: 0 0 10px 0; font-size: 18px;">Documentos Editables</h3>
+        <p style="font-size: 13px; color: #666; margin: 0; line-height: 1.5;">Documentos modelo que se procesarán y volcarán automáticamente sobre la lámina membretada oficial.</p>
+      </div>
+      
+      <div onclick="mostrarVistaArmados()" style="flex: 1; min-width: 300px; border: 1px solid #d1d9e0; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; background: white;" onmouseover="this.style.boxShadow='0 8px 16px rgba(28,69,135,0.1)'; this.style.borderColor='#1c4587'" onmouseout="this.style.boxShadow='none'; this.style.borderColor='#d1d9e0'">
+        <span class="material-symbols-outlined" style="font-size: 50px; color: #188038; margin-bottom: 10px;">picture_as_pdf</span>
+        <h3 style="color: #188038; margin: 0 0 10px 0; font-size: 18px;">Documentos Armados</h3>
+        <p style="font-size: 13px; color: #666; margin: 0; line-height: 1.5;">Archivos definitivos (PDFs, manuales, etc.) listos para descargar o visualizar sin ningún procesamiento.</p>
+      </div>
+      
+    </div>
+  </div>
+
+
+  <div id="docs-vista-editables" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     
     <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
       <button onclick="alternarInfoDocumentos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
         <span class="material-symbols-outlined" style="font-size: 20px;">help</span>
       </button>
-      <button id="btn-recargar-docs" onclick="recargarDocumentos()" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+      <button id="btn-recargar-editables" onclick="ejecutarLlamadaDocumentosEditables(true)" style="background: #f0f4f8; border: 1px solid #d1d9e0; color: #1c4587; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
         <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
       </button>
     </div>
 
-    <button class="btn-volver" onclick="ir('portal')" style="display: flex; align-items: center; gap: 5px;">
-      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER AL PANEL
+    <button class="btn-volver" onclick="mostrarVistaOpciones()" style="display: flex; align-items: center; gap: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER A OPCIONES
     </button>
 
     <div id="docs-info-inline" style="display: none; background: #e3f2fd; border-left: 4px solid #1c4587; padding: 15px; margin-top: 15px; border-radius: 4px; text-align: left;">
@@ -27,16 +57,42 @@
     </div>
 
     <div class="titulo-azul" style="display: flex; align-items: center; gap: 8px; margin-top: 25px;">
-      <span class="material-symbols-outlined" style="font-size: 28px;">description</span> Documentos internos
+      <span class="material-symbols-outlined" style="font-size: 28px;">edit_document</span> Documentos Editables
     </div>
     <p style="font-size:13px; color:#666; margin-bottom:20px;">Selecciona un documento para previsualizarlo y generarlo con la lámina oficial.</p>
 
-    <div id="lista-documentos-internos">
+    <div id="lista-documentos-editables">
       <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #666;">
-        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Inicializando módulo...
+        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando...
       </p>
     </div>
   </div>
+
+
+  <div id="docs-vista-armados" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
+    
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+      <button id="btn-recargar-armados" onclick="ejecutarLlamadaDocumentosArmados(true)" style="background: #e6f4ea; border: 1px solid #ceead6; color: #188038; padding: 6px 10px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: none;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
+      </button>
+    </div>
+
+    <button class="btn-volver" onclick="mostrarVistaOpciones()" style="display: flex; align-items: center; gap: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span> VOLVER A OPCIONES
+    </button>
+
+    <div class="titulo-verde" style="display: flex; align-items: center; gap: 8px; margin-top: 25px; color: #188038; font-size: 24px; font-weight: 700; margin-bottom: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 28px;">picture_as_pdf</span> Documentos Armados
+    </div>
+    <p style="font-size:13px; color:#666; margin-bottom:20px;">Haz clic en un documento para abrirlo en una nueva pestaña y descargarlo.</p>
+
+    <div id="lista-documentos-armados">
+      <p style="text-align:center; padding:20px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #666;">
+        <span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Cargando PDFs...
+      </p>
+    </div>
+  </div>
+
 
   <div id="docs-vista-previa" class="container" style="display: none; position: relative; max-width: 800px; padding: 40px; width: 100%; box-sizing: border-box;">
     <div class="titulo-azul" id="titulo-preview-doc" style="font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
@@ -45,11 +101,11 @@
     <p style="font-size:13px; color:#666; margin-bottom:20px;">Revise el documento original. Al confirmar, sus textos se transferirán a la lámina oficial de ASSE.</p>
     
     <div id="contenido-preview-doc" style="border: 1px solid #d1d9e0; background: white; margin-bottom: 20px; border-radius: 4px; height: 450px; overflow: hidden; position: relative;">
-      </div>
+    </div>
     
     <div style="display: flex; gap: 15px; margin-top: 20px;">
       <button onclick="cerrarVistaPreviaDoc()" style="background: white; border:1px solid #d1d9e0; color:#666; padding:15px; width: 50%; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s;">
-        VOLVER A LA LISTA
+        CANCELAR
       </button>
       <button class="btn-azul" id="btn-confirmar-preview-doc" style="margin-top: 0; width: 50%; display: flex; align-items: center; justify-content: center; gap: 8px;">
         <span class="material-symbols-outlined" style="font-size: 20px;">check_circle</span> CONFIRMAR Y GENERAR
@@ -57,11 +113,12 @@
     </div>
   </div>
 
+
   <div id="docs-vista-exito" class="container" style="display: none; position: relative; max-width: 600px; padding: 40px; width: 100%; box-sizing: border-box; text-align: center;">
     <div class="titulo-azul" style="font-size: 28px; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; color: #188038;">
       <span class="material-symbols-outlined" style="font-size: 35px;">check_circle</span> ¡Documento Generado!
     </div>
-    <p style="color: #666; margin-top: 0; margin-bottom: 30px; font-size: 15px;">El archivo ha sido creado exitosamente.</p>
+    <p style="color: #666; margin-top: 0; margin-bottom: 30px; font-size: 15px;">El archivo ha sido creado exitosamente en hoja membretada.</p>
     
     <a id="link-doc" href="#" target="_blank" class="btn-azul" style="display:inline-flex; justify-content: center; align-items: center; gap: 8px; width:auto; padding: 16px 40px; text-decoration:none; font-size: 16px; margin-bottom: 20px;">
       <span class="material-symbols-outlined">open_in_new</span> ABRIR DOCUMENTO
@@ -73,80 +130,73 @@
       Por favor, ábralo y <strong>descárguelo en PDF o Word</strong> para asegurar su conservación en su expediente.
     </div>
     
-    <button onclick="volverAListaDesdeExito()" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
+    <button onclick="mostrarVistaEditables()" style="background:none; border:none; color:#1c4587; font-weight:700; font-size:14px; margin-top: 10px; text-decoration:underline; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
       <span class="material-symbols-outlined" style="font-size: 18px;">description</span> CREAR OTRO DOCUMENTO
     </button>
-    <button onclick="ir('portal')" style="background:none; border:none; color:#666; font-weight:700; font-size:14px; margin-top: 20px; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
-      VOLVER AL PANEL PRINCIPAL
+    <button onclick="mostrarVistaOpciones()" style="background:none; border:none; color:#666; font-weight:700; font-size:14px; margin-top: 20px; display: flex; align-items: center; justify-content: center; width: 100%; gap: 5px; cursor: pointer;">
+      VOLVER AL MENÚ DE DOCUMENTOS
     </button>
   </div>
 
 </div>
 
+
 <script>
-  // Mostrar/Ocultar la ayuda sin usar modales
+  // Control de vistas
+  function mostrarVistaOpciones() {
+    document.getElementById('docs-vista-opciones').style.display = 'block';
+    document.getElementById('docs-vista-editables').style.display = 'none';
+    document.getElementById('docs-vista-armados').style.display = 'none';
+    document.getElementById('docs-vista-previa').style.display = 'none';
+    document.getElementById('docs-vista-exito').style.display = 'none';
+  }
+
+  function mostrarVistaEditables() {
+    document.getElementById('docs-vista-opciones').style.display = 'none';
+    document.getElementById('docs-vista-editables').style.display = 'block';
+    document.getElementById('docs-vista-exito').style.display = 'none';
+    ejecutarLlamadaDocumentosEditables(false);
+  }
+
+  function mostrarVistaArmados() {
+    document.getElementById('docs-vista-opciones').style.display = 'none';
+    document.getElementById('docs-vista-armados').style.display = 'block';
+    ejecutarLlamadaDocumentosArmados(false);
+  }
+
   function alternarInfoDocumentos() {
     var infoBox = document.getElementById('docs-info-inline');
     infoBox.style.display = (infoBox.style.display === 'none') ? 'block' : 'none';
   }
 
-  function recargarDocumentos() {
-    try {
-        // Asegurarnos de que si recargamos, volvemos a la vista 1
-        document.getElementById('docs-vista-principal').style.display = 'block';
-        document.getElementById('docs-vista-previa').style.display = 'none';
-        document.getElementById('docs-vista-exito').style.display = 'none';
-
-        intentosDocumentos = 0;
-        var btn = document.getElementById('btn-recargar-docs');
-        if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
-
-        ejecutarLlamadaDocumentosInternos(true);
-
-        setTimeout(function() {
-          if(btn) btn.innerHTML = '<span class="material-symbols-outlined">sync</span>';
-        }, 1500);
-    } catch(e) {
-        console.error("Fallo crítico en recargarDocumentos:", e);
+  // --- LÓGICA DE EDITABLES ---
+  function ejecutarLlamadaDocumentosEditables(forzar) {
+    if(forzar) {
+      var btn = document.getElementById('btn-recargar-editables');
+      if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
     }
-  }
-
-  function ejecutarLlamadaDocumentosInternos(forzar) {
-    forzar = forzar === true; 
-    var iconName = forzar ? 'sync' : 'hourglass_empty';
-    var msgText = intentosDocumentos === 0
-              ? (forzar ? 'Actualizando desde Drive...' : 'Leyendo biblioteca...')
-              : 'Reconectando (' + (intentosDocumentos + 1) + '/' + MAX_INTENTOS + ')...';
-
-    document.getElementById('lista-documentos-internos').innerHTML =
+    
+    document.getElementById('lista-documentos-editables').innerHTML =
       '<p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">' +
-        '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">' + iconName + '</span> ' + msgText +
+        '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Leyendo biblioteca...' +
       '</p>';
 
     google.script.run
-      .withSuccessHandler(mostrarListaDocumentosInternos)
-      .withFailureHandler(errorDocumentosInternos)
-      .listarDocumentosContenido(forzar);
+      .withSuccessHandler(function(r) { 
+        mostrarListaDocumentosEditables(r);
+        if(forzar) document.getElementById('btn-recargar-editables').innerHTML = '<span class="material-symbols-outlined">sync</span>';
+      })
+      .withFailureHandler(function(e) { 
+        document.getElementById('lista-documentos-editables').innerHTML = '<p style="color:#d32f2f; text-align:center;">Error al cargar. Intente recargar.</p>';
+        if(forzar) document.getElementById('btn-recargar-editables').innerHTML = '<span class="material-symbols-outlined">sync</span>';
+      })
+      .listarDocumentosEditables(forzar === true);
   }
 
-  function mostrarListaDocumentosInternos(r) {
-    intentosDocumentos = 0;
-    var c = document.getElementById('lista-documentos-internos');
-
-    if(!r) {
-      errorDocumentosInternos({message: "No se recibió respuesta del servidor."});
-      return;
-    }
-
-    if(r.error) {
-      errorDocumentosInternos({message: r.error});
-      return;
-    }
-
-    if(r.length === 0) {
-      c.innerHTML = '<p style="text-align:center; padding:30px; color:#999; display: flex; flex-direction: column; align-items: center; gap: 10px;"><span class="material-symbols-outlined" style="font-size: 40px; opacity: 0.5;">folder_open</span> La biblioteca de documentos está vacía.</p>';
-      return;
-    }
+  function mostrarListaDocumentosEditables(r) {
+    var c = document.getElementById('lista-documentos-editables');
+    if(r.error) { c.innerHTML = '<p style="color:red;">Error: ' + r.error + '</p>'; return; }
+    if(r.length === 0) { c.innerHTML = '<p style="text-align:center; padding:30px; color:#999;">Carpeta vacía.</p>'; return; }
 
     var html = '<table class="tabla-archivos" style="width: 100%; border-collapse: collapse;">';
     r.forEach(function(doc) {
@@ -158,32 +208,63 @@
           '<strong style="font-size: 14px; color: #333;">' + doc.nombre + '</strong>' +
         '</td>' +
         '<td style="text-align:right; color:#1c4587; font-weight:600; font-size:12px; padding: 15px 10px; white-space: nowrap;">' +
-          '<span style="display: inline-flex; align-items: center; gap: 4px;">PREVISUALIZAR <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span></span>' +
+          '<span style="display: inline-flex; align-items: center; gap: 4px;">PROCESAR <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span></span>' +
         '</td>' +
       '</tr>';
     });
     c.innerHTML = html + '</table>';
   }
 
-  function errorDocumentosInternos(e) {
-    intentosDocumentos++;
-    if (intentosDocumentos < MAX_INTENTOS) {
-      setTimeout(function() { ejecutarLlamadaDocumentosInternos(false); }, 1500);
-    } else {
-      var errorMsg = e ? (e.message || e) : "Error desconocido";
-      document.getElementById('lista-documentos-internos').innerHTML =
-        '<p style="color:#d32f2f; text-align:center; padding:20px; display:flex; justify-content:center; align-items:center; gap:8px;">' +
-          '<span class="material-symbols-outlined">error</span> Error al conectar con Drive: ' + errorMsg +
-        '</p>';
+  // --- LÓGICA DE ARMADOS (NUEVA) ---
+  function ejecutarLlamadaDocumentosArmados(forzar) {
+    if(forzar) {
+      var btn = document.getElementById('btn-recargar-armados');
+      if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
     }
+
+    document.getElementById('lista-documentos-armados').innerHTML =
+      '<p style="text-align:center; padding:20px; color:#666; display: flex; justify-content: center; align-items: center; gap: 8px;">' +
+        '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">hourglass_empty</span> Leyendo PDFs...' +
+      '</p>';
+
+    google.script.run
+      .withSuccessHandler(function(r) { 
+        mostrarListaDocumentosArmados(r);
+        if(forzar) document.getElementById('btn-recargar-armados').innerHTML = '<span class="material-symbols-outlined">sync</span>';
+      })
+      .withFailureHandler(function(e) { 
+        document.getElementById('lista-documentos-armados').innerHTML = '<p style="color:#d32f2f; text-align:center;">Error al cargar. Intente recargar.</p>';
+        if(forzar) document.getElementById('btn-recargar-armados').innerHTML = '<span class="material-symbols-outlined">sync</span>';
+      })
+      .listarDocumentosArmados(forzar === true);
   }
 
-  // ABRIR VISTA PREVIA (Cambio de vista inline)
+  function mostrarListaDocumentosArmados(r) {
+    var c = document.getElementById('lista-documentos-armados');
+    if(r.error) { c.innerHTML = '<p style="color:red;">Error: ' + r.error + '</p>'; return; }
+    if(r.length === 0) { c.innerHTML = '<p style="text-align:center; padding:30px; color:#999;">No hay documentos armados actualmente.</p>'; return; }
+
+    var html = '<table class="tabla-archivos" style="width: 100%; border-collapse: collapse;">';
+    r.forEach(function(doc) {
+      html +=
+      '<tr class="fila-nav" onclick="window.open(\'' + doc.url + '\', \'_blank\')" style="border-bottom: 1px solid #eee; cursor: pointer;">' +
+        '<td style="padding: 15px 10px; display: flex; align-items: center; gap: 8px;">' +
+          '<span class="material-symbols-outlined" style="color: #e53935;">picture_as_pdf</span>' +
+          '<strong style="font-size: 14px; color: #333;">' + doc.nombre + '</strong>' +
+        '</td>' +
+        '<td style="text-align:right; color:#188038; font-weight:600; font-size:12px; padding: 15px 10px; white-space: nowrap;">' +
+          '<span style="display: inline-flex; align-items: center; gap: 4px;">ABRIR <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span></span>' +
+        '</td>' +
+      '</tr>';
+    });
+    c.innerHTML = html + '</table>';
+  }
+
+  // --- VISTA PREVIA Y GENERACIÓN (Solo Editables) ---
   function abrirVistaPreviaDocumento(id, nombre) {
     docActivoParaGenerar = id;
     
-    // Ocultar lista, mostrar previsualización
-    document.getElementById('docs-vista-principal').style.display = 'none';
+    document.getElementById('docs-vista-editables').style.display = 'none';
     document.getElementById('docs-vista-previa').style.display = 'block';
 
     document.getElementById('titulo-preview-doc').innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">visibility</span> Vista Previa: ' + nombre;
@@ -205,32 +286,22 @@
     btnConfirmar.style.backgroundColor = '#1c4587';
   }
 
-  // CERRAR VISTA PREVIA (Volver a la lista)
   function cerrarVistaPreviaDoc() {
     document.getElementById('docs-vista-previa').style.display = 'none';
-    document.getElementById('docs-vista-principal').style.display = 'block';
-    document.getElementById('contenido-preview-doc').innerHTML = ''; // Limpiamos iframe para no gastar memoria
-  }
-  
-  // VOLVER A LA LISTA DESDE PANTALLA DE ÉXITO
-  function volverAListaDesdeExito() {
-    document.getElementById('docs-vista-exito').style.display = 'none';
-    document.getElementById('docs-vista-principal').style.display = 'block';
+    document.getElementById('docs-vista-editables').style.display = 'block';
+    document.getElementById('contenido-preview-doc').innerHTML = ''; 
   }
 
-  // GENERAR
   function generarDocumentoInternoConfirmado() {
     var btn = document.getElementById('btn-confirmar-preview-doc');
     btn.disabled = true;
     btn.style.backgroundColor = '#f29900';
 
     var pasos = [
-      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">layers</span> 1/4 COPIANDO LÁMINA...',
-      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">edit_note</span> 2/4 TRANSFIRIENDO TEXTOS...',
-      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">description</span> 3/4 APLICANDO FORMATOS...',
-      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">save</span> 4/4 GUARDANDO...'
+      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">layers</span> COPIANDO LÁMINA...',
+      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">edit_note</span> TRANSFIRIENDO TEXTOS...',
+      '<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; animation: spin 2s linear infinite;">save</span> GUARDANDO...'
     ];
-
     var pasoActual = 0;
     btn.innerHTML = pasos[pasoActual];
 
@@ -250,32 +321,17 @@
         if(res.error) {
           alert("Error: " + res.error);
           cerrarVistaPreviaDoc();
-          recargarDocumentos();
           return;
         }
-        
-        try {
-          // Asigna el link al boton
-          document.getElementById('link-doc').href = res.url;
-          
-          // Ocultar vista previa y mostrar éxito directamente (Sin usar ir() para evitar conflictos globales)
-          document.getElementById('docs-vista-previa').style.display = 'none';
-          document.getElementById('contenido-preview-doc').innerHTML = ''; 
-          document.getElementById('docs-vista-exito').style.display = 'block';
-          
-          // Actualizamos la lista de fondo por si acaso
-          ejecutarLlamadaDocumentosInternos(false);
-          
-        } catch(e) {
-          console.error(e);
-          alert("El documento fue creado, pero hubo un error en pantalla: " + e.message);
-        }
+        document.getElementById('link-doc').href = res.url;
+        document.getElementById('docs-vista-previa').style.display = 'none';
+        document.getElementById('contenido-preview-doc').innerHTML = ''; 
+        document.getElementById('docs-vista-exito').style.display = 'block';
       })
       .withFailureHandler(function(err) {
         clearInterval(animacionProgreso);
         alert("Fallo de conexión al generar: " + err.message);
         cerrarVistaPreviaDoc();
-        recargarDocumentos();
       })
       .generarDocumentoMembretado(docActivoParaGenerar, usuarioActivoEmail, usuarioActivoNombre);
   }
