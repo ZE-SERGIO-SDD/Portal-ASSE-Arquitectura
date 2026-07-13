@@ -1,9 +1,172 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <base target="_top">
-  </head>
-  <body>
-    
-  </body>
-</html>
+<!-- Estructura del Módulo -->
+<div id="contenedor-actividad-reciente" class="actividad-container">
+  <div class="actividad-header">
+    <div class="actividad-titulo">
+      <span class="icono-reloj">🕒</span> ACTIVIDAD RECIENTE
+    </div>
+    <!-- Botón de recarga -->
+    <button onclick="cargarActividadReciente()" class="btn-recargar" title="Actualizar actividad">
+      🔄
+    </button>
+  </div>
+
+  <div id="lista-actividad" class="actividad-lista">
+    <!-- Mensaje de carga inicial -->
+    <div id="cargando-actividad" class="estado-actividad">
+      Cargando actividad...
+    </div>
+  </div>
+</div>
+
+<!-- Estilos CSS (puedes adaptarlos si usas Bootstrap o Materialize) -->
+<style>
+  .actividad-container {
+    border: 1px solid #dce0e4;
+    border-radius: 8px;
+    padding: 15px 20px;
+    background-color: #ffffff;
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  .actividad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+  .actividad-titulo {
+    color: #2b3990; /* Ajustado al color azul de la imagen */
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-recargar {
+    background: transparent;
+    border: 1px solid #dce0e4;
+    color: #2b3990;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+  }
+  .btn-recargar:hover {
+    background-color: #f4f6f8;
+  }
+  .actividad-lista {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 180px; /* Previene que el cuadro crezca demasiado */
+  }
+  .item-actividad {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e8e8e8;
+  }
+  .item-actividad:last-child {
+    border-bottom: none;
+  }
+  .item-icono {
+    margin-right: 12px;
+    font-size: 20px;
+  }
+  .item-detalles {
+    display: flex;
+    flex-direction: column;
+  }
+  .item-titulo {
+    font-size: 14px;
+    color: #333333;
+    margin: 0 0 2px 0;
+    font-weight: 500;
+  }
+  .item-fecha {
+    font-size: 12px;
+    color: #777777;
+    margin: 0;
+  }
+  .estado-actividad {
+    text-align: center;
+    color: #777777;
+    font-style: italic;
+    padding: 20px 0;
+    font-size: 14px;
+  }
+  .error-actividad {
+    color: #d9534f;
+  }
+</style>
+
+<!-- Lógica JavaScript -->
+<script>
+  /**
+   * Solicita los datos al servidor (.gs) y prepara el contenedor.
+   */
+  function cargarActividadReciente() {
+    var contenedor = document.getElementById('lista-actividad');
+    contenedor.innerHTML = '<div class="estado-actividad">Actualizando...</div>';
+
+    // Llamada asíncrona a Apps Script
+    google.script.run
+      .withSuccessHandler(mostrarActividades)
+      .withFailureHandler(mostrarErrorActividad)
+      .obtenerDatosActividadReciente();
+  }
+
+  /**
+   * Recibe los datos y construye el HTML para cada elemento de la lista.
+   */
+  function mostrarActividades(respuesta) {
+    var contenedor = document.getElementById('lista-actividad');
+    contenedor.innerHTML = ''; // Limpiamos el estado de carga
+
+    // Manejo de errores controlados desde el backend
+    if (respuesta && respuesta.error) {
+      contenedor.innerHTML = '<div class="estado-actividad error-actividad">' + respuesta.error + '</div>';
+      return;
+    }
+
+    // Manejo de estado vacío
+    if (!respuesta || respuesta.length === 0) {
+      contenedor.innerHTML = '<div class="estado-actividad">No se registró actividad reciente.</div>';
+      return;
+    }
+
+    // Renderizado de la lista
+    respuesta.forEach(function(item) {
+      var divItem = document.createElement('div');
+      divItem.className = 'item-actividad';
+
+      var html = '<div class="item-icono">' + item.icono + '</div>' +
+                 '<div class="item-detalles">' +
+                   '<p class="item-titulo">' + item.titulo + '</p>' +
+                   '<p class="item-fecha">' + item.fecha + '</p>' +
+                 '</div>';
+
+      divItem.innerHTML = html;
+      contenedor.appendChild(divItem);
+    });
+  }
+
+  /**
+   * Manejo de fallos en la comunicación con Apps Script.
+   */
+  function mostrarErrorActividad(error) {
+    var contenedor = document.getElementById('lista-actividad');
+    contenedor.innerHTML = '<div class="estado-actividad error-actividad">Ocurrió un error de conexión al cargar la actividad.</div>';
+    console.error("Error en módulo Actividad Reciente: ", error);
+  }
+
+  // Ejecuta la carga automáticamente cuando el HTML de esta sección se inserte en el DOM
+  document.addEventListener("DOMContentLoaded", function() {
+    cargarActividadReciente();
+  });
+</script>
